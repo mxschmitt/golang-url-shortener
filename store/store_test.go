@@ -2,6 +2,7 @@ package store
 
 import (
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -34,7 +35,7 @@ func TestGenerateRandomString(t *testing.T) {
 func TestNewStore(t *testing.T) {
 	t.Run("create store without file name provided", func(r *testing.T) {
 		_, err := New("", 4)
-		if err.Error() != "could not open bolt DB database: open : The system cannot find the file specified." {
+		if !strings.Contains(err.Error(), "could not open bolt DB database") {
 			t.Fatalf("unexpected error: %v", err)
 		}
 	})
