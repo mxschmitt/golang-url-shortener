@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/maxibanki/golang-url-shorter/store"
@@ -259,6 +260,90 @@ func TestCreateEntryForm(t *testing.T) {
 		}
 		if string(body) != store.ErrNoValidURL.Error() {
 			t.Fatalf("received unexpected response: %s", body)
+		}
+	})
+}
+
+func TestHandleInfo(t *testing.T) {
+	cleanup, err := getBackend()
+	if err != nil {
+		t.Fatalf("could not create backend: %v", err)
+	}
+	defer cleanup()
+
+	t.Run("check existing entry", func(t *testing.T) {
+		body, err := json.Marshal(store.Entry{
+			URL: testURL,
+		})
+		if err != nil {
+			t.Fatalf("could not marshal json: %v", err)
+		}
+		resp, err := http.Post(server.URL+"/api/v1/create", "application/json", bytes.NewBuffer(body))
+		var parsed URLUtil
+		err = json.NewDecoder(resp.Body).Decode(&parsed)
+		if err != nil {
+			t.Fatalf("could not unmarshal data: %v", err)
+		}
+		id := strings.Replace(parsed.URL, server.URL+"/", "", 1)
+		body, err = json.Marshal(struct {
+			ID string
+		}{
+			ID: id,
+		})
+		if err != nil {
+			t.Fatalf("could not marshal the body: %v", err)
+		}
+		resp, err = http.Post(server.URL+"/api/v1/info", "appplication/json", bytes.NewBuffer(body))
+		if err != nil {
+			t.Fatalf("could not post to the backend: %v", err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("expected status %d; got %d", http.StatusOK, resp.StatusCode)
+		}
+		var entry store.Entry
+		err = json.NewDecoder(resp.Body).Decode(&entry)
+		if err != nil {
+			t.Fatalf("could not unmarshal data: %v", err)
+		}
+		if entry.URL != testURL {
+			t.Fatalf("url is not the expected one: %s; got: %s", testURL, entry.URL)
+		}
+	})
+	t.Run("invalid body", func(t *testing.T) {
+		resp, err := http.Post(server.URL+"/api/v1/info", "appplication/json", bytes.NewBuffer(nil))
+		if err != nil {
+			t.Fatalf("could not post to the backend: %v", err)
+		}
+		if resp.StatusCode != http.StatusBadRequest {
+			t.Errorf("expected status %d; got %d", http.StatusBadRequest, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		body = bytes.TrimSpace(body)
+		if err != nil {
+			t.Fatalf("could not read the body: %v", err)
+		}
+		if string(body) != "could not decode JSON: EOF" {
+			t.Fatalf("body is not the expected one: %s", body)
+		}
+	})
+	t.Run("no ID provided", func(t *testing.T) {
+		if err != nil {
+			t.Fatalf("could not marshal the body: %v", err)
+		}
+		resp, err := http.Post(server.URL+"/api/v1/info", "appplication/json", bytes.NewBufferString("{}"))
+		if err != nil {
+			t.Fatalf("could not post to the backend: %v", err)
+		}
+		if resp.StatusCode != http.StatusBadRequest {
+			t.Errorf("expected status %d; got %d", http.StatusBadRequest, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		body = bytes.TrimSpace(body)
+		if err != nil {
+			t.Fatalf("could not read the body: %v", err)
+		}
+		if string(body) != "no ID provided" {
+			t.Fatalf("body is not the expected one: %s", body)
 		}
 	})
 }

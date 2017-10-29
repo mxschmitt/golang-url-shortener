@@ -143,13 +143,13 @@ func (h *Handler) handleInfo(w http.ResponseWriter, r *http.Request, p httproute
 	var req struct {
 		ID string
 	}
-	if r.Body == nil {
-		http.Error(w, "invalid request, body is nil", http.StatusBadRequest)
-		return
-	}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("could not decode JSON: %v", err), http.StatusBadRequest)
+		return
+	}
+	if req.ID == "" {
+		http.Error(w, "no ID provided", http.StatusBadRequest)
 		return
 	}
 	raw, err := h.store.GetEntryByIDRaw(req.ID)
