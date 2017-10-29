@@ -21,7 +21,7 @@ type Store struct {
 type Entry struct {
 	URL        string
 	VisitCount int
-	RemoteAddr string
+	RemoteAddr string `json:",omitempty"`
 	CreatedOn  time.Time
 	LastVisit  time.Time
 }

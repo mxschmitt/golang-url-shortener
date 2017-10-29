@@ -2,26 +2,38 @@
 
 ## Features:
 
-- URL Shortening with visiter counting
-- Delete an entry
-- Authorization
-- Storing using BoltDB
-- Easy ShareX integration
-- Selfhosted
+- URL Shortening with visitor counting
+- Deletion URLs
+- Authorization System
+- High Performance database with [bolt](https://github.com/boltdb/bolt)
+- ShareX integration
+- Easy Docker Deployment
 
-## Installation
+## Server Installation
 
 ### Standard
 
 ```bash
+git clone https://github.com/maxibanki/golang-url-shortener
 go get -v ./...
-go run -v main.go
+go build
+./golang-url-shortener
 ```
 ### Docker Compose
 
-Only execute the [docker-compose.yml](docker-compose.yml) and adjust the enviroment variables to your needs.
+- Only execute the [docker-compose.yml](docker-compose.yml) and adjust the enviroment variables to your needs.
 
-## [ShareX](https://github.com/ShareX/ShareX) Configuration
+### Envirment Variables:
+
+| Envirment Variable | Description | Default Value |
+| ------------------ | ----------- | ------------- |
+| SHORTENER_DB_PATH  | Relative or absolute path to the bolt DB | main.db |
+| SHORTENER_LISTEN_ADDR | Adress to which the http server should listen to | :8080 |
+| SHORTENER_ID_LENGTH | Length of the random short URL id | 4 |
+
+## Clients:
+
+### [ShareX](https://github.com/ShareX/ShareX) Configuration
 
 This URL Shortener has fully support with ShareX. To use it, just import the configuration to your ShareX. For that you need to open the `Destination settings` => `Other / Custom uploaders` => `Import` => `From Clipboard`.
 
@@ -41,11 +53,15 @@ After you've done this, you need to set it as your standard URL Shortener. For t
 }
 ```
 
+### Curl
 
+## TODO
 
-## TODOs
-
-- github publishing
-- authentification
-- deletion
-  - ShareX example
+- Authentification
+- Deletion
+- Github publishing
+- Add shields:
+  - downloads
+  - travis
+  - godoc
+  - license

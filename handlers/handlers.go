@@ -152,13 +152,18 @@ func (h *Handler) handleInfo(w http.ResponseWriter, r *http.Request, p httproute
 		http.Error(w, "no ID provided", http.StatusBadRequest)
 		return
 	}
-	raw, err := h.store.GetEntryByIDRaw(req.ID)
+	entry, err := h.store.GetEntryByID(req.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+	entry.RemoteAddr = ""
 	w.Header().Add("Content-Type", "application/json")
-	w.Write(raw)
+	err = json.NewEncoder(w).Encode(entry)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
 }
 
 // handleAccess handles the access for incoming requests
