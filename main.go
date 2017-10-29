@@ -6,22 +6,22 @@ import (
 	"os/signal"
 	"strconv"
 
-	"github.com/maxibanki/golang-url-shorter/handlers"
-	"github.com/maxibanki/golang-url-shorter/store"
+	"github.com/maxibanki/golang-url-shortener/handlers"
+	"github.com/maxibanki/golang-url-shortener/store"
 )
 
 func main() {
 	dbPath := "main.db"
 	listenAddr := ":8080"
 	idLength := uint(4)
-	if os.Getenv("SHORTER_DB_PATH") != "" {
-		dbPath = os.Getenv("SHORTER_DB_PATH")
+	if os.Getenv("SHORTENER_DB_PATH") != "" {
+		dbPath = os.Getenv("SHORTENER_DB_PATH")
 	}
-	if os.Getenv("SHORTER_LISTEN_ADDR") != "" {
-		listenAddr = os.Getenv("SHORTER_LISTEN_ADDR")
+	if os.Getenv("SHORTENER_LISTEN_ADDR") != "" {
+		listenAddr = os.Getenv("SHORTENER_LISTEN_ADDR")
 	}
-	if os.Getenv("SHORTER_ID_LENGTH") != "" {
-		length, err := strconv.ParseUint(os.Getenv("SHORTER_ID_LENGTH"), 10, 32)
+	if os.Getenv("SHORTENER_ID_LENGTH") != "" {
+		length, err := strconv.ParseUint(os.Getenv("SHORTENER_ID_LENGTH"), 10, 32)
 		if err != nil {
 			log.Fatalf("could not convert ID length into an uint: %v", err)
 		}

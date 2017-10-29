@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/maxibanki/golang-url-shorter/store"
+	"github.com/maxibanki/golang-url-shortener/store"
 )
 
 // Handler holds the funcs and attributes for the

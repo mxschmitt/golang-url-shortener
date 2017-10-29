@@ -12,12 +12,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/maxibanki/golang-url-shorter/store"
+	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/pkg/errors"
 )
 
 const (
-	baseURL       = "http://myshorter"
 	testingDBName = "main.db"
 	testURL       = "https://www.google.de/"
 )

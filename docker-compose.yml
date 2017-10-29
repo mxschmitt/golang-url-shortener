@@ -1,4 +1,4 @@
-shorter:
+shortener:
   image: golang
   restart: always
   command: ./run.sh
