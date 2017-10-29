@@ -1,3 +1,4 @@
+// Package store provides support to intergate with the entries easily
 package store
 
 import (
