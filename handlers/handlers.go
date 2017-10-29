@@ -112,6 +112,10 @@ func (h *Handler) handleCreateForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	if r.PostFormValue("URL") == "" {
+		http.Error(w, "URL key does not exist", http.StatusBadRequest)
+		return
+	}
 	id, err := h.store.CreateEntry(r.PostFormValue("URL"), r.RemoteAddr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
