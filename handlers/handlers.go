@@ -155,7 +155,6 @@ func (h *Handler) handleInfo(w http.ResponseWriter, r *http.Request, p httproute
 	raw, err := h.store.GetEntryByIDRaw(req.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
-
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")

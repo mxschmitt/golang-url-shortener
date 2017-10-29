@@ -23,9 +23,6 @@ Only execute the [docker-compose.yml](docker-compose.yml) and adjust the envirom
 
 ## TODOs
 
-- Unit tests
-- code refactoring
-- enviroment or configuration file integration
 - github publishing
 - authentification
 - deletion
