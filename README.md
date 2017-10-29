@@ -1,11 +1,13 @@
-# Golang URL Shortener using BoltDB
+# Golang URL Shortener
 
 [![Build Status](https://travis-ci.org/maxibanki/golang-url-shortener.svg?branch=master)](https://travis-ci.org/maxibanki/golang-url-shortener)
+[![GoDoc](https://godoc.org/github.com/maxibanki/golang-url-shortener?status.svg)](https://godoc.org/github.com/maxibanki/golang-url-shortener)
 [![Go Report Card](https://goreportcard.com/badge/github.com/maxibanki/golang-url-shortener)](https://goreportcard.com/report/github.com/maxibanki/golang-url-shortener)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
-## Features:
+## Main Features:
 
-- URL Shortening with visitor counting
+- URL Shortening
+- Visitor Counting
 - Deletion URLs
 - Authorization System
 - High Performance database with [bolt](https://github.com/boltdb/bolt)
