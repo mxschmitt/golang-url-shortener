@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -27,23 +28,33 @@ func TestCreateEntryJSON(t *testing.T) {
 		ignoreResponse bool
 		contentType    string
 		response       string
-		responseBody   URLUtil
+		requestBody    URLUtil
 		statusCode     int
 	}{
 		{
 			name:           "body is nil",
-			response:       "invalid request, body is nil",
+			response:       "could not decode JSON: EOF",
 			statusCode:     http.StatusBadRequest,
 			contentType:    "appication/json",
 			ignoreResponse: true,
 		},
 		{
 			name: "short URL generation",
-			responseBody: URLUtil{
+			requestBody: URLUtil{
 				URL: "https://www.google.de/",
 			},
 			statusCode:  http.StatusOK,
 			contentType: "appication/json",
+		},
+		{
+			name: "no valid URL",
+			requestBody: URLUtil{
+				URL: "this is really not a URL",
+			},
+			statusCode:     http.StatusBadRequest,
+			contentType:    "appication/json",
+			response:       store.ErrNoValidURL.Error(),
+			ignoreResponse: true,
 		},
 	}
 	cleanup, err := getBackend()
@@ -55,8 +66,8 @@ func TestCreateEntryJSON(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// build body for the create URL http request
 			var reqBody *bytes.Buffer
-			if tc.responseBody.URL != "" {
-				json, err := json.Marshal(tc.responseBody)
+			if tc.requestBody.URL != "" {
+				json, err := json.Marshal(tc.requestBody)
 				if err != nil {
 					t.Fatalf("could not marshal json: %v", err)
 				}
@@ -73,9 +84,6 @@ func TestCreateEntryJSON(t *testing.T) {
 				t.Fatalf("could not read response: %v", err)
 			}
 			body = bytes.TrimSpace(body)
-			if tc.ignoreResponse {
-				return
-			}
 			if resp.StatusCode != tc.statusCode {
 				t.Errorf("expected status %d; got %d", tc.statusCode, resp.StatusCode)
 			}
@@ -84,16 +92,77 @@ func TestCreateEntryJSON(t *testing.T) {
 					t.Fatalf("expected body: %s; got: %s", tc.response, body)
 				}
 			}
+			if tc.ignoreResponse {
+				return
+			}
 			var parsed URLUtil
 			err = json.Unmarshal(body, &parsed)
 			if err != nil {
 				t.Fatalf("could not unmarshal data: %v", err)
 			}
 			t.Run("test if shorted URL is correct", func(t *testing.T) {
-				testRedirect(t, parsed.URL, tc.responseBody.URL)
+				testRedirect(t, parsed.URL, tc.requestBody.URL)
 			})
 		})
 	}
+}
+
+func TestCreateEntryMultipart(t *testing.T) {
+	cleanup, err := getBackend()
+	if err != nil {
+		t.Fatalf("could not create backend: %v", err)
+	}
+	defer cleanup()
+
+	t.Run("valid request", func(t *testing.T) {
+		const testURL = "https://www.google.de/"
+		// Prepare a form that you will submit to that URL.
+		var b bytes.Buffer
+		multipartWriter := multipart.NewWriter(&b)
+		formWriter, err := multipartWriter.CreateFormField("URL")
+		if err != nil {
+			t.Fatalf("could not create form field: %v", err)
+		}
+		formWriter.Write([]byte(testURL))
+		multipartWriter.Close()
+
+		resp, err := http.Post(server.URL+"/api/v1/create", multipartWriter.FormDataContentType(), &b)
+		if err != nil {
+			t.Fatalf("could not post to the backend: %v", err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("expected status %d; got %d", http.StatusOK, resp.StatusCode)
+		}
+		var parsed URLUtil
+		err = json.NewDecoder(resp.Body).Decode(&parsed)
+		if err != nil {
+			t.Fatalf("could not unmarshal data: %v", err)
+		}
+		t.Run("test if shorted URL is correct", func(t *testing.T) {
+			testRedirect(t, parsed.URL, testURL)
+		})
+	})
+
+	t.Run("invalid request", func(t *testing.T) {
+		const testURL = "https://www.google.de/"
+		// Prepare a form that you will submit to that URL.
+		var b bytes.Buffer
+		multipartWriter := multipart.NewWriter(&b)
+		multipartWriter.Close()
+
+		resp, err := http.Post(server.URL+"/api/v1/create", multipartWriter.FormDataContentType(), &b)
+		if err != nil {
+			t.Fatalf("could not post to the backend: %v", err)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		body = bytes.TrimSpace(body)
+		if err != nil {
+			t.Fatalf("could not read the body")
+		}
+		if string(body) != "URL key does not exist" {
+			t.Fatalf("body has not the excepted payload; got: %s", body)
+		}
+	})
 }
 
 func testRedirect(t *testing.T, shortURL, longURL string) {

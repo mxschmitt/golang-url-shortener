@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -60,7 +59,6 @@ func (h *Handler) handleCreate(w http.ResponseWriter, r *http.Request, p httprou
 			h.handleCreateMultipartForm(w, r)
 			return
 		}
-		log.Printf("could not detect Content-Type: %s", contentType)
 	}
 }
 
@@ -87,10 +85,8 @@ func (h *Handler) handleCreateJSON(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleCreateMultipartForm(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(1048576)
 	if err != nil {
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	if _, ok := r.MultipartForm.Value["URL"]; !ok {
 		http.Error(w, "URL key does not exist", http.StatusBadRequest)
