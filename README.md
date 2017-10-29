@@ -18,11 +18,14 @@
 
 ### Standard
 
+Since we don't provide prebuild binaries, you have to build it yourself. For that you need golang and git installed on your system.
+
 ```bash
-git clone https://github.com/maxibanki/golang-url-shortener
-go get -v ./...
-go build
-./golang-url-shortener
+git clone https://github.com/maxibanki/golang-url-shortener # Clone repository
+cd golang-url-shortener # Go into it
+go get -v ./... # Fetch dependencies
+go build # Build executable
+./golang-url-shortener # Run it
 ```
 ### Docker Compose
 
@@ -64,9 +67,6 @@ After you've done this, you need to set it as your standard URL Shortener. For t
 
 - Authentification
 - Deletion
-- Github publishing
-- Add shields:
-  - downloads
-  - travis
-  - godoc
-  - license
+- Add Curl Examples
+- Test docker-compose installation
+- Spell checker
