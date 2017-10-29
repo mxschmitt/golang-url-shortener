@@ -1,0 +1,3 @@
+#!/bin/bash
+go get -v ./...
+go run -v main.go
