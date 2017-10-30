@@ -39,7 +39,6 @@ func (h *Handler) setHandlers() {
 	h.engine.POST("/api/v1/info", h.handleInfo)
 	h.engine.StaticFile("/", "static/index.html")
 	h.engine.GET("/:id", h.handleAccess)
-	gin.SetMode(gin.ReleaseMode)
 }
 
 // handleCreate handles requests to create an entry
@@ -112,11 +111,6 @@ func (h *Handler) Listen() error {
 }
 
 // Stop stops the http server and the closes the db gracefully
-func (h *Handler) Stop() error {
-	// err := h.store.Close()
-	// if err != nil {
-	// 	return err
-	// }
+func (h *Handler) CloseStore() error {
 	return h.store.Close()
-	// return h.server.Shutdown(context.Background())
 }

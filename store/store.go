@@ -15,7 +15,7 @@ import (
 type Store struct {
 	db         *bolt.DB
 	bucketName []byte
-	idLength   uint
+	idLength   int
 }
 
 // Entry is the data set which is stored in the DB as JSON
@@ -40,7 +40,7 @@ var ErrGeneratingTriesFailed = errors.New("could not generate unique id, db full
 var ErrIDIsEmpty = errors.New("id is empty")
 
 // New initializes the store with the db
-func New(dbName string, idLength uint) (*Store, error) {
+func New(dbName string, idLength int) (*Store, error) {
 	db, err := bolt.Open(dbName, 0644, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open bolt DB database")
@@ -181,7 +181,7 @@ func (s *Store) Close() error {
 }
 
 // generateRandomString generates a random string with an predefined length
-func generateRandomString(length uint) string {
+func generateRandomString(length int) string {
 	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	b := make([]rune, length)
 	for i := range b {

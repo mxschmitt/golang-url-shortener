@@ -119,7 +119,7 @@ To use this, POST a JSON with the field `id` to the endpoint. It will return a J
 
 Next changes sorted by priority
 
-- Update http stuff to  integration
+- Update http stuff to the gin framework
 - Authorization
 - Deletion
 - Test docker-compose installation
