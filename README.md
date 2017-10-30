@@ -64,6 +64,28 @@ After you've done this, you need to set it as your standard URL Shortener. For t
 
 ### Curl
 
+### HTTP Endpoints:
+
+#### `/api/v1/create` POST
+
+Create is the handler for creatng entries, you need to provide only an URL. The responsive will always be JSON encoded and contain an URL with the short link.
+
+There is a mechamism integrated, that you can call this endpoint with the following techniques:
+- application/json
+- application/x-www-form-urlencoded
+- multipart/form-data
+
+In all cases only add the long URL as a field with the key `URL` and you will get the response with the short URL.
+
+###  `/api/v1/info` POST
+
+This handler returns the information about an entry. This includes:
+- Created At
+- Last Visit
+- Visit count
+
+To use this, POST a JSON with the field `id` to the endpoint. It will return a JSON with the data.
+
 ## TODO
 
 - Authentification
