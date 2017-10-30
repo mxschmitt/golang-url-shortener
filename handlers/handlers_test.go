@@ -36,7 +36,7 @@ func TestCreateEntryJSON(t *testing.T) {
 			name:           "body is nil",
 			response:       "could not decode JSON: EOF",
 			statusCode:     http.StatusBadRequest,
-			contentType:    "text/plain; charset=utf-8",
+			contentType:    "application/json; charset=utf-8",
 			ignoreResponse: true,
 		},
 		{
@@ -45,7 +45,7 @@ func TestCreateEntryJSON(t *testing.T) {
 				URL: "https://www.google.de/",
 			},
 			statusCode:  http.StatusOK,
-			contentType: "application/json",
+			contentType: "application/json; charset=utf-8",
 		},
 		{
 			name: "no valid URL",
@@ -53,7 +53,7 @@ func TestCreateEntryJSON(t *testing.T) {
 				URL: "this is really not a URL",
 			},
 			statusCode:     http.StatusBadRequest,
-			contentType:    "text/plain; charset=utf-8",
+			contentType:    "application/json; charset=utf-8",
 			response:       store.ErrNoValidURL.Error(),
 			ignoreResponse: true,
 		},
@@ -65,7 +65,6 @@ func TestCreateEntryJSON(t *testing.T) {
 	defer cleanup()
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			// build body for the create URL http request
 			var reqBody []byte
 			if tc.requestBody.URL != "" {
 				json, err := json.Marshal(tc.requestBody)
@@ -386,7 +385,8 @@ func getBackend() (func(), error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create handler")
 	}
-	server = httptest.NewServer(handler.handlers())
+
+	server = httptest.NewServer(handler.engine)
 	return func() {
 		server.Close()
 		handler.Stop()

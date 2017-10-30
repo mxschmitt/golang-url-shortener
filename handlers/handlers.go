@@ -2,12 +2,10 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/julienschmidt/httprouter"
 	"github.com/maxibanki/golang-url-shortener/store"
 )
 
@@ -38,8 +36,10 @@ func New(addr string, store store.Store) *Handler {
 
 func (h *Handler) setHandlers() {
 	h.engine.POST("/api/v1/create", h.handleCreate)
-	// h.engine.POST("/api/v1/info", h.handleInfo)
-	// h.engine.GET("/:id", h.handleAccess)
+	h.engine.POST("/api/v1/info", h.handleInfo)
+	h.engine.StaticFile("/", "static/index.html")
+	h.engine.GET("/:id", h.handleAccess)
+	gin.SetMode(gin.ReleaseMode)
 }
 
 // handleCreate handles requests to create an entry
@@ -53,61 +53,57 @@ func (h *Handler) handleCreate(c *gin.Context) {
 		return
 	}
 
-	id, err := h.store.CreateEntry(data.URL, c.Request.RemoteAddr)
+	id, err := h.store.CreateEntry(data.URL, c.ClientIP())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	data.URL = h.getSchemaAndHost(c) + "/" + id
+	c.JSON(http.StatusOK, data)
+}
+
+func (h *Handler) getSchemaAndHost(c *gin.Context) string {
 	protocol := "http"
 	if c.Request.TLS != nil {
 		protocol = "https"
 	}
-	data.URL = fmt.Sprintf("%s://%s/%s", protocol, c.Request.Host, id)
-	c.JSON(http.StatusOK, data)
+	return fmt.Sprintf("%s://%s", protocol, c.Request.Host)
 }
 
 // handleInfo is the http handler for getting the infos
-func (h *Handler) handleInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var req struct {
-		ID string
+func (h *Handler) handleInfo(c *gin.Context) {
+	var data struct {
+		ID string `binding:"required"`
 	}
-	err := json.NewDecoder(r.Body).Decode(&req)
+	err := c.ShouldBind(&data)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("could not decode JSON: %v", err), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if req.ID == "" {
-		http.Error(w, "no ID provided", http.StatusBadRequest)
-		return
-	}
-	entry, err := h.store.GetEntryByID(req.ID)
+	entry, err := h.store.GetEntryByID(data.ID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 	entry.RemoteAddr = ""
-	w.Header().Add("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(entry)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
+	c.JSON(http.StatusOK, entry)
 }
 
 // handleAccess handles the access for incoming requests
-func (h *Handler) handleAccess(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	id := p.ByName("id")
+func (h *Handler) handleAccess(c *gin.Context) {
+	id := c.Param("id")
 	entry, err := h.store.GetEntryByID(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 	err = h.store.IncreaseVisitCounter(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	http.Redirect(w, r, entry.URL, http.StatusTemporaryRedirect)
+	c.Redirect(http.StatusTemporaryRedirect, entry.URL)
 }
 
 // Listen starts the http server
