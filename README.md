@@ -32,7 +32,7 @@ go build                                                    # Build executable
 
 Only execute the [docker-compose.yml](docker-compose.yml) and adjust the environment variables to your needs.
 
-### Envirment Variables:
+### Environment Variables:
 
 | Environment Variable | Description | Default Value |
 | ------------------ | ----------- | ------------- |
