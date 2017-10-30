@@ -32,17 +32,19 @@ go build                                                    # Build executable
 
 Only execute the [docker-compose.yml](docker-compose.yml) and adjust the environment variables to your needs.
 
-### Environment Variables:
+### Configuration:
 
-| Environment Variable | Description | Default Value |
-| ------------------ | ----------- | ------------- |
-| SHORTENER_DB_PATH  | Relative or absolute path to the bolt DB | main.db |
-| SHORTENER_LISTEN_ADDR | Address to which the http server should listen to | :8080 |
-| SHORTENER_ID_LENGTH | Length of the random short URL id | 4 |
+The configuration is a yaml based file of key value pairs. the default configuration file looks like that:
+
+```yaml
+DBPath: main.db    # Location of the bolt DB database
+ListenAddr: :8080  # RemoteAddr of the http server. (IP:Port)
+ShortedIDLength: 4 # Length of the random generated ID
+```
 
 ## Clients:
 
-### Gemeral
+### General
 
 There is a mechanism integrated, that you can call the `POST` endpoints with the following techniques:
 - application/json
@@ -117,7 +119,7 @@ Next changes sorted by priority
 
 - [x] Fix handler unit tests
 - [x] Switch configuration to Yaml
-- [ ] Add Authorization (oAuth e.g. Google)
+- [ ] Add Authorization (oAuth2 e.g. Google)
 - [ ] Add Deletion functionality (depends on the authorization)
 - [ ] Performance optimization
 - [ ] Add ability to track the visitors (Referrer, maybe also live)

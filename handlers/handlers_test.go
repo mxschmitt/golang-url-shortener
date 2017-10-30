@@ -237,7 +237,6 @@ func testRedirect(t *testing.T, shortURL, longURL string) {
 }
 
 func getBackend() (func(), error) {
-	gin.SetMode(gin.ReleaseMode)
 	store, err := store.New(testingDBName, 4)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
