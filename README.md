@@ -9,42 +9,42 @@
 
 - URL Shortening
 - Visitor Counting
-- Deletion URLs
+- URL deletion 
 - Authorization System
-- High Performance database with [bolt](https://github.com/boltdb/bolt)
-- ShareX integration
+- High performance database with [bolt](https://github.com/boltdb/bolt)
+- [ShareX](https://github.com/ShareX/ShareX) integration
 - Easy Docker Deployment
 
 ## Server Installation
 
 ### Standard
 
-Since we don't provide prebuild binaries, you have to build it yourself. For that you need golang and git installed on your system.
+Since we don't provide prebuild binaries, you have to build it yourself. For that you need Golang and Git installed on your system.
 
 ```bash
 git clone https://github.com/maxibanki/golang-url-shortener # Clone repository
-cd golang-url-shortener # Go into it
-go get -v ./... # Fetch dependencies
-go build # Build executable
-./golang-url-shortener # Run it
+cd golang-url-shortener                                     # Go into it
+go get -v ./...                                             # Fetch dependencies
+go build                                                    # Build executable
+./golang-url-shortener                                      # Run it
 ```
 ### Docker Compose
 
-- Only execute the [docker-compose.yml](docker-compose.yml) and adjust the enviroment variables to your needs.
+Only execute the [docker-compose.yml](docker-compose.yml) and adjust the environment variables to your needs.
 
 ### Envirment Variables:
 
-| Envirment Variable | Description | Default Value |
+| Environment Variable | Description | Default Value |
 | ------------------ | ----------- | ------------- |
 | SHORTENER_DB_PATH  | Relative or absolute path to the bolt DB | main.db |
-| SHORTENER_LISTEN_ADDR | Adress to which the http server should listen to | :8080 |
+| SHORTENER_LISTEN_ADDR | Address to which the http server should listen to | :8080 |
 | SHORTENER_ID_LENGTH | Length of the random short URL id | 4 |
 
 ## Clients:
 
 ### [ShareX](https://github.com/ShareX/ShareX) Configuration
 
-This URL Shortener has fully support with ShareX. To use it, just import the configuration to your ShareX. For that you need to open the `Destination settings` => `Other / Custom uploaders` => `Import` => `From Clipboard`.
+This URL Shortener has fully support with ShareX. To use it, just import the configuration to your ShareX. For that you need to open the `Destination settings` => `Other / Custom uploaders` => `Import` => `From Clipboard` menu.
 
 After you've done this, you need to set it as your standard URL Shortener. For that go back into your main menu => `Destinations` => `URL Shortener` => `Custom URL Shortener`.
 
@@ -68,27 +68,27 @@ After you've done this, you need to set it as your standard URL Shortener. For t
 
 #### `/api/v1/create` POST
 
-Create is the handler for creatng entries, you need to provide only an URL. The responsive will always be JSON encoded and contain an URL with the short link.
+Create is the handler for creating entries, you need to provide only an URL. The response will always be JSON encoded and contain an URL with the short link.
 
-There is a mechamism integrated, that you can call this endpoint with the following techniques:
+There is a mechanism integrated, that you can call this endpoint with the following techniques:
 - application/json
 - application/x-www-form-urlencoded
 - multipart/form-data
 
 In all cases only add the long URL as a field with the key `URL` and you will get the response with the short URL.
 
-###  `/api/v1/info` POST
+####  `/api/v1/info` POST
 
 This handler returns the information about an entry. This includes:
 - Created At
 - Last Visit
-- Visit count
+- Visitor counter
 
 To use this, POST a JSON with the field `id` to the endpoint. It will return a JSON with the data.
 
 ## TODO
 
-- Authentification
+- Authorization
 - Deletion
 - Add Curl Examples
 - Test docker-compose installation
