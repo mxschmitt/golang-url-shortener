@@ -2,6 +2,6 @@ language: go
 go:
   - 1.9.2
 script:
+  - go get code.google.com/p/go.tools/cmd/cover
   - go get github.com/mattn/goveralls
-  - go test -v -covermode=count -coverprofile=coverage.out ./...
-  - goveralls -coverprofile=coverage.out -service travis-ci -repotoken lhWzILT1WMRgrHXsEhauQOGsoby1nm7DR
+  - script/coverage --coveralls
