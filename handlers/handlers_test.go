@@ -36,7 +36,7 @@ func TestCreateEntryJSON(t *testing.T) {
 			name:           "body is nil",
 			response:       "could not decode JSON: EOF",
 			statusCode:     http.StatusBadRequest,
-			contentType:    "appication/json",
+			contentType:    "text/plain; charset=utf-8",
 			ignoreResponse: true,
 		},
 		{
@@ -45,7 +45,7 @@ func TestCreateEntryJSON(t *testing.T) {
 				URL: "https://www.google.de/",
 			},
 			statusCode:  http.StatusOK,
-			contentType: "appication/json",
+			contentType: "application/json",
 		},
 		{
 			name: "no valid URL",
@@ -53,7 +53,7 @@ func TestCreateEntryJSON(t *testing.T) {
 				URL: "this is really not a URL",
 			},
 			statusCode:     http.StatusBadRequest,
-			contentType:    "appication/json",
+			contentType:    "text/plain; charset=utf-8",
 			response:       store.ErrNoValidURL.Error(),
 			ignoreResponse: true,
 		},
@@ -79,6 +79,9 @@ func TestCreateEntryJSON(t *testing.T) {
 			resp, err := http.Post(server.URL+"/api/v1/create", "application/json", reqBody)
 			if err != nil {
 				t.Fatalf("could not create post request: %v", err)
+			}
+			if resp.Header.Get("Content-Type") != tc.contentType {
+				t.Fatalf("content-type is not the expected one: %s; got: %s", tc.contentType, resp.Header.Get("Content-Type"))
 			}
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {

@@ -32,8 +32,10 @@ func New(addr string, store store.Store) *Handler {
 		addr:  addr,
 		store: store,
 	}
-	router := h.handlers()
-	h.server = &http.Server{Addr: h.addr, Handler: router}
+	h.server = &http.Server{
+		Addr:    h.addr,
+		Handler: h.handlers(),
+	}
 	return h
 }
 
@@ -76,6 +78,7 @@ func (h *Handler) handleCreateJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	req.URL = h.generateURL(r, id)
+	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

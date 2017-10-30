@@ -34,7 +34,7 @@ var ErrNoEntryFound = errors.New("no entry found")
 var ErrNoValidURL = errors.New("no valid URL")
 
 // ErrGeneratingTriesFailed is returned when the 10 tries to generate an id failed
-var ErrGeneratingTriesFailed = errors.New("could not generate unique id which doesn't exist in the db")
+var ErrGeneratingTriesFailed = errors.New("could not generate unique id")
 
 // ErrIDIsEmpty is returned when the given ID is empty
 var ErrIDIsEmpty = errors.New("id is empty")
