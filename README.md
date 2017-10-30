@@ -115,10 +115,10 @@ For that you need to send a field `ID` to the backend.
 
 Next changes sorted by priority
 
-- Fix handler unit tests
-- Switch configuration to TOML
-- Add Authorization (oAuth e.g. Google)
-- Add Deletion functionality (depends on the authorization)
-- Add ability to track the visitors (Referrer, maybe also live)
-- Test docker-compose installation
-- Provide image on the docker hub
+- [x] Fix handler unit tests
+- [ ] Switch configuration to TOML
+- [ ] Add Authorization (oAuth e.g. Google)
+- [ ] Add Deletion functionality (depends on the authorization)
+- [ ] Add ability to track the visitors (Referrer, maybe also live)
+- [ ] Test docker-compose installation
+- [ ] Provide image on the docker hub
