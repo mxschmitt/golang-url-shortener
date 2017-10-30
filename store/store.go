@@ -34,7 +34,7 @@ var ErrNoEntryFound = errors.New("no entry found")
 var ErrNoValidURL = errors.New("no valid URL")
 
 // ErrGeneratingTriesFailed is returned when the 10 tries to generate an id failed
-var ErrGeneratingTriesFailed = errors.New("could not generate unique id")
+var ErrGeneratingTriesFailed = errors.New("could not generate unique id, db full?")
 
 // ErrIDIsEmpty is returned when the given ID is empty
 var ErrIDIsEmpty = errors.New("id is empty")
@@ -143,7 +143,6 @@ func (s *Store) checkExistence(id string) bool {
 // createEntry creates a new entry
 func (s *Store) createEntry(URL, remoteAddr string) (string, error) {
 	id := generateRandomString(s.idLength)
-
 	exists := s.checkExistence(id)
 	if !exists {
 		raw, err := json.Marshal(Entry{
@@ -156,7 +155,7 @@ func (s *Store) createEntry(URL, remoteAddr string) (string, error) {
 		}
 		return id, s.createEntryRaw([]byte(id), raw)
 	}
-	return "", ErrGeneratingTriesFailed
+	return "", errors.New("entry already exists")
 }
 
 // createEntryRaw creates a entry with the given key value pair

@@ -117,6 +117,9 @@ To use this, POST a JSON with the field `id` to the endpoint. It will return a J
 
 ## TODO
 
+Next changes sorted by priority
+
+- Gin integration
 - Authorization
 - Deletion
 - Test docker-compose installation

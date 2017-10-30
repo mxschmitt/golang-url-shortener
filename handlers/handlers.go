@@ -2,12 +2,11 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/julienschmidt/httprouter"
 	"github.com/maxibanki/golang-url-shortener/store"
 )
@@ -17,7 +16,7 @@ import (
 type Handler struct {
 	addr   string
 	store  store.Store
-	server *http.Server
+	engine *gin.Engine
 }
 
 // URLUtil is used to help in- and outgoing requests for json
@@ -29,117 +28,42 @@ type URLUtil struct {
 // New initializes the http handlers
 func New(addr string, store store.Store) *Handler {
 	h := &Handler{
-		addr:  addr,
-		store: store,
+		addr:   addr,
+		store:  store,
+		engine: gin.Default(),
 	}
-	h.server = &http.Server{
-		Addr:    h.addr,
-		Handler: h.handlers(),
-	}
+	h.setHandlers()
 	return h
 }
 
-func (h *Handler) handlers() *httprouter.Router {
-	router := httprouter.New()
-	router.POST("/api/v1/create", h.handleCreate)
-	router.POST("/api/v1/info", h.handleInfo)
-	router.GET("/:id", h.handleAccess)
-	return router
+func (h *Handler) setHandlers() {
+	h.engine.POST("/api/v1/create", h.handleCreate)
+	// h.engine.POST("/api/v1/info", h.handleInfo)
+	// h.engine.GET("/:id", h.handleAccess)
 }
 
 // handleCreate handles requests to create an entry
-func (h *Handler) handleCreate(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	contentType := r.Header.Get("Content-Type")
-	switch contentType {
-	case "application/json":
-		h.handleCreateJSON(w, r)
-		break
-	case "application/x-www-form-urlencoded":
-		h.handleCreateForm(w, r)
-		break
-	default:
-		if strings.Contains(contentType, "multipart/form-data;") {
-			h.handleCreateMultipartForm(w, r)
-			return
-		}
+func (h *Handler) handleCreate(c *gin.Context) {
+	var data struct {
+		URL string
 	}
-}
+	err := c.ShouldBind(&data)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-func (h *Handler) handleCreateJSON(w http.ResponseWriter, r *http.Request) {
-	var req URLUtil
-	err := json.NewDecoder(r.Body).Decode(&req)
+	id, err := h.store.CreateEntry(data.URL, c.Request.RemoteAddr)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("could not decode JSON: %v", err), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	id, err := h.store.CreateEntry(req.URL, r.RemoteAddr)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	req.URL = h.generateURL(r, id)
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-}
-
-func (h *Handler) handleCreateMultipartForm(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseMultipartForm(1048576)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	if _, ok := r.MultipartForm.Value["URL"]; !ok {
-		http.Error(w, "URL key does not exist", http.StatusBadRequest)
-		return
-	}
-	id, err := h.store.CreateEntry(r.MultipartForm.Value["URL"][0], r.RemoteAddr)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	var req URLUtil
-	req.URL = h.generateURL(r, id)
-	err = json.NewEncoder(w).Encode(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-}
-
-func (h *Handler) handleCreateForm(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	if r.PostFormValue("URL") == "" {
-		http.Error(w, "URL key does not exist", http.StatusBadRequest)
-		return
-	}
-	id, err := h.store.CreateEntry(r.PostFormValue("URL"), r.RemoteAddr)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	var req URLUtil
-	req.URL = h.generateURL(r, id)
-	err = json.NewEncoder(w).Encode(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-}
-
-func (h *Handler) generateURL(r *http.Request, id string) string {
 	protocol := "http"
-	if r.TLS != nil {
+	if c.Request.TLS != nil {
 		protocol = "https"
 	}
-	return fmt.Sprintf("%s://%s/%s", protocol, r.Host, id)
+	data.URL = fmt.Sprintf("%s://%s/%s", protocol, c.Request.Host, id)
+	c.JSON(http.StatusOK, data)
 }
 
 // handleInfo is the http handler for getting the infos
@@ -188,14 +112,15 @@ func (h *Handler) handleAccess(w http.ResponseWriter, r *http.Request, p httprou
 
 // Listen starts the http server
 func (h *Handler) Listen() error {
-	return h.server.ListenAndServe()
+	return h.engine.Run(h.addr)
 }
 
 // Stop stops the http server and the closes the db gracefully
 func (h *Handler) Stop() error {
-	err := h.store.Close()
-	if err != nil {
-		return err
-	}
-	return h.server.Shutdown(context.Background())
+	// err := h.store.Close()
+	// if err != nil {
+	// 	return err
+	// }
+	return h.store.Close()
+	// return h.server.Shutdown(context.Background())
 }
