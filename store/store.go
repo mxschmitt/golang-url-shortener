@@ -1,4 +1,4 @@
-// Package store provides support to intergate with the entries
+// Package store provides support to interact with the entries
 package store
 
 import (

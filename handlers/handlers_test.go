@@ -66,41 +66,27 @@ func TestCreateEntryJSON(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			// build body for the create URL http request
-			var reqBody *bytes.Buffer
+			var reqBody []byte
 			if tc.requestBody.URL != "" {
 				json, err := json.Marshal(tc.requestBody)
 				if err != nil {
 					t.Fatalf("could not marshal json: %v", err)
 				}
-				reqBody = bytes.NewBuffer(json)
+				reqBody = json
 			} else {
-				reqBody = bytes.NewBuffer(nil)
+				reqBody = nil
 			}
-			resp, err := http.Post(server.URL+"/api/v1/create", "application/json", reqBody)
-			if err != nil {
-				t.Fatalf("could not create post request: %v", err)
-			}
-			if resp.Header.Get("Content-Type") != tc.contentType {
-				t.Fatalf("content-type is not the expected one: %s; got: %s", tc.contentType, resp.Header.Get("Content-Type"))
-			}
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				t.Fatalf("could not read response: %v", err)
-			}
-			body = bytes.TrimSpace(body)
-			if resp.StatusCode != tc.statusCode {
-				t.Errorf("expected status %d; got %d", tc.statusCode, resp.StatusCode)
-			}
+			respBody := createEntryWithJSON(t, reqBody, tc.contentType, tc.statusCode)
 			if tc.response != "" {
-				if string(body) != string(tc.response) {
-					t.Fatalf("expected body: %s; got: %s", tc.response, body)
+				if string(respBody) != string(tc.response) {
+					t.Fatalf("expected body: %s; got: %s", tc.response, respBody)
 				}
 			}
 			if tc.ignoreResponse {
 				return
 			}
 			var parsed URLUtil
-			err = json.Unmarshal(body, &parsed)
+			err = json.Unmarshal(respBody, &parsed)
 			if err != nil {
 				t.Fatalf("could not unmarshal data: %v", err)
 			}
@@ -274,28 +260,27 @@ func TestHandleInfo(t *testing.T) {
 	defer cleanup()
 
 	t.Run("check existing entry", func(t *testing.T) {
-		body, err := json.Marshal(store.Entry{
+		reqBody, err := json.Marshal(store.Entry{
 			URL: testURL,
 		})
 		if err != nil {
 			t.Fatalf("could not marshal json: %v", err)
 		}
-		resp, err := http.Post(server.URL+"/api/v1/create", "application/json", bytes.NewBuffer(body))
+		respBody := createEntryWithJSON(t, reqBody, "application/json", http.StatusOK)
 		var parsed URLUtil
-		err = json.NewDecoder(resp.Body).Decode(&parsed)
+		err = json.Unmarshal(respBody, &parsed)
 		if err != nil {
 			t.Fatalf("could not unmarshal data: %v", err)
 		}
-		id := strings.Replace(parsed.URL, server.URL+"/", "", 1)
-		body, err = json.Marshal(struct {
+		body, err := json.Marshal(struct {
 			ID string
 		}{
-			ID: id,
+			ID: strings.Replace(parsed.URL, server.URL+"/", "", 1),
 		})
 		if err != nil {
 			t.Fatalf("could not marshal the body: %v", err)
 		}
-		resp, err = http.Post(server.URL+"/api/v1/info", "appplication/json", bytes.NewBuffer(body))
+		resp, err := http.Post(server.URL+"/api/v1/info", "appplication/json", bytes.NewBuffer(body))
 		if err != nil {
 			t.Fatalf("could not post to the backend: %v", err)
 		}
@@ -348,6 +333,24 @@ func TestHandleInfo(t *testing.T) {
 			t.Fatalf("body is not the expected one: %s", body)
 		}
 	})
+}
+
+func createEntryWithJSON(t *testing.T, reqBody []byte, contentType string, statusCode int) []byte {
+	resp, err := http.Post(server.URL+"/api/v1/create", "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		t.Fatalf("could not post to backend %v", err)
+	}
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("could not read body: %v", err)
+	}
+	if resp.Header.Get("Content-Type") != contentType {
+		t.Fatalf("content-type is not the expected one: %s; got: %s", contentType, resp.Header.Get("Content-Type"))
+	}
+	if resp.StatusCode != statusCode {
+		t.Errorf("expected status %d; got %d", statusCode, resp.StatusCode)
+	}
+	return bytes.TrimSpace(respBody)
 }
 
 func testRedirect(t *testing.T, shortURL, longURL string) {
