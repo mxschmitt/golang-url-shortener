@@ -13,7 +13,7 @@ const (
 func TestGenerateRandomString(t *testing.T) {
 	tt := []struct {
 		name   string
-		length uint
+		length int
 	}{
 		{"fourtytwo long", 42},
 		{"sixteen long", 16},

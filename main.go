@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 
 	"github.com/maxibanki/golang-url-shortener/handlers"
 	"github.com/maxibanki/golang-url-shortener/store"
@@ -20,7 +21,11 @@ func main() {
 		listenAddr = os.Getenv("SHORTENER_LISTEN_ADDR")
 	}
 	if os.Getenv("SHORTENER_ID_LENGTH") != "" {
-		idLength = int(os.Getenv("SHORTENER_ID_LENGTH"))
+		var err error
+		idLength, err = strconv.Atoi(os.Getenv("SHORTENER_ID_LENGTH"))
+		if err != nil {
+			log.Fatalf("could not parse shortener ID length: %v", err)
+		}
 	}
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)

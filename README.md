@@ -42,6 +42,13 @@ Only execute the [docker-compose.yml](docker-compose.yml) and adjust the environ
 
 ## Clients:
 
+### Gemeral
+
+There is a mechanism integrated, that you can call the `POST` endpoints with the following techniques:
+- application/json
+- application/x-www-form-urlencoded
+- multipart/form-data
+
 ### [ShareX](https://github.com/ShareX/ShareX) Configuration
 
 This URL Shortener has fully support with ShareX. To use it, just import the configuration to your ShareX. For that you need to open the `Destination settings` => `Other / Custom uploaders` => `Import` => `From Clipboard` menu.
@@ -66,11 +73,9 @@ After you've done this, you need to set it as your standard URL Shortener. For t
 
 #### Create
 
-Request:
 ```bash
 curl -X POST -H 'Content-Type: application/json' -d '{"URL":"https://www.google.de/"}' http://127.0.0.1:8080/api/v1/create
 ```
-Response:
 ```json
 {
     "URL": "http://127.0.0.1:8080/dgUV",
@@ -79,11 +84,9 @@ Response:
 
 #### Info
 
-Request:
 ```bash
 $ curl -X POST -H 'Content-Type: application/json' -d '{"ID":"dgUV"}' http://127.0.0.1:8080/api/v1/info
 ```
-Response:
 ```json
 {
     "URL": "https://google.com/",
@@ -97,14 +100,7 @@ Response:
 
 #### `/api/v1/create` POST
 
-Create is the handler for creating entries, you need to provide only an URL. The response will always be JSON encoded and contain an URL with the short link.
-
-There is a mechanism integrated, that you can call this endpoint with the following techniques:
-- application/json
-- application/x-www-form-urlencoded
-- multipart/form-data
-
-In all cases only add the long URL as a field with the key `URL` and you will get the response with the short URL.
+Create is the handler for creating entries, you need to provide only an `URL`. The response will always be JSON encoded and contain an URL with the short link.
 
 ####  `/api/v1/info` POST
 
@@ -113,13 +109,16 @@ This handler returns the information about an entry. This includes:
 - Last Visit
 - Visitor counter
 
-To use this, POST a JSON with the field `id` to the endpoint. It will return a JSON with the data.
+For that you need to send a field `ID` to the backend.
 
 ## TODO
 
 Next changes sorted by priority
 
-- Update http stuff to the gin framework
-- Authorization
-- Deletion
+- Fix handler unit tests
+- Switch configuration to TOML
+- Add Authorization (oAuth e.g. Google)
+- Add Deletion functionality (depends on the authorization)
+- Add ability to track the visitors (Referrer, maybe also live)
 - Test docker-compose installation
+- Provide image on the docker hub

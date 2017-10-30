@@ -45,7 +45,7 @@ func New(dbName string, idLength int) (*Store, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open bolt DB database")
 	}
-	bucketName := []byte("shortUrlBkt")
+	bucketName := []byte("shorted")
 	err = db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists(bucketName)
 		return err
