@@ -64,6 +64,35 @@ After you've done this, you need to set it as your standard URL Shortener. For t
 
 ### Curl
 
+#### Create
+
+Request:
+```bash
+curl -X POST -H 'Content-Type: application/json' -d '{"URL":"https://www.google.de/"}' http://127.0.0.1:8080/api/v1/create
+```
+Response:
+```json
+{
+    "URL": "http://127.0.0.1:8080/dgUV",
+}
+```
+
+#### Info
+
+Request:
+```bash
+$ curl -X POST -H 'Content-Type: application/json' -d '{"ID":"dgUV"}' http://127.0.0.1:8080/api/v1/info
+```
+Response:
+```json
+{
+    "URL": "https://google.com/",
+    "VisitCount": 1,
+    "CreatedOn": "2017-10-29T23:35:48.2977548+01:00",
+    "LastVisit": "2017-10-29T23:36:14.193236+01:00"
+}
+```
+
 ### HTTP Endpoints:
 
 #### `/api/v1/create` POST
@@ -90,6 +119,4 @@ To use this, POST a JSON with the field `id` to the endpoint. It will return a J
 
 - Authorization
 - Deletion
-- Add Curl Examples
 - Test docker-compose installation
-- Spell checker
