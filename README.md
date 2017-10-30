@@ -34,7 +34,7 @@ Only execute the [docker-compose.yml](docker-compose.yml) and adjust the environ
 
 ### Configuration:
 
-The configuration is a yaml based file of key value pairs. the default configuration file looks like that:
+The configuration is a yaml based file of key value pairs. It is located in the installation folder and is called `config.yml`:
 
 ```yaml
 DBPath: main.db    # Location of the bolt DB database
