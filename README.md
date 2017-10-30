@@ -116,9 +116,10 @@ For that you need to send a field `ID` to the backend.
 Next changes sorted by priority
 
 - [x] Fix handler unit tests
-- [ ] Switch configuration to TOML
+- [x] Switch configuration to Yaml
 - [ ] Add Authorization (oAuth e.g. Google)
 - [ ] Add Deletion functionality (depends on the authorization)
+- [ ] Performance optimization
 - [ ] Add ability to track the visitors (Referrer, maybe also live)
 - [ ] Test docker-compose installation
 - [ ] Provide image on the docker hub

@@ -3,6 +3,7 @@ package store
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -120,6 +121,7 @@ func (s *Store) CreateEntry(URL, remoteAddr string) (string, error) {
 	for i := 1; i <= 10; i++ {
 		id, err := s.createEntry(URL, remoteAddr)
 		if err != nil {
+			fmt.Println(err)
 			continue
 		}
 		return id, nil

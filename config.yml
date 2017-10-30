@@ -1,0 +1,3 @@
+DBPath: main.db
+ListenAddr: :8080
+ShortedIDLength: 4
