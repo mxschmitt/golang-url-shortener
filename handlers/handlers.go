@@ -200,7 +200,9 @@ func (h *Handler) handleAccess(c *gin.Context) {
 		id = c.Request.URL.Path[1:]
 	}
 	entry, err := h.store.GetEntryByID(id)
-	if err != nil {
+	if err == store.ErrIDIsEmpty || err == store.ErrNoEntryFound {
+		return // return normal 404 error if such an error occurs
+	} else if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
