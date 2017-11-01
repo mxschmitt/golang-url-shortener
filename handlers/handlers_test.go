@@ -3,7 +3,6 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -92,7 +91,6 @@ func TestCreateEntry(t *testing.T) {
 			if err != nil {
 				t.Fatalf("could not unmarshal data: %v", err)
 			}
-			fmt.Println(parsed.URL)
 			t.Run("test if shorted URL is correct", func(t *testing.T) {
 				testRedirect(t, parsed.URL, tc.requestBody.URL)
 			})
@@ -225,16 +223,16 @@ func testRedirect(t *testing.T, shortURL, longURL string) {
 	if err != nil {
 		t.Fatalf("could not parse shorted URL: %v", err)
 	}
-	respShort, err := client.Do(&http.Request{
+	resp, err := client.Do(&http.Request{
 		URL: u,
 	})
 	if err != nil {
 		t.Fatalf("could not do http request to shorted URL: %v", err)
 	}
-	if respShort.StatusCode != http.StatusTemporaryRedirect {
-		t.Fatalf("expected status code: %d; got: %d", http.StatusTemporaryRedirect, respShort.StatusCode)
+	if resp.StatusCode != http.StatusTemporaryRedirect {
+		t.Fatalf("expected status code: %d; got: %d", http.StatusTemporaryRedirect, resp.StatusCode)
 	}
-	if respShort.Header.Get("Location") != longURL {
+	if resp.Header.Get("Location") != longURL {
 		t.Fatalf("redirect URL is not correct")
 	}
 }

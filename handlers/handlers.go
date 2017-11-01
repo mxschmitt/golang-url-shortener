@@ -195,7 +195,10 @@ func (h *Handler) handleInfo(c *gin.Context) {
 
 // handleAccess handles the access for incoming requests
 func (h *Handler) handleAccess(c *gin.Context) {
-	id := c.Param("id")
+	var id string
+	if len(c.Request.URL.Path) > 1 {
+		id = c.Request.URL.Path[1:]
+	}
 	entry, err := h.store.GetEntryByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
