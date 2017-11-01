@@ -1,3 +1,0 @@
-DBPath: main.db    # Location of the bolt DB database
-ListenAddr: :8080  # RemoteAddr of the http server. (IP:Port)
-ShortedIDLength: 4 # Length of the random generated ID

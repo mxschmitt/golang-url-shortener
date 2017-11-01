@@ -1,16 +1,14 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
 
+	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/maxibanki/golang-url-shortener/handlers"
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/pkg/errors"
-	yaml "gopkg.in/yaml.v2"
 )
 
 func main() {
@@ -26,28 +24,15 @@ func main() {
 }
 
 func initShortener() (func(), error) {
-	var config struct {
-		DBPath          string `yaml:"DBPath"`
-		ListenAddr      string `yaml:"ListenAddr"`
-		ShortedIDLength int    `yaml:"ShortedIDLength"`
-	}
-	ex, err := os.Executable()
+	config, err := config.Get()
 	if err != nil {
-		return nil, errors.Wrap(err, "could not get executable path")
+		return nil, errors.Wrap(err, "could not get config")
 	}
-	file, err := ioutil.ReadFile(filepath.Join(filepath.Dir(ex), "config.yml"))
-	if err != nil {
-		return nil, errors.Wrap(err, "could not read configuration file: %v")
-	}
-	err = yaml.Unmarshal(file, &config)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not unmarshal yaml file")
-	}
-	store, err := store.New(config.DBPath, config.ShortedIDLength)
+	store, err := store.New(config.Store)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
 	}
-	handler := handlers.New(config.ListenAddr, *store)
+	handler := handlers.New(config.Handlers, *store)
 	go func() {
 		err := handler.Listen()
 		if err != nil {

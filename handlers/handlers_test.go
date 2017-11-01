@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -12,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/pkg/errors"
 )
@@ -90,6 +92,7 @@ func TestCreateEntry(t *testing.T) {
 			if err != nil {
 				t.Fatalf("could not unmarshal data: %v", err)
 			}
+			fmt.Println(parsed.URL)
 			t.Run("test if shorted URL is correct", func(t *testing.T) {
 				testRedirect(t, parsed.URL, tc.requestBody.URL)
 			})
@@ -237,11 +240,16 @@ func testRedirect(t *testing.T, shortURL, longURL string) {
 }
 
 func getBackend() (func(), error) {
-	store, err := store.New(testingDBName, 4)
+	store, err := store.New(config.Store{
+		DBPath:          testingDBName,
+		ShortedIDLength: 4,
+	})
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
 	}
-	handler := New(":8080", *store)
+	handler := New(config.Handlers{
+		ListenAddr: ":8080",
+	}, *store)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create handler")
 	}

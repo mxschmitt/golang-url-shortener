@@ -1,0 +1,18 @@
+<html>
+
+<body>
+    <div id="App"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react-with-addons.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react-dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.7.7/babel.min.js"></script>
+    <script>
+        fetch("./index.js").then(function (response) {
+            response.text().then(function (js) {
+                eval(Babel.transform(js, { presets: ['es2015', 'react'] }).code);
+            });
+        });
+    </script>
+</body>
+
+</html>

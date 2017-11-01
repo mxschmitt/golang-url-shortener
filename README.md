@@ -1,4 +1,4 @@
-# Golang URL Shortener
+# Golang URL Shortener (Work in Progress)
 
 [![Build Status](https://travis-ci.org/maxibanki/golang-url-shortener.svg?branch=master)](https://travis-ci.org/maxibanki/golang-url-shortener)
 [![GoDoc](https://godoc.org/github.com/maxibanki/golang-url-shortener?status.svg)](https://godoc.org/github.com/maxibanki/golang-url-shortener)
@@ -36,10 +36,20 @@ Only execute the [docker-compose.yml](docker-compose.yml) and adjust the environ
 
 The configuration is a yaml based file of key value pairs. It is located in the installation folder and is called `config.yml`:
 
-```yaml
-DBPath: main.db    # Location of the bolt DB database
-ListenAddr: :8080  # RemoteAddr of the http server. (IP:Port)
-ShortedIDLength: 4 # Length of the random generated ID
+```json
+{
+    "General": {
+        "DBPath": "main.db", // Location of the bolt DB database
+        "ListenAddr": ":8080", // Listen address of the http server (IP:Port)
+        "ShortedIDLength": 4 // Length of the random generated ID
+    },
+    "OAuth": {
+        "Google": {
+          "ClientID": "", // Google client ID
+          "ClientSecret": "" // Google client secret
+        }
+    }
+}
 ```
 
 ## Clients:
@@ -113,6 +123,10 @@ This handler returns the information about an entry. This includes:
 
 For that you need to send a field `ID` to the backend.
 
+## Why did you built this?
+
+Just only because I want to extend my current self hosted URL shorter and learn about new techniques like Go unit testing and react.
+
 ## TODO
 
 Next changes sorted by priority
@@ -121,6 +135,7 @@ Next changes sorted by priority
 - [x] Switch configuration to Yaml
 - [ ] Add Authorization (oAuth2 e.g. Google)
 - [ ] Add Deletion functionality (depends on the authorization)
+- [ ] Refactore Unit Tests
 - [ ] Performance optimization
 - [ ] Add ability to track the visitors (Referrer, maybe also live)
 - [ ] Test docker-compose installation

@@ -3,12 +3,12 @@ package store
 
 import (
 	"encoding/json"
-	"fmt"
 	"math/rand"
 	"time"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/boltdb/bolt"
+	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/pkg/errors"
 )
 
@@ -41,8 +41,8 @@ var ErrGeneratingTriesFailed = errors.New("could not generate unique id, db full
 var ErrIDIsEmpty = errors.New("id is empty")
 
 // New initializes the store with the db
-func New(dbName string, idLength int) (*Store, error) {
-	db, err := bolt.Open(dbName, 0644, &bolt.Options{Timeout: 1 * time.Second})
+func New(storeConfig config.Store) (*Store, error) {
+	db, err := bolt.Open(storeConfig.DBPath, 0644, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open bolt DB database")
 	}
@@ -56,7 +56,7 @@ func New(dbName string, idLength int) (*Store, error) {
 	}
 	return &Store{
 		db:         db,
-		idLength:   idLength,
+		idLength:   storeConfig.ShortedIDLength,
 		bucketName: bucketName,
 	}, nil
 }
@@ -121,7 +121,6 @@ func (s *Store) CreateEntry(URL, remoteAddr string) (string, error) {
 	for i := 1; i <= 10; i++ {
 		id, err := s.createEntry(URL, remoteAddr)
 		if err != nil {
-			fmt.Println(err)
 			continue
 		}
 		return id, nil

@@ -4,11 +4,18 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/maxibanki/golang-url-shortener/config"
 )
 
 const (
 	testingDBName = "test.db"
 )
+
+var validConfig = config.Store{
+	DBPath:          testingDBName,
+	ShortedIDLength: 4,
+}
 
 func TestGenerateRandomString(t *testing.T) {
 	tt := []struct {
@@ -34,13 +41,13 @@ func TestGenerateRandomString(t *testing.T) {
 
 func TestNewStore(t *testing.T) {
 	t.Run("create store without file name provided", func(r *testing.T) {
-		_, err := New("", 4)
+		_, err := New(config.Store{})
 		if !strings.Contains(err.Error(), "could not open bolt DB database") {
 			t.Fatalf("unexpected error: %v", err)
 		}
 	})
 	t.Run("create store with correct arguments", func(r *testing.T) {
-		store, err := New(testingDBName, 4)
+		store, err := New(validConfig)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -49,7 +56,10 @@ func TestNewStore(t *testing.T) {
 }
 
 func TestCreateEntry(t *testing.T) {
-	store, err := New(testingDBName, 1)
+	store, err := New(config.Store{
+		DBPath:          testingDBName,
+		ShortedIDLength: 1,
+	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -67,7 +77,7 @@ func TestCreateEntry(t *testing.T) {
 }
 
 func TestGetEntryByID(t *testing.T) {
-	store, err := New(testingDBName, 1)
+	store, err := New(validConfig)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -83,7 +93,7 @@ func TestGetEntryByID(t *testing.T) {
 }
 
 func TestIncreaseVisitCounter(t *testing.T) {
-	store, err := New(testingDBName, 4)
+	store, err := New(validConfig)
 	if err != nil {
 		t.Fatalf("could not create store: %v", err)
 	}
