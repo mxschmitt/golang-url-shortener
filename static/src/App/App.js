@@ -22,12 +22,16 @@ class ContainerExampleContainer extends Component {
   }
 
   onOAuthClose = () => {
-    this.setState({ open: false })
+    this.setState({ open: true })
   }
 
   onAuthClick = () => {
     console.log("onAuthClick")
-    window.open("/api/v1/login", "", "width=600,height=400")
+    var wwidth = 400,
+      wHeight = 500;
+    var wLeft = (window.screen.width / 2) - (wwidth / 2);
+    var wTop = (window.screen.height / 2) - (wHeight / 2);
+    window.open("/api/v1/login", "", `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
   }
 
   render() {
@@ -49,10 +53,10 @@ class ContainerExampleContainer extends Component {
       return (
         <Modal size="tiny" open={open} onClose={this.onOAuthClose}>
           <Modal.Header>
-            OAuth2 Authentication
+            Authentication
           </Modal.Header>
           <Modal.Content>
-            <p>Currently you are only able to use Google as authentification service:</p>
+            <p>Currently you are only able to use Google as authentication service:</p>
             <div className="ui center aligned segment">
               <Button className="ui google plus button" onClick={this.onAuthClick}>
                 <i className="google icon"></i>

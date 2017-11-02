@@ -138,5 +138,6 @@ Next changes sorted by priority
 - [ ] Refactore Unit Tests
 - [ ] Performance optimization
 - [ ] Add ability to track the visitors (Referrer, maybe also live)
+- [ ] Create Makefile for building everything
 - [ ] Test docker-compose installation
 - [ ] Provide image on the docker hub

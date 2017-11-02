@@ -29,7 +29,7 @@ type Handler struct {
 // URLUtil is used to help in- and outgoing requests for json
 // un- and marshalling
 type URLUtil struct {
-	URL string
+	URL string `binding:"required"`
 }
 
 type oAuthUser struct {
@@ -97,7 +97,6 @@ func (h *Handler) randToken() string {
 }
 
 func (h *Handler) handleGoogleAuth(c *gin.Context) {
-	// Handle the exchange code to initiate a transport.
 	session := sessions.Default(c)
 	retrievedState := session.Get("state")
 	if retrievedState != c.Query("state") {
@@ -141,15 +140,13 @@ func (h *Handler) handleGoogleLogin(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, h.oAuthConf.AuthCodeURL(state))
 }
 
-func (h *Handler) handleGoogleCallback(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"Hello": "from private", "user": ctx.MustGet("user").(oAuthUser)})
+func (h *Handler) handleGoogleCallback(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"Hello": "from private", "user": c.MustGet("user").(oAuthUser)})
 }
 
 // handleCreate handles requests to create an entry
 func (h *Handler) handleCreate(c *gin.Context) {
-	var data struct {
-		URL string
-	}
+	var data URLUtil
 	err := c.ShouldBind(&data)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
