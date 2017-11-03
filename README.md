@@ -1,3 +1,4 @@
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/maxibanki/golang-url-shortener.png?columns=all)](https://waffle.io/maxibanki/golang-url-shortener?utm_source=badge)
 # Golang URL Shortener (Work in Progress)
 
 [![Build Status](https://travis-ci.org/maxibanki/golang-url-shortener.svg?branch=master)](https://travis-ci.org/maxibanki/golang-url-shortener)
