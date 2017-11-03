@@ -54,8 +54,7 @@ func Preload() error {
 	if err != nil {
 		return errors.Wrap(err, "could not get configuration path")
 	}
-	err = updateConfig()
-	if err != nil {
+	if err = updateConfig(); err != nil {
 		return errors.Wrap(err, "could not update config")
 	}
 	return nil
@@ -66,8 +65,7 @@ func updateConfig() error {
 	if err != nil {
 		return errors.Wrap(err, "could not read configuration file")
 	}
-	err = json.Unmarshal(file, &config)
-	if err != nil {
+	if err = json.Unmarshal(file, &config); err != nil {
 		return errors.Wrap(err, "could not unmarshal configuration file")
 	}
 	return nil
@@ -87,8 +85,7 @@ func Set(conf *Configuration) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(configPath, data, 0644)
-	if err != nil {
+	if err = ioutil.WriteFile(configPath, data, 0644); err != nil {
 		return err
 	}
 	config = conf

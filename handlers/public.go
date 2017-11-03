@@ -18,8 +18,7 @@ func (h *Handler) handleInfo(c *gin.Context) {
 	var data struct {
 		ID string `binding:"required"`
 	}
-	err := c.ShouldBind(&data)
-	if err != nil {
+	if err := c.ShouldBind(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -45,8 +44,7 @@ func (h *Handler) handleAccess(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	err = h.store.IncreaseVisitCounter(id)
-	if err != nil {
+	if h.store.IncreaseVisitCounter(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -67,7 +65,6 @@ func (h *Handler) handleCreate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	data.URL = h.getSchemaAndHost(c) + "/" + id
 	c.JSON(http.StatusOK, data)
 }
