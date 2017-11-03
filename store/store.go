@@ -70,8 +70,7 @@ func (s *Store) GetEntryByID(id string) (*Entry, error) {
 		return nil, err
 	}
 	var entry *Entry
-	err = json.Unmarshal(raw, &entry)
-	return entry, err
+	return entry, json.Unmarshal(raw, &entry)
 }
 
 // IncreaseVisitCounter increments the visit counter of an entry
@@ -88,8 +87,7 @@ func (s *Store) IncreaseVisitCounter(id string) error {
 	}
 	err = s.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(s.bucketName)
-		err := bucket.Put([]byte(id), raw)
-		if err != nil {
+		if err := bucket.Put([]byte(id), raw); err != nil {
 			return errors.Wrap(err, "could not put data into bucket")
 		}
 		return nil

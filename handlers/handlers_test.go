@@ -87,8 +87,7 @@ func TestCreateEntry(t *testing.T) {
 				return
 			}
 			var parsed URLUtil
-			err = json.Unmarshal(respBody, &parsed)
-			if err != nil {
+			if err = json.Unmarshal(respBody, &parsed); err != nil {
 				t.Fatalf("could not unmarshal data: %v", err)
 			}
 			t.Run("test if shorted URL is correct", func(t *testing.T) {
@@ -114,8 +113,7 @@ func TestHandleInfo(t *testing.T) {
 		}
 		respBody := createEntryWithJSON(t, reqBody, "application/json; charset=utf-8", http.StatusOK)
 		var parsed URLUtil
-		err = json.Unmarshal(respBody, &parsed)
-		if err != nil {
+		if err = json.Unmarshal(respBody, &parsed); err != nil {
 			t.Fatalf("could not unmarshal data: %v", err)
 		}
 		body, err := json.Marshal(struct {
@@ -134,8 +132,7 @@ func TestHandleInfo(t *testing.T) {
 			t.Errorf("expected status %d; got %d", http.StatusOK, resp.StatusCode)
 		}
 		var entry store.Entry
-		err = json.NewDecoder(resp.Body).Decode(&entry)
-		if err != nil {
+		if err = json.NewDecoder(resp.Body).Decode(&entry); err != nil {
 			t.Fatalf("could not unmarshal data: %v", err)
 		}
 		if entry.URL != testURL {

@@ -24,8 +24,7 @@ func main() {
 }
 
 func initShortener() (func(), error) {
-	err := config.Preload()
-	if err != nil {
+	if err := config.Preload(); err != nil {
 		return nil, errors.Wrap(err, "could not get config")
 	}
 	conf := config.Get()
@@ -38,14 +37,12 @@ func initShortener() (func(), error) {
 		return nil, errors.Wrap(err, "could not create handlers")
 	}
 	go func() {
-		err := handler.Listen()
-		if err != nil {
+		if err := handler.Listen(); err != nil {
 			log.Fatalf("could not listen to http handlers: %v", err)
 		}
 	}()
 	return func() {
-		err = handler.CloseStore()
-		if err != nil {
+		if err = handler.CloseStore(); err != nil {
 			log.Printf("failed to stop the handlers: %v", err)
 		}
 	}, nil

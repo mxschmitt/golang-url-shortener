@@ -30,8 +30,7 @@ func (s *Store) createEntryRaw(key, value []byte) error {
 		if raw != nil {
 			return errors.New("entry value is not empty")
 		}
-		err := bucket.Put(key, value)
-		if err != nil {
+		if err := bucket.Put(key, value); err != nil {
 			return errors.Wrap(err, "could not put data into bucket")
 		}
 		return nil

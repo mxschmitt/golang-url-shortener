@@ -54,8 +54,7 @@ func (h *Handler) handleAccess(c *gin.Context) {
 // handleCreate handles requests to create an entry
 func (h *Handler) handleCreate(c *gin.Context) {
 	var data URLUtil
-	err := c.ShouldBind(&data)
-	if err != nil {
+	if err := c.ShouldBind(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

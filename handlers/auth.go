@@ -127,7 +127,6 @@ func (h *Handler) handleGoogleCallback(c *gin.Context) {
 		user.Email,
 	})
 
-	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString(h.config.Secret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("could not sign token: %v", err)})
