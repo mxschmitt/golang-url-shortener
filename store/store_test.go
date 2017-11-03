@@ -106,8 +106,7 @@ func TestIncreaseVisitCounter(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not get entry by id: %v", err)
 	}
-	err = store.IncreaseVisitCounter(id)
-	if err != nil {
+	if err = store.IncreaseVisitCounter(id); err != nil {
 		t.Fatalf("could not increase visit counter %v", err)
 	}
 	entryAfterInc, err := store.GetEntryByID(id)
@@ -117,8 +116,7 @@ func TestIncreaseVisitCounter(t *testing.T) {
 	if entryBeforeInc.VisitCount+1 != entryAfterInc.VisitCount {
 		t.Fatalf("the increasement was not successful, the visit count is not correct")
 	}
-	err = store.IncreaseVisitCounter("")
-	if err != ErrIDIsEmpty {
+	if err = store.IncreaseVisitCounter(""); err != ErrIDIsEmpty {
 		t.Fatalf("could not get expected '%v' error: %v", ErrIDIsEmpty, err)
 	}
 }
