@@ -128,23 +128,3 @@ For that you need to send a field `ID` to the backend.
 ## Why did you built this?
 
 Just only because I want to extend my current self hosted URL shorter and learn about new techniques like Go unit testing and react.
-
-## TODO
-
-Next changes sorted by priority
-
-- [x] Fix handler unit tests
-- [x] Switch configuration to Yaml
-- [ ] Add Authorization (oAuth2 e.g. Google)
-- [ ] Add Deletion functionality (depends on the authorization)
-- [ ] Refactore Unit Tests
-- [ ] Performance optimization
-- [ ] Update configuration
-- [ ] Increase code coverage
-- [ ] Add ability to track the visitors (Referrer, maybe also live)
-- [ ] Create Makefile for building everything
-- [ ] Test docker-compose installation
-- [ ] Provide image on the docker hub
-
-
-https://console.cloud.google.com/
