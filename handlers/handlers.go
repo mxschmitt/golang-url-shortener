@@ -28,8 +28,7 @@ func New(handlerConfig config.Handlers, store store.Store) (*Handler, error) {
 		engine: gin.Default(),
 	}
 	h.setHandlers()
-	err := h.checkIfSecretExist()
-	if err != nil {
+	if err := h.checkIfSecretExist(); err != nil {
 		return nil, errors.Wrap(err, "could not check if secret exist")
 	}
 	h.initOAuth()
@@ -40,13 +39,11 @@ func (h *Handler) checkIfSecretExist() error {
 	conf := config.Get()
 	if conf.Handlers.Secret == nil {
 		b := make([]byte, 128)
-		_, err := rand.Read(b)
-		if err != nil {
+		if _, err := rand.Read(b); err != nil {
 			return err
 		}
 		conf.Handlers.Secret = b
-		err = config.Set(conf)
-		if err != nil {
+		if err := config.Set(conf); err != nil {
 			return err
 		}
 	}
