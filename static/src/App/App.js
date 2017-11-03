@@ -25,13 +25,19 @@ class ContainerExampleContainer extends Component {
     this.setState({ open: true })
   }
 
+  onAuthCallback = data => {
+    window.removeEventListener('onAuthCallback', this.onAuthCallback);
+    var token = data.detail.token;
+  }
+
   onAuthClick = () => {
     console.log("onAuthClick")
+    window.addEventListener('onAuthCallback', this.onAuthCallback, false);
     var wwidth = 400,
       wHeight = 500;
     var wLeft = (window.screen.width / 2) - (wwidth / 2);
     var wTop = (window.screen.height / 2) - (wHeight / 2);
-    window.open("/api/v1/login", "", `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
+    window.open("/api/v1/login", "", `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}, menubar=0, toolbar=0`)
   }
 
   render() {

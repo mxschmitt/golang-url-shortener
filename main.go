@@ -24,15 +24,19 @@ func main() {
 }
 
 func initShortener() (func(), error) {
-	config, err := config.Get()
+	err := config.Preload()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get config")
 	}
-	store, err := store.New(config.Store)
+	conf := config.Get()
+	store, err := store.New(conf.Store)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
 	}
-	handler := handlers.New(config.Handlers, *store)
+	handler, err := handlers.New(conf.Handlers, *store)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not create handlers")
+	}
 	go func() {
 		err := handler.Listen()
 		if err != nil {
