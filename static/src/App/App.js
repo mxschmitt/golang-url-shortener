@@ -28,6 +28,17 @@ class ContainerExampleContainer extends Component {
   onAuthCallback = data => {
     window.removeEventListener('onAuthCallback', this.onAuthCallback);
     var token = data.detail.token;
+    fetch("/api/v1/check", {
+      method: "POST",
+      body: JSON.stringify({
+        Token: token
+      }),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.text())
+      .then(d => console.log(d))
   }
 
   onAuthClick = () => {
@@ -37,7 +48,7 @@ class ContainerExampleContainer extends Component {
       wHeight = 500;
     var wLeft = (window.screen.width / 2) - (wwidth / 2);
     var wTop = (window.screen.height / 2) - (wHeight / 2);
-    window.open("/api/v1/login", "", `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}, menubar=0, toolbar=0`)
+    window.open("/api/v1/login", "", `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
   }
 
   render() {

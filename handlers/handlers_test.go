@@ -245,8 +245,10 @@ func getBackend() (func(), error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
 	}
-	handler := New(config.Handlers{
+	handler, err := New(config.Handlers{
 		ListenAddr: ":8080",
+		Secret:     []byte(""),
+		BaseURL:    "http://127.0.0.1",
 	}, *store)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create handler")

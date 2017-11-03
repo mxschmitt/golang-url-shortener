@@ -68,20 +68,13 @@ func (h *Handler) handleGoogleCheck(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// to the callback, providing flexibility.
-	token, err := jwt.Parse(data.Token, func(token *jwt.Token) (interface{}, error) {
-		// Don't forget to validate the alg is what you expect:
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-
+	token, err := jwt.ParseWithClaims(data.Token, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return h.config.Secret, nil
 	})
-	if claims, ok := token.Claims.(jwtClaims); ok && token.Valid {
-		fmt.Println(claims.OAuthID, claims.OAuthProvider)
+	if claims, ok := token.Claims.(*jwtClaims); ok && token.Valid {
 		c.JSON(http.StatusOK, claims)
 	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 }
 
@@ -89,7 +82,7 @@ func (h *Handler) handleGoogleCallback(c *gin.Context) {
 	session := sessions.Default(c)
 	retrievedState := session.Get("state")
 	if retrievedState != c.Query("state") {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("Invalid session state: %s", retrievedState)})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("Invalid session state: %s", retrievedState)})
 		return
 	}
 

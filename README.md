@@ -39,14 +39,14 @@ The configuration is a yaml based file of key value pairs. It is located in the 
 ```json
 {
     "General": {
-        "DBPath": "main.db", // Location of the bolt DB database
-        "ListenAddr": ":8080", // Listen address of the http server (IP:Port)
-        "ShortedIDLength": 4 // Length of the random generated ID
+        "DBPath": "main.db",
+        "ListenAddr": ":8080",
+        "ShortedIDLength": 4
     },
     "OAuth": {
         "Google": {
-          "ClientID": "", // Google client ID
-          "ClientSecret": "" // Google client secret
+          "ClientID": "",
+          "ClientSecret": ""
         }
     }
 }
@@ -137,6 +137,8 @@ Next changes sorted by priority
 - [ ] Add Deletion functionality (depends on the authorization)
 - [ ] Refactore Unit Tests
 - [ ] Performance optimization
+- [ ] Update configuration
+- [ ] Increase code coverage
 - [ ] Add ability to track the visitors (Referrer, maybe also live)
 - [ ] Create Makefile for building everything
 - [ ] Test docker-compose installation
