@@ -54,8 +54,10 @@ func (h *Handler) setHandlers() {
 	if !h.config.EnableGinDebugMode {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	h.engine.POST("/api/v1/create", h.handleCreate)
-	h.engine.POST("/api/v1/info", h.handleInfo)
+	protected := h.engine.Group("/api/v1/protected")
+	protected.Use(h.authMiddleware)
+	protected.POST("/create", h.handleCreate)
+	protected.POST("/info", h.handleInfo)
 	// h.engine.Static("/static", "static/src")
 	h.engine.NoRoute(h.handleAccess)
 	h.engine.LoadHTMLGlob("templates/*")

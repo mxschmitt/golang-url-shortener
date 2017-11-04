@@ -60,6 +60,32 @@ func (h *Handler) handleGoogleRedirect(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, h.oAuthConf.AuthCodeURL(state))
 }
 
+func (h *Handler) authMiddleware(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"error": "'authorization' header not set",
+		})
+		return
+	}
+	token, err := jwt.ParseWithClaims(authHeader, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return h.config.Secret, nil
+	})
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"error": fmt.Sprintf("could not parse token: %v", err),
+		})
+		return
+	}
+	if !token.Valid {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"error": "token is not valid",
+		})
+		return
+	}
+	c.Next()
+}
+
 func (h *Handler) handleGoogleCheck(c *gin.Context) {
 	var data struct {
 		Token string `binding:"required"`

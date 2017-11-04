@@ -6,6 +6,17 @@ class AppComponent extends Component {
   handleURLChange = (e, { value }) => this.url = value
   handleURLSubmit = () => {
     console.log("handle Submit", "URL:", this.url)
+    fetch("/api/v1/protected/create", {
+      method: "POST",
+      body: JSON.stringify({
+        URL: this.url
+      }),
+      headers: {
+        "Authorization": window.localStorage.getItem("token"),
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.ok ? res.json() : Promise.reject(res.json()))
+      .then(d => console.log(d))
   }
 
   componentWillMount() {
