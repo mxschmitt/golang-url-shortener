@@ -5,18 +5,17 @@ import './App.css';
 class AppComponent extends Component {
   handleURLChange = (e, { value }) => this.url = value
   handleURLSubmit = () => {
-    console.log("handle Submit", "URL:", this.url)
-    fetch("/api/v1/protected/create", {
-      method: "POST",
+    fetch('/api/v1/protected/create', {
+      method: 'POST',
       body: JSON.stringify({
         URL: this.url
       }),
       headers: {
-        "Authorization": window.localStorage.getItem("token"),
+        'Authorization': window.localStorage.getItem('token'),
         'Content-Type': 'application/json'
       }
     }).then(res => res.ok ? res.json() : Promise.reject(res.json()))
-      .then(d => console.log(d))
+      .then(r => alert(r.URL))
   }
 
   componentWillMount() {
@@ -34,10 +33,10 @@ class AppComponent extends Component {
   }
   checkAuth = () => {
     const that = this,
-      token = window.localStorage.getItem("token");
+      token = window.localStorage.getItem('token');
     if (token) {
-      fetch("/api/v1/check", {
-        method: "POST",
+      fetch('/api/v1/check', {
+        method: 'POST',
         body: JSON.stringify({
           Token: token
         }),
@@ -50,7 +49,7 @@ class AppComponent extends Component {
           that.setState({ authorized: true })
         })
         .catch(e => {
-          window.localStorage.removeItem("token");
+          window.localStorage.removeItem('token');
           that.setState({ authorized: false })
         })
     }
@@ -58,7 +57,7 @@ class AppComponent extends Component {
   onAuthCallback = data => {
     // clear the old event listener, so that the event can only emitted be once
     window.removeEventListener('onAuthCallback', this.onAuthCallback);
-    window.localStorage.setItem("token", data.detail.token);
+    window.localStorage.setItem('token', data.detail.token);
     this.checkAuth();
   }
   onAuthClick = () => {
@@ -68,7 +67,7 @@ class AppComponent extends Component {
       wHeight = 500;
     var wLeft = (window.screen.width / 2) - (wwidth / 2);
     var wTop = (window.screen.height / 2) - (wHeight / 2);
-    window.open("/api/v1/login", "", `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
+    window.open('/api/v1/login', '', `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
   }
 
   render() {
@@ -88,15 +87,15 @@ class AppComponent extends Component {
       )
     } else {
       return (
-        <Modal size="tiny" open={open} onClose={this.onOAuthClose}>
+        <Modal size='tiny' open={open} onClose={this.onOAuthClose}>
           <Modal.Header>
             Authentication
           </Modal.Header>
           <Modal.Content>
             <p>Currently you are only able to use Google as authentication service:</p>
-            <div className="ui center aligned segment">
-              <Button className="ui google plus button" onClick={this.onAuthClick}>
-                <i className="google icon"></i>
+            <div className='ui center aligned segment'>
+              <Button className='ui google plus button' onClick={this.onAuthClick}>
+                <i className='google icon'></i>
                 Login with Google
             </Button>
             </div>
