@@ -15,7 +15,7 @@ import (
 type Store struct {
 	db         *bolt.DB
 	bucketName []byte
-	idLength   int
+	idLength   uint
 }
 
 // Entry is the data set which is stored in the DB as JSON

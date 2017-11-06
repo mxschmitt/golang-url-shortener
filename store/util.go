@@ -57,7 +57,7 @@ func (s *Store) createEntry(URL, remoteAddr string) (string, error) {
 }
 
 // generateRandomString generates a random string with an predefined length
-func generateRandomString(length int) string {
+func generateRandomString(length uint) string {
 	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	b := make([]rune, length)
 	for i := range b {

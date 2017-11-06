@@ -7,6 +7,7 @@ import 'semantic-ui-css/semantic.min.css';
 
 import About from './About/About'
 import Home from './Home/Home'
+import ShareX from './ShareX/ShareX'
 
 export default class BaseComponent extends Component {
     state = {
@@ -19,7 +20,6 @@ export default class BaseComponent extends Component {
     onOAuthClose() {
         this.setState({ open: true })
     }
-
 
     handleItemClick = (e, { name }) => this.setState({ activeItem: name })
 
@@ -105,12 +105,16 @@ export default class BaseComponent extends Component {
                         <Menu.Item name='about' active={activeItem === 'about'} onClick={this.handleItemClick} as={Link} to="/about">
                             About
                         </Menu.Item>
+                        <Menu.Item name='ShareX' active={activeItem === 'ShareX'} onClick={this.handleItemClick} as={Link} to="/sharex">
+                            ShareX
+                        </Menu.Item>
                         <Menu.Menu position='right'>
                             <Menu.Item onClick={this.handleLogout}>Logout</Menu.Item>
                         </Menu.Menu>
                     </Menu>
                     <Route exact path="/" component={Home} />
                     <Route path="/about" component={About} />
+                    <Route path="/ShareX" component={ShareX} />
                 </Container>
             </HashRouter>
         )

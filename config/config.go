@@ -12,6 +12,7 @@ import (
 // Configuration holds all the needed parameters use
 // the URL Shortener
 type Configuration struct {
+	Schema   string `json:"$schema"`
 	Store    Store
 	Handlers Handlers
 }
@@ -19,7 +20,7 @@ type Configuration struct {
 // Store contains the needed fields for the Store package
 type Store struct {
 	DBPath          string
-	ShortedIDLength int
+	ShortedIDLength uint
 }
 
 // Handlers contains the needed fields for the Handlers package
