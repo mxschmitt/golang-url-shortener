@@ -102,17 +102,23 @@ export default class BaseComponent extends Component {
                         <Menu.Item name='shorten' active={activeItem === 'shorten'} onClick={this.handleItemClick} as={Link} to="/">
                             Shorten
                         </Menu.Item>
-                        <Menu.Item name='about' active={activeItem === 'about'} onClick={this.handleItemClick} as={Link} to="/about">
-                            About
+                        <Menu.Item name='ShareX' active={activeItem === 'ShareX'} onClick={this.handleItemClick} as={Link} to="/sharex">
+                            ShareX Config Generator
                         </Menu.Item>
                         <Menu.Item name='ShareX' active={activeItem === 'ShareX'} onClick={this.handleItemClick} as={Link} to="/sharex">
-                            ShareX
+                            Recently Shortened URLs
+                        </Menu.Item>
+                        <Menu.Item name='ShareX' active={activeItem === 'ShareX'} onClick={this.handleItemClick} as={Link} to="/sharex">
+                            Lookup URLs
+                        </Menu.Item>
+                        <Menu.Item name='about' active={activeItem === 'about'} onClick={this.handleItemClick} as={Link} to="/about">
+                            About
                         </Menu.Item>
                         <Menu.Menu position='right'>
                             <Menu.Item onClick={this.handleLogout}>Logout</Menu.Item>
                         </Menu.Menu>
                     </Menu>
-                    <Route exact path="/" component={Home} />
+                    <Route path="/" component={Home} />
                     <Route path="/about" component={About} />
                     <Route path="/ShareX" component={ShareX} />
                 </Container>
