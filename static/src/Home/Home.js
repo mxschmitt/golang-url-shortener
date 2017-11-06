@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import { Container, Input, Segment, Form, Modal, Button } from 'semantic-ui-react'
-import './App.css';
 
-class AppComponent extends Component {
+import './Home.css';
+
+export default class HomeComponent extends Component {
   handleURLChange = (e, { value }) => this.url = value
   handleURLSubmit = () => {
     fetch('/api/v1/protected/create', {
@@ -104,6 +105,4 @@ class AppComponent extends Component {
       )
     }
   }
-}
-
-export default AppComponent;
+};
