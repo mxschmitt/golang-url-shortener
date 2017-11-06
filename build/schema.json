@@ -1,0 +1,50 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "properties": {
+        "Handlers": {
+            "type": "object",
+            "properties": {
+                "BaseURL": {
+                    "type": "string"
+                },
+                "EnableGinDebugMode": {
+                    "type": "boolean"
+                },
+                "ListenAddr": {
+                    "type": "string"
+                },
+                "OAuth": {
+                    "type": "object",
+                    "properties": {
+                        "Google": {
+                            "type": "object",
+                            "properties": {
+                                "ClientID": {
+                                    "type": "string"
+                                },
+                                "ClientSecret": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "Secret": {
+                    "type": "string"
+                }
+            }
+        },
+        "Store": {
+            "type": "object",
+            "properties": {
+                "DBPath": {
+                    "type": "string"
+                },
+                "ShortedIDLength": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

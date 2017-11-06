@@ -1,0 +1,18 @@
+{
+    "$schema": "./build/schema.json",
+    "Store": {
+        "DBPath": "main.db",
+        "ShortedIDLength": 4
+    },
+    "Handlers": {
+        "ListenAddr": ":8080",
+        "BaseURL": "http://localhost:3000",
+        "EnableGinDebugMode": false,
+        "OAuth": {
+            "Google": {
+                "ClientID": "",
+                "ClientSecret": ""
+            }
+        }
+    }
+}

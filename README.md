@@ -7,11 +7,11 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 [![Waffle.io - Columns and their card count](https://badge.waffle.io/maxibanki/golang-url-shortener.png?columns=all)](https://waffle.io/maxibanki/golang-url-shortener?utm_source=badge)
 
-## Main Features:
+## Main Features
 
 - URL Shortening
 - Visitor Counting
-- URL deletion 
+- URL deletion
 - Authorization System
 - High performance database with [bolt](https://github.com/boltdb/bolt)
 - [ShareX](https://github.com/ShareX/ShareX) integration
@@ -30,11 +30,12 @@ go get -v ./...                                             # Fetch dependencies
 go build                                                    # Build executable
 ./golang-url-shortener                                      # Run it
 ```
+
 ### Docker Compose
 
 Only execute the [docker-compose.yml](docker-compose.yml) and adjust the environment variables to your needs.
 
-### Configuration:
+### Configuration
 
 The configuration is a yaml based file of key value pairs. It is located in the installation folder and is called `config.yml`:
 
@@ -54,11 +55,12 @@ The configuration is a yaml based file of key value pairs. It is located in the 
 }
 ```
 
-## Clients:
+## Clients
 
 ### General
 
 There is a mechanism integrated, that you can call the `POST` endpoints with the following techniques:
+
 - application/json
 - application/x-www-form-urlencoded
 - multipart/form-data
@@ -90,6 +92,7 @@ After you've done this, you need to set it as your standard URL Shortener. For t
 ```bash
 curl -X POST -H 'Content-Type: application/json' -d '{"URL":"https://www.google.de/"}' http://127.0.0.1:8080/api/v1/create
 ```
+
 ```json
 {
     "URL": "http://127.0.0.1:8080/dgUV",
@@ -99,8 +102,9 @@ curl -X POST -H 'Content-Type: application/json' -d '{"URL":"https://www.google.
 #### Info
 
 ```bash
-$ curl -X POST -H 'Content-Type: application/json' -d '{"ID":"dgUV"}' http://127.0.0.1:8080/api/v1/info
+curl -X POST -H 'Content-Type: application/json' -d '{"ID":"dgUV"}' http://127.0.0.1:8080/api/v1/info
 ```
+
 ```json
 {
     "URL": "https://google.com/",
@@ -110,21 +114,22 @@ $ curl -X POST -H 'Content-Type: application/json' -d '{"ID":"dgUV"}' http://127
 }
 ```
 
-### HTTP Endpoints:
+### HTTP Endpoints
 
 #### `/api/v1/create` POST
 
 Create is the handler for creating entries, you need to provide only an `URL`. The response will always be JSON encoded and contain an URL with the short link.
 
-####  `/api/v1/info` POST
+#### `/api/v1/info` POST
 
 This handler returns the information about an entry. This includes:
+
 - Created At
 - Last Visit
 - Visitor counter
 
 For that you need to send a field `ID` to the backend.
 
-## Why did you built this?
+## Why did you built this
 
 Just only because I want to extend my current self hosted URL shorter and learn about new techniques like Go unit testing and react.
