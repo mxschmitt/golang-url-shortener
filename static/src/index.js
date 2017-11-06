@@ -1,20 +1,14 @@
 import registerServiceWorker from './registerServiceWorker';
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom';
-import {
-    HashRouter,
-    Route,
-    Link
-} from 'react-router-dom'
+import { HashRouter, Route, Link } from 'react-router-dom'
 import { Menu, Container, Modal, Button, Image } from 'semantic-ui-react'
+import 'semantic-ui-css/semantic.min.css';
 
 import About from './About/About'
 import Home from './Home/Home'
 
-import 'semantic-ui-css/semantic.min.css';
-
 export default class BaseComponent extends Component {
-
     state = {
         open: true,
         userData: {},
@@ -73,6 +67,11 @@ export default class BaseComponent extends Component {
         window.open('/api/v1/login', '', `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
     }
 
+    handleLogout = () => {
+        window.localStorage.removeItem("token")
+        this.setState({ authorized: false })
+    }
+
     render() {
         const { open, authorized, activeItem, userData } = this.state
         if (!authorized) {
@@ -95,7 +94,7 @@ export default class BaseComponent extends Component {
         }
         return (
             <HashRouter>
-                <Container style={{ "margin-top": "15px" }}>
+                <Container style={{ marginTop: "15px" }}>
                     <Menu stackable>
                         <Menu.Item as={Link} to="/" name='shorten' onClick={this.handleItemClick} >
                             <Image src={userData.Picture} alt='user profile' circular size='mini' />
@@ -107,7 +106,7 @@ export default class BaseComponent extends Component {
                             About
                         </Menu.Item>
                         <Menu.Menu position='right'>
-                            <Menu.Item name='logout' active={activeItem === 'logout'} onClick={this.handleItemClick} />
+                            <Menu.Item onClick={this.handleLogout}>Logout</Menu.Item>
                         </Menu.Menu>
                     </Menu>
                     <Route exact path="/" component={Home} />
