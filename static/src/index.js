@@ -1,4 +1,4 @@
-import registerServiceWorker from './registerServiceWorker';
+// import registerServiceWorker from './registerServiceWorker';
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom';
 import { HashRouter, Route, Link } from 'react-router-dom'
@@ -131,4 +131,4 @@ ReactDOM.render((
     <BaseComponent />
 ), document.getElementById('root'))
 
-registerServiceWorker();
+// registerServiceWorker();
