@@ -1,4 +1,4 @@
-// Package handlers provides the http functionality
+// Package handlers provides the http functionality for the URL Shortener
 //go:generate esc -o static.go -pkg handlers -prefix ../static/build ../static/build
 //go:generate esc -o tmpls/tmpls.go -pkg tmpls -include ^*\.tmpl -prefix tmpls tmpls
 package handlers

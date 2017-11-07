@@ -20,7 +20,6 @@ type jwtClaims struct {
 	OAuthID       string
 	OAuthName     string
 	OAuthPicture  string
-	OAuthEmail    string
 }
 
 type oAuthUser struct {
@@ -34,6 +33,13 @@ type oAuthUser struct {
 	EmailVerified bool   `json:"email_verified"`
 	Gender        string `json:"gender"`
 	Hd            string `json:"hd"`
+}
+
+type checkResponse struct {
+	ID       string
+	Name     string
+	Picture  string
+	Provider string
 }
 
 func (h *Handler) initOAuth() {
@@ -64,7 +70,7 @@ func (h *Handler) authMiddleware(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-			"error": "'authorization' header not set",
+			"error": "'Authorization' header not set",
 		})
 		return
 	}
@@ -98,12 +104,11 @@ func (h *Handler) handleGoogleCheck(c *gin.Context) {
 		return h.config.Secret, nil
 	})
 	if claims, ok := token.Claims.(*jwtClaims); ok && token.Valid {
-		c.JSON(http.StatusOK, gin.H{
-			"ID":       claims.OAuthID,
-			"Email":    claims.OAuthEmail,
-			"Name":     claims.OAuthName,
-			"Picture":  claims.OAuthPicture,
-			"Provider": claims.OAuthProvider,
+		c.JSON(http.StatusOK, checkResponse{
+			ID:       claims.OAuthID,
+			Name:     claims.OAuthName,
+			Picture:  claims.OAuthPicture,
+			Provider: claims.OAuthProvider,
 		})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -150,7 +155,6 @@ func (h *Handler) handleGoogleCallback(c *gin.Context) {
 		user.Sub,
 		user.Name,
 		user.Picture,
-		user.Email,
 	})
 
 	tokenString, err := token.SignedString(h.config.Secret)

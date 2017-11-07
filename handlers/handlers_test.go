@@ -5,30 +5,30 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/maxibanki/golang-url-shortener/store"
-	"github.com/pkg/errors"
 )
 
 const (
-	testingDBName = "main.db"
-	testURL       = "https://www.google.de/"
+	testURL = "https://www.google.de/"
 )
 
-var server *httptest.Server
+// var server *httptest.Server
+
+func TestCreateB(t *testing.T) {
+	TestCreateBackend(t)
+}
 
 func TestCreateEntry(t *testing.T) {
 	tt := []struct {
 		name           string
 		ignoreResponse bool
 		contentType    string
+		authToken      string
 		response       gin.H
 		requestBody    URLUtil
 		statusCode     int
@@ -59,11 +59,6 @@ func TestCreateEntry(t *testing.T) {
 			ignoreResponse: true,
 		},
 	}
-	cleanup, err := getBackend()
-	if err != nil {
-		t.Fatalf("could not create backend: %v", err)
-	}
-	defer cleanup()
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			var reqBody []byte
@@ -87,7 +82,7 @@ func TestCreateEntry(t *testing.T) {
 				return
 			}
 			var parsed URLUtil
-			if err = json.Unmarshal(respBody, &parsed); err != nil {
+			if err := json.Unmarshal(respBody, &parsed); err != nil {
 				t.Fatalf("could not unmarshal data: %v", err)
 			}
 			t.Run("test if shorted URL is correct", func(t *testing.T) {
@@ -98,12 +93,6 @@ func TestCreateEntry(t *testing.T) {
 }
 
 func TestHandleInfo(t *testing.T) {
-	cleanup, err := getBackend()
-	if err != nil {
-		t.Fatalf("could not create backend: %v", err)
-	}
-	defer cleanup()
-
 	t.Run("check existing entry", func(t *testing.T) {
 		reqBody, err := json.Marshal(store.Entry{
 			URL: testURL,
@@ -124,7 +113,13 @@ func TestHandleInfo(t *testing.T) {
 		if err != nil {
 			t.Fatalf("could not marshal the body: %v", err)
 		}
-		resp, err := http.Post(server.URL+"/api/v1/info", "application/json; charset=utf-8", bytes.NewBuffer(body))
+		req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/info", bytes.NewBuffer(body))
+		if err != nil {
+			t.Fatalf("could not create request %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", tokenString)
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			t.Fatalf("could not post to the backend: %v", err)
 		}
@@ -140,7 +135,13 @@ func TestHandleInfo(t *testing.T) {
 		}
 	})
 	t.Run("invalid body", func(t *testing.T) {
-		resp, err := http.Post(server.URL+"/api/v1/info", "appplication/json", bytes.NewBuffer(nil))
+		req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/info", bytes.NewBuffer(nil))
+		if err != nil {
+			t.Fatalf("could not create request %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", tokenString)
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			t.Fatalf("could not post to the backend: %v", err)
 		}
@@ -153,17 +154,20 @@ func TestHandleInfo(t *testing.T) {
 		}
 		body = bytes.TrimSpace(body)
 		raw := makeJSON(t, gin.H{
-			"error": "Key: '.ID' Error:Field validation for 'ID' failed on the 'required' tag",
+			"error": "EOF",
 		})
 		if string(body) != raw {
 			t.Fatalf("body is not the expected one: %s", body)
 		}
 	})
 	t.Run("no ID provided", func(t *testing.T) {
+		req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/info", bytes.NewBufferString("{}"))
 		if err != nil {
-			t.Fatalf("could not marshal the body: %v", err)
+			t.Fatalf("could not create request %v", err)
 		}
-		resp, err := http.Post(server.URL+"/api/v1/info", "appplication/json", bytes.NewBufferString("{}"))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", tokenString)
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			t.Fatalf("could not post to the backend: %v", err)
 		}
@@ -193,9 +197,15 @@ func makeJSON(t *testing.T, data interface{}) string {
 }
 
 func createEntryWithJSON(t *testing.T, reqBody []byte, contentType string, statusCode int) []byte {
-	resp, err := http.Post(server.URL+"/api/v1/create", "application/json", bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/create", bytes.NewBuffer(reqBody))
 	if err != nil {
-		t.Fatalf("could not post to backend %v", err)
+		t.Fatalf("could not create request %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", tokenString)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("could not do request: %v", err)
 	}
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -234,27 +244,6 @@ func testRedirect(t *testing.T, shortURL, longURL string) {
 	}
 }
 
-func getBackend() (func(), error) {
-	store, err := store.New(config.Store{
-		DBPath:          testingDBName,
-		ShortedIDLength: 4,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "could not create store")
-	}
-	handler, err := New(config.Handlers{
-		ListenAddr: ":8080",
-		Secret:     []byte("our really great secret"),
-		BaseURL:    "http://127.0.0.1",
-	}, *store)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not create handler")
-	}
-	handler.DoNotCheckConfigViaGet = true
-	server = httptest.NewServer(handler.engine)
-	return func() {
-		server.Close()
-		handler.CloseStore()
-		os.Remove(testingDBName)
-	}, nil
+func TestCloseB(t *testing.T) {
+	TestCloseBackend(t)
 }
