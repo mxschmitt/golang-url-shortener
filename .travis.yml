@@ -1,13 +1,10 @@
-matrix:
-  include:
-    - language: go
-      go:
-        - 1.9.2
-      install:
-      script:
-        - make
-    - language: node_js
-      node_js:
-        - "9"
-      script:
-        - make buildNodeFrontend
+language: go
+go:
+  - 1.9.2
+install:
+  - . $HOME/.nvm/nvm.sh
+  - nvm install stable
+  - nvm use stable
+  - npm install
+script:
+  - make
