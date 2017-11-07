@@ -4,10 +4,12 @@
         "repo": "golang-url-shortener",
         "subject": "maxibanki"
     },
+    "version": {
+        "name": "0.1"
+    },
     "files": [
         {
             "includePattern": "releases/(.*)",
-            "excludePattern": "target/.*.zip$",
             "uploadPattern": "/$1"
         }
     ]
