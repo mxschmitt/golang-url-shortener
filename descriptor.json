@@ -12,5 +12,6 @@
             "includePattern": "releases/(.*)",
             "uploadPattern": "/$1"
         }
-    ]
+    ],
+    "publish": true
 }
