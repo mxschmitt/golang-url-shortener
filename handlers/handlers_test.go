@@ -244,13 +244,13 @@ func getBackend() (func(), error) {
 	}
 	handler, err := New(config.Handlers{
 		ListenAddr: ":8080",
-		Secret:     []byte(""),
+		Secret:     []byte("our really great secret"),
 		BaseURL:    "http://127.0.0.1",
 	}, *store)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create handler")
 	}
-
+	handler.DoNotCheckConfigViaGet = true
 	server = httptest.NewServer(handler.engine)
 	return func() {
 		server.Close()
