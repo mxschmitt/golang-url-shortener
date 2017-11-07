@@ -1,10 +1,12 @@
-language: go
-go:
-  - 1.9.2
-before_install:
-  - go get github.com/mattn/goveralls
-script:
-  - go get github.com/mjibson/esc
-  - go generate ./...
-  - go test -v ./...
-  - goveralls -service=travis-ci
+matrix:
+  include:
+    language: go
+    go:
+      - 1.9.2
+    script:
+      - make
+    language: node_js
+    node_js:
+      - "9"
+    script:
+      - make buildNodeFrontend
