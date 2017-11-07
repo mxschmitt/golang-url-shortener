@@ -20,11 +20,10 @@ type Store struct {
 
 // Entry is the data set which is stored in the DB as JSON
 type Entry struct {
-	URL        string
-	VisitCount int
-	RemoteAddr string `json:",omitempty"`
-	CreatedOn  time.Time
-	LastVisit  time.Time
+	URL                  string
+	VisitCount           int
+	RemoteAddr           string `json:",omitempty"`
+	CreatedOn, LastVisit time.Time
 }
 
 // ErrNoEntryFound is returned when no entry to a id is found
