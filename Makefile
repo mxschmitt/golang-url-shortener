@@ -1,6 +1,6 @@
-all: buildNodeFrontend getCMDDependencies embedFrontend getGoDependencies test build uploadCoveralls
+all: buildNodeFrontend getCMDDependencies embedFrontend getGoDependencies runUnitTests buildProject uploadCoveralls
 
-test:
+runUnitTests:
 	go test -v ./...
 
 buildNodeFrontend:
@@ -19,7 +19,7 @@ getCMDDependencies:
 getGoDependencies:
 	go get -v ./...
 
-build:
+buildProject:
 	@mkdir releases
 	gox -output="releases/{{.Dir}}_{{.OS}}_{{.Arch}}"
 
