@@ -11,6 +11,6 @@ script:
 deploy:
   provider: bintray
   user: maxibanki
-  local_dir: releases
+  file: "descriptor.json"
   key:
     secure: ErqvSFIlL3d9XuMj+T+hO6xZqll8Ubx0DEdHD6NJKi7sH7Be3b3/vUoPdAjdFOP70DhaccbncGCTPZ9hsNKdqYxZmuKx3WWwH4H4U5YdDIViXtH6+B5KdAmvdZIynaj+THQAbVAhr+QyvcqotNySPd3Ac1HCg2YAcUHme6y3FsiRJ79To80JWxTSR1G/oObmeoDn8R18wmH1gHl8KQ7ltC537Osb/H34bJ/hY94hRe8IEmoQE4yz/EP44kGXRb/F87i92y1mO081ZS1I1hs5Kbom43YoItqSVbJP/abPMyCsGDv2FGXaGqk5IVC1k+01pcAjqxCzMvXC272itc0E8OEWqE4qONN+m2S9tyALyOaUZ7j5meWLHQj49Rzo7XIWh1PvvEMovdl/wk/Oc9f0ZywPuvoRht5ZebgXbPWAMMNywwy0GKM4nU0DCyFm23mlzPh4iklo12gEUzq3YLc18RhAZuy4timeevrDCuJMQeQ3sqcQBKCQ+rdOxzVCKKl2sGpNaTJEYaHGT9KLCEGBLmvaB58RKgmGN6IIEwpxSm2SGoirfnQsr+DP+kaSvWPr6R/pZAhO1JzO+azaXvfr+hL2SMX6U7j5+SDmFGIFDwxok7ny1QUTQXKlNzA/ks9/vufe30hrTkph/MfEvM5mYVbfgAn5zZ0v+dJ2wCoe1go=

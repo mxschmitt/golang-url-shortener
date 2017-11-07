@@ -1,0 +1,14 @@
+{
+    "package": {
+        "name": "travis-ci",
+        "repo": "golang-url-shortener",
+        "subject": "maxibanki"
+    },
+    "files": [
+        {
+            "includePattern": "releases/(.*)",
+            "excludePattern": "target/.*.zip$",
+            "uploadPattern": "/$1"
+        }
+    ]
+}
