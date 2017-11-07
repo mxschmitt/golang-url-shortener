@@ -3,6 +3,7 @@ matrix:
     language: go
     go:
       - 1.9.2
+    install:
     script:
       - make
     language: node_js
