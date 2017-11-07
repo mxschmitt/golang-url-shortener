@@ -20,7 +20,7 @@ var validConfig = config.Store{
 func TestGenerateRandomString(t *testing.T) {
 	tt := []struct {
 		name   string
-		length int
+		length uint
 	}{
 		{"fourtytwo long", 42},
 		{"sixteen long", 16},
