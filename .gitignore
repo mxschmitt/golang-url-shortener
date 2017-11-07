@@ -17,3 +17,4 @@ debug
 *db.lock
 static/bower_components
 config.json
+static.go

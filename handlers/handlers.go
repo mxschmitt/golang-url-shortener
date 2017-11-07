@@ -1,11 +1,16 @@
 // Package handlers provides the http functionality
+//go:generate esc -o static.go -pkg handlers -prefix ../static/build ../static/build
+//go:generate esc -o tmpls/tmpls.go -pkg tmpls -include ^*\.tmpl -prefix tmpls tmpls
 package handlers
 
 import (
 	"crypto/rand"
+	"html/template"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/maxibanki/golang-url-shortener/config"
+	"github.com/maxibanki/golang-url-shortener/handlers/tmpls"
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
@@ -27,12 +32,27 @@ func New(handlerConfig config.Handlers, store store.Store) (*Handler, error) {
 		store:  store,
 		engine: gin.Default(),
 	}
-	h.setHandlers()
+	if err := h.setHandlers(); err != nil {
+		return nil, errors.Wrap(err, "could not set handlers")
+	}
 	if err := h.checkIfSecretExist(); err != nil {
 		return nil, errors.Wrap(err, "could not check if secret exist")
 	}
 	h.initOAuth()
 	return h, nil
+}
+
+func (h *Handler) setTemplateFromFS(name string) error {
+	tokenTemplate, err := tmpls.FSString(false, "/"+name)
+	if err != nil {
+		return errors.Wrap(err, "could not read token template file")
+	}
+	templ, err := template.New(name).Funcs(h.engine.FuncMap).Parse(tokenTemplate)
+	if err != nil {
+		return errors.Wrap(err, "could not create template from file content")
+	}
+	h.engine.SetHTMLTemplate(templ)
+	return nil
 }
 
 func (h *Handler) checkIfSecretExist() error {
@@ -50,7 +70,7 @@ func (h *Handler) checkIfSecretExist() error {
 	return nil
 }
 
-func (h *Handler) setHandlers() {
+func (h *Handler) setHandlers() error {
 	if !h.config.EnableGinDebugMode {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -58,9 +78,13 @@ func (h *Handler) setHandlers() {
 	protected.Use(h.authMiddleware)
 	protected.POST("/create", h.handleCreate)
 	protected.POST("/info", h.handleInfo)
-	// h.engine.Static("/static", "static/src")
-	h.engine.NoRoute(h.handleAccess)
-	h.engine.LoadHTMLGlob("templates/*")
+
+	h.engine.NoRoute(h.handleAccess, gin.WrapH(http.FileServer(FS(false))))
+
+	if err := h.setTemplateFromFS("token.tmpl"); err != nil {
+		return errors.Wrap(err, "could not set template from FS")
+	}
+	return nil
 }
 
 // Listen starts the http server
