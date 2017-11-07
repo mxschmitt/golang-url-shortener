@@ -97,6 +97,32 @@ func TestCreateNewJWT(t *testing.T) {
 	}
 }
 
+func TestForbiddenReqest(t *testing.T) {
+	resp, err := http.Post(server.URL+"/api/v1/protected/create", "application/json", nil)
+	if err != nil {
+		t.Fatalf("could not execute get request: %v", err)
+	}
+	if resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("incorrect status code: %d; got: %d", resp.StatusCode, http.StatusForbidden)
+	}
+}
+
+func TestInvalidToken(t *testing.T) {
+	req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/create", nil)
+	if err != nil {
+		t.Fatalf("could not create request %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "incorrect one")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("could not execute post request: %v", err)
+	}
+	if resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("incorrect status code: %d; got: %d", resp.StatusCode, http.StatusForbidden)
+	}
+}
+
 func TestCheckToken(t *testing.T) {
 	body, err := json.Marshal(map[string]string{
 		"Token": tokenString,
