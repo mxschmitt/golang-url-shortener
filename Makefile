@@ -1,4 +1,4 @@
-all: buildNodeFrontend getCMDDependencies embedFrontend getGoDependencies test uploadCoveralls
+all: buildNodeFrontend getCMDDependencies embedFrontend getGoDependencies test build uploadCoveralls
 
 test:
 	go test -v ./...
