@@ -18,3 +18,4 @@ debug
 static/bower_components
 config.json
 static.go
+handlers/tmpls/tmpls.go

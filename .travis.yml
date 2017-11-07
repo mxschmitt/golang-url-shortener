@@ -4,5 +4,7 @@ go:
 before_install:
   - go get github.com/mattn/goveralls
 script:
+  - go get github.com/mjibson/esc
+  - go generate ./...
   - go test -v ./...
   - goveralls -service=travis-ci
