@@ -22,7 +22,7 @@ getGoDependencies:
 	go get -v ./...
 
 buildProject:
-	@cd build && go build schema.go && ./schema
+	go run build/schema.go
 	@mkdir releases
 	gox -output="releases/{{.OS}}_{{.Arch}}/{{.OS}}_{{.Arch}}"
 	find releases -maxdepth 1 -mindepth 1 -type d -exec cp build/config.json {} \;
