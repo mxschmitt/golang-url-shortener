@@ -4,7 +4,7 @@
 [![GoDoc](https://godoc.org/github.com/maxibanki/golang-url-shortener?status.svg)](https://godoc.org/github.com/maxibanki/golang-url-shortener)
 [![Go Report Card](https://goreportcard.com/badge/github.com/maxibanki/golang-url-shortener)](https://goreportcard.com/report/github.com/maxibanki/golang-url-shortener)
 [![Coverage Status](https://coveralls.io/repos/github/maxibanki/golang-url-shortener/badge.svg?branch=master)](https://coveralls.io/github/maxibanki/golang-url-shortener?branch=master)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](http://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Waffle.io - Columns and their card count](https://badge.waffle.io/maxibanki/golang-url-shortener.png?columns=all)](https://waffle.io/maxibanki/golang-url-shortener?utm_source=badge)
 [![Download](https://api.bintray.com/packages/maxibanki/golang-url-shortener/travis-ci/images/download.svg?version=0.1) ](https://bintray.com/maxibanki/golang-url-shortener/travis-ci/0.1/link)
 
@@ -12,125 +12,59 @@
 
 - URL Shortening
 - Visitor Counting
+- Expireable Links
 - URL deletion
-- Authorization System
+- Authorization System via OAuth 2.0 from Google (more providers following)
 - High performance database with [bolt](https://github.com/boltdb/bolt)
-- [ShareX](https://github.com/ShareX/ShareX) integration
-- Easy Docker Deployment
+- Easy [ShareX](https://github.com/ShareX/ShareX) integration
+- Dockerizable
 
 ## Server Installation
 
 ### Standard
 
-Since we don't provide prebuild binaries, you have to build it yourself. For that you need Golang and Git installed on your system.
+Download the package for your architecture and operating system from [bintray](https://bintray.com/maxibanki/golang-url-shortener/travis-ci) and extract it.
 
-```bash
-git clone https://github.com/maxibanki/golang-url-shortener # Clone repository
-cd golang-url-shortener                                     # Go into it
-go get -v ./...                                             # Fetch dependencies
-go build                                                    # Build executable
-./golang-url-shortener                                      # Run it
-```
+### Docker
 
-### Docker Compose
+TODO
 
-Only execute the [docker-compose.yml](docker-compose.yml) and adjust the environment variables to your needs.
+## Configuration
 
-### Configuration
+The configuration is a JSON file, an example is located [here](build/config.json). If your editor supports intellisense by using a schema (e.g. [VS Code](https://github.com/Microsoft/vscode)) then you can simply press space for auto completion.
 
-The configuration is a yaml based file of key value pairs. It is located in the installation folder and is called `config.yml`:
+The config parameters should be really selfexplaning, but here is a detailed description for all of these:
 
-```json
-{
-    "General": {
-        "DBPath": "main.db",
-        "ListenAddr": ":8080",
-        "ShortedIDLength": 4
-    },
-    "OAuth": {
-        "Google": {
-          "ClientID": "",
-          "ClientSecret": ""
-        }
-    }
-}
-```
+TODO: Add config parameters
+
+## OAuth
+
+### Google
+
+Visit [console.cloud.google.com](https://console.cloud.google.com), create or use an existing project, goto `APIs & Services` -> `Credentials` and create there an `OAuth Client-ID` for the application type `Webapplicaton`. There you get the Client-ID and ClientSecret for your configuration. It's important, that you set in the Google Cloud Platform `YOUR_URL/api/v1/callback` as authorized redirect URLs. 
 
 ## Clients
 
 ### General
 
-There is a mechanism integrated, that you can call the `POST` endpoints with the following techniques:
+In general the `POST` endpoints can be called, by using one of the following techniques:
 
 - application/json
 - application/x-www-form-urlencoded
 - multipart/form-data
 
-### [ShareX](https://github.com/ShareX/ShareX) Configuration
+For all the endpoints which have `protected` in her path there is the `Authorization` header required.
 
-This URL Shortener has fully support with ShareX. To use it, just import the configuration to your ShareX. For that you need to open the `Destination settings` => `Other / Custom uploaders` => `Import` => `From Clipboard` menu.
+### [ShareX](https://github.com/ShareX/ShareX)
 
-After you've done this, you need to set it as your standard URL Shortener. For that go back into your main menu => `Destinations` => `URL Shortener` => `Custom URL Shortener`.
-
-```json
-{
-  "Name": "Golang URL Shortener",
-  "DestinationType": "URLShortener",
-  "RequestType": "POST",
-  "RequestURL": "http://127.0.0.1:8080/api/v1/create",
-  "Arguments": {
-    "URL": "$input$"
-  },
-  "ResponseType": "Text",
-  "URL": "$json:URL$"
-}
-```
-
-### Curl
-
-#### Create
-
-```bash
-curl -X POST -H 'Content-Type: application/json' -d '{"URL":"https://www.google.de/"}' http://127.0.0.1:8080/api/v1/create
-```
-
-```json
-{
-    "URL": "http://127.0.0.1:8080/dgUV",
-}
-```
-
-#### Info
-
-```bash
-curl -X POST -H 'Content-Type: application/json' -d '{"ID":"dgUV"}' http://127.0.0.1:8080/api/v1/info
-```
-
-```json
-{
-    "URL": "https://google.com/",
-    "VisitCount": 1,
-    "CreatedOn": "2017-10-29T23:35:48.2977548+01:00",
-    "LastVisit": "2017-10-29T23:36:14.193236+01:00"
-}
-```
-
-### HTTP Endpoints
-
-#### `/api/v1/create` POST
-
-Create is the handler for creating entries, you need to provide only an `URL`. The response will always be JSON encoded and contain an URL with the short link.
-
-#### `/api/v1/info` POST
-
-This handler returns the information about an entry. This includes:
-
-- Created At
-- Last Visit
-- Visitor counter
-
-For that you need to send a field `ID` to the backend.
+For ShareX usage, we refer to the menu item in the frontend where your configuration will be generated. There are further information for the detailled use.
 
 ## Why did you built this
 
-Just only because I want to extend my current self hosted URL shorter and learn about new techniques like Go unit testing and react.
+Just only because I want to extend my current self hosted URL shorter and learn about new techniques like:
+
+- Golang unit tests
+- React
+- Makefiles
+- Travis CI
+- Key / Value databases

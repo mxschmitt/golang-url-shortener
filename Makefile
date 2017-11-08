@@ -7,6 +7,7 @@ runUnitTests:
 buildNodeFrontend:
 	@cd static && yarn install
 	@cd static && yarn build
+	@cd static && @rm build/static/**/*.map
 
 embedFrontend:
 	@cd handlers/tmpls && esc -o tmpls.go -pkg tmpls -include ^*\.tmpl .
@@ -21,6 +22,7 @@ getGoDependencies:
 	go get -v ./...
 
 buildProject:
+	@cd build && go build schema.go && ./schema
 	@mkdir releases
 	gox -output="releases/{{.OS}}_{{.Arch}}/{{.OS}}_{{.Arch}}"
 	find releases -maxdepth 1 -mindepth 1 -type d -exec cp build/config.json {} \;
