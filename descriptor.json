@@ -9,8 +9,8 @@
     },
     "files": [
         {
-            "includePattern": "releases/(.*\/.tar\/.bz2)",
-            "uploadPattern": "/$1"
+            "includePattern": "releases/(.*\\.tar\\.bz2)",
+            "uploadPattern": "$1"
         }
     ],
     "publish": true

@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.9.2
+  - master
 install:
   - . $HOME/.nvm/nvm.sh
   - nvm install stable
