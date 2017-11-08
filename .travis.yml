@@ -8,6 +8,7 @@ install:
   - npm install
 script:
   - make
+  - goveralls -service=travis-ci
 deploy:
   provider: bintray
   user: maxibanki

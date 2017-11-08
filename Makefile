@@ -2,7 +2,6 @@ all: buildNodeFrontend getCMDDependencies embedFrontend getGoDependencies runUni
 
 runUnitTests:
 	go test -v ./...
-	goveralls -service=travis-ci
 
 buildNodeFrontend:
 	@cd static && yarn install
