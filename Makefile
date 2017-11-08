@@ -7,7 +7,7 @@ runUnitTests:
 buildNodeFrontend:
 	@cd static && yarn install
 	@cd static && yarn build
-	@cd static && @rm build/static/**/*.map
+	@cd static && rm build/static/**/*.map
 
 embedFrontend:
 	@cd handlers/tmpls && esc -o tmpls.go -pkg tmpls -include ^*\.tmpl .
