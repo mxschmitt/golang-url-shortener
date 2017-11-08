@@ -1,7 +1,8 @@
-all: buildNodeFrontend getCMDDependencies embedFrontend getGoDependencies runUnitTests buildProject uploadCoveralls
+all: buildNodeFrontend getCMDDependencies embedFrontend getGoDependencies runUnitTests buildProject
 
 runUnitTests:
 	go test -v ./...
+	goveralls -service=travis-ci
 
 buildNodeFrontend:
 	@cd static && yarn install
@@ -21,7 +22,4 @@ getGoDependencies:
 
 buildProject:
 	@mkdir releases
-	gox -output="releases/{{.Dir}}_{{.OS}}_{{.Arch}}"
-
-uploadCoveralls:
-	goveralls -service=travis-ci
+	gox -output="releases/{{.OS}}_{{.Arch}}/{{.OS}}_{{.Arch}}"
