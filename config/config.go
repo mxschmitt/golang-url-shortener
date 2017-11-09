@@ -37,9 +37,10 @@ type Handlers struct {
 	} `description:"OAuth holds the OAuth specific settings"`
 }
 
-var config *Configuration
-
-var configPath string
+var (
+	config     *Configuration
+	configPath string
+)
 
 // Get returns the configuration from a given file
 func Get() *Configuration {

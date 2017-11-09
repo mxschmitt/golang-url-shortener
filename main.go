@@ -1,9 +1,11 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/signal"
+
+	"github.com/shiena/ansicolor"
+	"github.com/sirupsen/logrus"
 
 	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/maxibanki/golang-url-shortener/handlers"
@@ -14,7 +16,12 @@ import (
 func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
-	close, err := initShortener()
+	log := logrus.New()
+	log.Formatter = &logrus.TextFormatter{
+		ForceColors: true,
+	}
+	log.Out = ansicolor.NewAnsiColorWriter(os.Stdout)
+	close, err := initShortener(log)
 	if err != nil {
 		log.Fatalf("could not init shortener: %v", err)
 	}
@@ -23,7 +30,7 @@ func main() {
 	close()
 }
 
-func initShortener() (func(), error) {
+func initShortener(log *logrus.Logger) (func(), error) {
 	if err := config.Preload(); err != nil {
 		return nil, errors.Wrap(err, "could not get config")
 	}
@@ -32,7 +39,7 @@ func initShortener() (func(), error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
 	}
-	handler, err := handlers.New(conf.Handlers, *store)
+	handler, err := handlers.New(conf.Handlers, *store, log)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create handlers")
 	}
