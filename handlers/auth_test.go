@@ -15,6 +15,7 @@ import (
 	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
 )
 
@@ -51,7 +52,7 @@ func TestCreateBackend(t *testing.T) {
 		ListenAddr: ":8080",
 		Secret:     secret,
 		BaseURL:    "http://127.0.0.1",
-	}, *store)
+	}, *store, logrus.New())
 	if err != nil {
 		t.Fatalf("could not create handler: %v", err)
 	}
