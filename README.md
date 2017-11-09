@@ -12,7 +12,7 @@
 
 - URL Shortening
 - Visitor Counting
-- Expireable Links
+- Expirable Links
 - URL deletion
 - Authorization System via OAuth 2.0 from Google (more providers following)
 - High performance database with [bolt](https://github.com/boltdb/bolt)
@@ -31,7 +31,7 @@ TODO
 
 ## Configuration
 
-The configuration is a JSON file, an example is located [here](build/config.json). If your editor supports intellisense by using a schema (e.g. [VS Code](https://github.com/Microsoft/vscode)) then you can simply press space for auto completion. The config parameters should be really selfexplaning, but [here](build/schema.md) is a detailed description for all of these:
+The configuration is a JSON file, an example is located [here](build/config.json). If your editor supports intellisense by using a schema (e.g. [VS Code](https://github.com/Microsoft/vscode)) then you can simply press space for auto completion. The config parameters should be really self explaining, but [here](build/schema.md) is a detailed description for all of these:
 
 ## OAuth
 
