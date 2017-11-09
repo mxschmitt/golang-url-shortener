@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import { Container } from 'semantic-ui-react'
-import { Highlight } from 'react-fast-highlight';
 import ClipboardButton from 'react-clipboard.js';
-import 'highlight.js/styles/github.css'
+import 'prismjs'
+import 'prismjs/components/prism-json'
+import PrismCode from 'react-prism'
+import 'prismjs/themes/prism.css';
 
 export default class ShareXComponent extends Component {
     state = {
@@ -27,9 +29,9 @@ export default class ShareXComponent extends Component {
         return (
             <Container id='rootContainer' >
                 <div>ShareX</div>
-                <Highlight languages={['json']}>
+                <PrismCode component="pre" className="language-json">
                     {config}
-                </Highlight>
+                </PrismCode>
                 <ClipboardButton data-clipboard-text={config} className='ui button'>
                     Copy the configuration to the clipboard
                 </ClipboardButton>
