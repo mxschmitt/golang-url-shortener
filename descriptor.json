@@ -12,7 +12,7 @@
             "includePattern": "releases/(.*\\.tar\\.bz2)",
             "uploadPattern": "$1",
             "matrixParams": {
-                "override": true
+                "override": 1
             }
         }
     ],
