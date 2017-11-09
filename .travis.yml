@@ -8,7 +8,7 @@ install:
   - npm install
 script:
   - make
-  - goveralls -service=travis-ci
+  - goveralls -service=travis-ci -ignore="handlers/static.go,handlers/tmpls/tmpls.go"
 deploy:
   provider: bintray
   user: maxibanki
