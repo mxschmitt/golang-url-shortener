@@ -12,33 +12,31 @@ import (
 // Configuration holds all the needed parameters use
 // the URL Shortener
 type Configuration struct {
-	Schema   string `json:"$schema"`
-	Store    Store
-	Handlers Handlers
+	Schema   string   `json:"$schema"`
+	Store    Store    `description:"Store holds the configuration values for the storage package"`
+	Handlers Handlers `description:"Handlers holds the configuration for the handlers package"`
 }
 
 // Store contains the needed fields for the Store package
 type Store struct {
-	DBPath          string
-	ShortedIDLength uint
+	DBPath          string `description:"relative or absolute path of your bolt DB"`
+	ShortedIDLength uint   `description:"Length of the random generated ID which is used for new shortened URLs"`
 }
 
 // Handlers contains the needed fields for the Handlers package
 type Handlers struct {
-	ListenAddr         string
-	BaseURL            string
-	EnableGinDebugMode bool
-	Secret             []byte
-	OAuth              struct {
+	ListenAddr      string `description:"Consists of 'IP:Port', normally the value ':8080' e.g. is enough"`
+	BaseURL         string `description:"Required for the authentification via OAuth. E.g. 'http://mydomain.com'"`
+	EnableDebugMode bool   `description:"Activates more detailed logging to the stdout"`
+	Secret          []byte `description:"Used for encryption of the JWT and for the CookieJar. Will be randomly generated when it isn't set"`
+	OAuth           struct {
 		Google struct {
-			ClientID     string
-			ClientSecret string
-		}
-	}
+			ClientID     string `description:"ClientID which you get from console.cloud.google.com"`
+			ClientSecret string `description:"ClientSecret which get from console.cloud.google.com"`
+		} `description:"Google holds the OAuth configuration for the Google provider"`
+	} `description:"OAuth holds the OAuth specific settings"`
 }
 
-// config holds the temporary loaded data for the
-// singelton Get() method
 var config *Configuration
 
 var configPath string
