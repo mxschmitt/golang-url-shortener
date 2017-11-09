@@ -1,9 +1,0 @@
-shortener:
-  image: golang
-  restart: always
-  command: ./run.sh
-  working_dir: /go/src/server/workspace
-  volumes:
-    - ./:/go/src/server/workspace
-  ports:
-   - 8080:8080
