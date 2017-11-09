@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
@@ -91,7 +90,7 @@ func (h *Handler) authMiddleware(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": fmt.Sprintf("token is not valid: %v", authError),
 			})
-			log.Printf("Authentication middleware failed: %v\n", authError)
+			h.log.Debugf("Authentication middleware failed: %v\n", authError)
 		} else {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": "authentication failed",

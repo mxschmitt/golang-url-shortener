@@ -5,12 +5,16 @@ import (
 	"crypto/rand"
 	"html/template"
 	"net/http"
+	"time"
+
+	"github.com/gin-gonic/contrib/ginrus"
 
 	"github.com/gin-gonic/gin"
 	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/maxibanki/golang-url-shortener/handlers/tmpls"
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -21,15 +25,20 @@ type Handler struct {
 	store                  store.Store
 	engine                 *gin.Engine
 	oAuthConf              *oauth2.Config
+	log                    *logrus.Logger
 	DoNotCheckConfigViaGet bool // DoNotCheckConfigViaGet is for the unit testing usage
 }
 
 // New initializes the http handlers
-func New(handlerConfig config.Handlers, store store.Store) (*Handler, error) {
+func New(handlerConfig config.Handlers, store store.Store, log *logrus.Logger) (*Handler, error) {
+	if !handlerConfig.EnableDebugMode {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	h := &Handler{
 		config: handlerConfig,
 		store:  store,
-		engine: gin.Default(),
+		log:    log,
+		engine: gin.New(),
 	}
 	if err := h.setHandlers(); err != nil {
 		return nil, errors.Wrap(err, "could not set handlers")
@@ -72,19 +81,16 @@ func (h *Handler) checkIfSecretExist() error {
 }
 
 func (h *Handler) setHandlers() error {
-	if !h.config.EnableDebugMode {
-		gin.SetMode(gin.ReleaseMode)
+	if err := h.setTemplateFromFS("token.tmpl"); err != nil {
+		return errors.Wrap(err, "could not set template from FS")
 	}
+	h.engine.Use(ginrus.Ginrus(h.log, time.RFC3339, false))
 	protected := h.engine.Group("/api/v1/protected")
 	protected.Use(h.authMiddleware)
 	protected.POST("/create", h.handleCreate)
 	protected.POST("/info", h.handleInfo)
 
 	h.engine.NoRoute(h.handleAccess, gin.WrapH(http.FileServer(FS(false))))
-
-	if err := h.setTemplateFromFS("token.tmpl"); err != nil {
-		return errors.Wrap(err, "could not set template from FS")
-	}
 	return nil
 }
 
