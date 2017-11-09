@@ -41,7 +41,7 @@ TODO: Add config parameters
 
 ### Google
 
-Visit [console.cloud.google.com](https://console.cloud.google.com), create or use an existing project, goto `APIs & Services` -> `Credentials` and create there an `OAuth Client-ID` for the application type `Webapplicaton`. There you get the Client-ID and ClientSecret for your configuration. It's important, that you set in the Google Cloud Platform `YOUR_URL/api/v1/callback` as authorized redirect URLs.
+Visit [console.cloud.google.com](https://console.cloud.google.com) and create or use an existing project, goto `APIs & Services` -> `Credentials` and create there an `OAuth Client-ID` for the application type `Webapplicaton`. There you get the Client-ID and the ClientSecret for your configuration. It's important, that you set in the Google Cloud Platform `YOUR_URL/api/v1/callback` as authorized redirect URL.
 
 ## Clients
 
