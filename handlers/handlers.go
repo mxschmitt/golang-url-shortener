@@ -72,7 +72,7 @@ func (h *Handler) checkIfSecretExist() error {
 }
 
 func (h *Handler) setHandlers() error {
-	if !h.config.EnableGinDebugMode {
+	if !h.config.EnableDebugMode {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	protected := h.engine.Group("/api/v1/protected")
