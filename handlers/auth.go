@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -67,26 +69,34 @@ func (h *Handler) handleGoogleRedirect(c *gin.Context) {
 }
 
 func (h *Handler) authMiddleware(c *gin.Context) {
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-			"error": "'Authorization' header not set",
+
+	authError := func() error {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			return errors.New("'Authorization' header not set")
+		}
+		token, err := jwt.ParseWithClaims(authHeader, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
+			return h.config.Secret, nil
 		})
-		return
-	}
-	token, err := jwt.ParseWithClaims(authHeader, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return h.config.Secret, nil
-	})
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-			"error": fmt.Sprintf("could not parse token: %v", err),
-		})
-		return
-	}
-	if !token.Valid {
-		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-			"error": "token is not valid",
-		})
+		if err != nil {
+			return fmt.Errorf("could not parse token: %v", err)
+		}
+		if !token.Valid {
+			return errors.New("token is not valid")
+		}
+		return nil
+	}()
+	if authError != nil {
+		if h.config.EnableDebugMode {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": fmt.Sprintf("token is not valid: %v", authError),
+			})
+			log.Printf("Authentication middleware failed: %v\n", authError)
+		} else {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "authentication failed",
+			})
+		}
 		return
 	}
 	c.Next()
