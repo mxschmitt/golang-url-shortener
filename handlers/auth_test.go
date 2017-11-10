@@ -52,11 +52,10 @@ func TestCreateBackend(t *testing.T) {
 		ListenAddr: ":8080",
 		Secret:     secret,
 		BaseURL:    "http://127.0.0.1",
-	}, *store, logrus.New())
+	}, *store, logrus.New(), true)
 	if err != nil {
 		t.Fatalf("could not create handler: %v", err)
 	}
-	handler.DoNotCheckConfigViaGet = true
 	server = httptest.NewServer(handler.engine)
 	closeServer = func() error {
 		server.Close()

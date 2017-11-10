@@ -1,5 +1,4 @@
 {
-    "$schema": "./schema.json",
     "Store": {
         "DBPath": "main.db",
         "ShortedIDLength": 4

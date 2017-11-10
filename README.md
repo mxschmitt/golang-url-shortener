@@ -19,25 +19,12 @@
 - Easy [ShareX](https://github.com/ShareX/ShareX) integration
 - Dockerizable
 
-## Server Installation
+## Documenation
 
-### Standard
-
-Download the package for your architecture and operating system from [bintray](https://bintray.com/maxibanki/golang-url-shortener/travis-ci) and extract it.
-
-### Docker
-
-TODO
-
-## Configuration
-
-The configuration is a JSON file, an example is located [here](build/config.json). If your editor supports intellisense by using a schema (e.g. [VS Code](https://github.com/Microsoft/vscode)) then you can simply press space for auto completion. The config parameters should be really self explaining, but [here](build/schema.md) is a detailed description for all of these:
-
-## OAuth
-
-### Google
-
-Visit [console.cloud.google.com](https://console.cloud.google.com) and create or use an existing project, go to `APIs & Services` -> `Credentials` and create there an `OAuth Client-ID` for the application type `Webapplicaton`. There you get the Client-ID and the ClientSecret for your configuration. It's important, that you set in the Google Cloud Platform `YOUR_URL/api/v1/callback` as authorized redirect URL.
+- [Installation](https://github.com/maxibanki/golang-url-shortener/wiki/Installation)
+- [Configuration](https://github.com/maxibanki/golang-url-shortener/wiki/Configuration)
+- [Setting up OAuth](https://github.com/maxibanki/golang-url-shortener/wiki/Setting-up-OAuth)
+- [ShareX Usage](https://github.com/maxibanki/golang-url-shortener/wiki/ShareX)
 
 ## Clients
 
@@ -51,10 +38,6 @@ In general the `POST` endpoints can be called, by using one of the following tec
 
 For all the endpoints which are on `/api/v1/protected` there is the `Authorization` header required.
 
-### [ShareX](https://github.com/ShareX/ShareX)
-
-For ShareX usage, we refer to the menu item in the frontend where your configuration will be generated. There are further information for the detailed use.
-
 ## Why did you built this
 
 Just only because I want to extend my current self hosted URL shorter with some features and learn about new techniques like:
@@ -64,15 +47,3 @@ Just only because I want to extend my current self hosted URL shorter with some 
 - Makefiles
 - Travis CI
 - Key / Value databases
-
-## Utils
-
-### Update Config Documentation
-
-```
-yarn global add jsonschema-md
-go run build/schema.go
-jsonschema-md.cmd build/schema.json > build/schema.md
-```
-
-After that adjust the title to `Configuration` and the description to `Golang URL Shortener Configuration`.
