@@ -102,13 +102,13 @@ export default class BaseComponent extends Component {
                             Shorten
                         </Menu.Item>
                         <Menu.Item name='ShareX' active={activeItem === 'ShareX'} onClick={this.handleItemClick} as={Link} to="/sharex">
-                            ShareX Config Generator
+                            ShareX
                         </Menu.Item>
                         <Menu.Item name='recent' active={activeItem === 'recent'} onClick={this.handleItemClick} as={Link} to="/recent">
-                            Recently Shortened URLs
+                            Recent URLs
                         </Menu.Item>
                         <Menu.Item name='lookup' active={activeItem === 'lookup'} onClick={this.handleItemClick} as={Link} to="/lookup">
-                            Lookup URLs
+                            Lookup
                         </Menu.Item>
                         <Menu.Item name='about' active={activeItem === 'about'} onClick={this.handleItemClick} as={Link} to="/about">
                             About
@@ -129,5 +129,3 @@ export default class BaseComponent extends Component {
 ReactDOM.render((
     <BaseComponent />
 ), document.getElementById('root'))
-
-// registerServiceWorker();

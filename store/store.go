@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/asaskevich/govalidator"
 	"github.com/boltdb/bolt"
 	"github.com/maxibanki/golang-url-shortener/config"
@@ -16,6 +18,7 @@ type Store struct {
 	db         *bolt.DB
 	bucketName []byte
 	idLength   uint
+	log        *logrus.Logger
 }
 
 // Entry is the data set which is stored in the DB as JSON
@@ -39,7 +42,7 @@ var ErrGeneratingTriesFailed = errors.New("could not generate unique id, db full
 var ErrIDIsEmpty = errors.New("id is empty")
 
 // New initializes the store with the db
-func New(storeConfig config.Store) (*Store, error) {
+func New(storeConfig config.Store, log *logrus.Logger) (*Store, error) {
 	db, err := bolt.Open(storeConfig.DBPath, 0644, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open bolt DB database")
@@ -56,6 +59,7 @@ func New(storeConfig config.Store) (*Store, error) {
 		db:         db,
 		idLength:   storeConfig.ShortedIDLength,
 		bucketName: bucketName,
+		log:        log,
 	}, nil
 }
 
@@ -117,6 +121,7 @@ func (s *Store) CreateEntry(URL, remoteAddr string) (string, error) {
 	for i := 1; i <= 10; i++ {
 		id, err := s.createEntry(URL, remoteAddr)
 		if err != nil {
+			s.log.Debugf("Could not create entry: %v", err)
 			continue
 		}
 		return id, nil

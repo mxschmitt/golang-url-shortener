@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Container, Image, Modal, Button, Icon } from 'semantic-ui-react'
-import ClipboardButton from 'react-clipboard.js';
+import Clipboard from 'react-clipboard.js';
 import 'prismjs'
 import 'prismjs/components/prism-json'
 import PrismCode from 'react-prism'
@@ -53,9 +53,9 @@ export default class ShareXComponent extends Component {
                 </PrismCode>
                 <Modal closeIcon trigger={
                     <div className="ui center aligned segment">
-                        <ClipboardButton data-clipboard-text={config} className='ui button' onClick={this.onClipboardButtonClick}>
+                        <Clipboard data-clipboard-text={config} className='ui button' onClick={this.onClipboardButtonClick}>
                             Copy the configuration and start the ShareX setup
-                        </ClipboardButton>
+                        </Clipboard >
                     </div>
                 }>
                     <Modal.Header>Setting up ShareX - Step {currentStep + 1}</Modal.Header>
