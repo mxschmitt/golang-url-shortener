@@ -44,7 +44,7 @@ func TestCreateBackend(t *testing.T) {
 	store, err := store.New(config.Store{
 		DBPath:          testingDBName,
 		ShortedIDLength: 4,
-	})
+	}, logrus.New())
 	if err != nil {
 		t.Fatalf("could not create store: %v", err)
 	}
