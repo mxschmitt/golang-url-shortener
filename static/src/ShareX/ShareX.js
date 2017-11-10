@@ -51,7 +51,7 @@ export default class ShareXComponent extends Component {
                 <PrismCode component="pre" className="language-json">
                     {config}
                 </PrismCode>
-                <Modal trigger={
+                <Modal closeIcon trigger={
                     <div className="ui center aligned segment">
                         <ClipboardButton data-clipboard-text={config} className='ui button' onClick={this.onClipboardButtonClick}>
                             Copy the configuration and start the ShareX setup
