@@ -30,7 +30,7 @@ type Handler struct {
 }
 
 // New initializes the http handlers
-func New(handlerConfig config.Handlers, store store.Store, log *logrus.Logger) (*Handler, error) {
+func New(handlerConfig config.Handlers, store store.Store, log *logrus.Logger, testing bool) (*Handler, error) {
 	if !handlerConfig.EnableDebugMode {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -43,8 +43,10 @@ func New(handlerConfig config.Handlers, store store.Store, log *logrus.Logger) (
 	if err := h.setHandlers(); err != nil {
 		return nil, errors.Wrap(err, "could not set handlers")
 	}
-	if err := h.checkIfSecretExist(); err != nil {
-		return nil, errors.Wrap(err, "could not check if secret exist")
+	if !testing {
+		if err := h.checkIfSecretExist(); err != nil {
+			return nil, errors.Wrap(err, "could not check if secret exist")
+		}
 	}
 	h.initOAuth()
 	return h, nil
@@ -64,7 +66,7 @@ func (h *Handler) setTemplateFromFS(name string) error {
 }
 
 func (h *Handler) checkIfSecretExist() error {
-	if h.DoNotCheckConfigViaGet {
+	if !h.DoNotCheckConfigViaGet {
 		conf := config.Get()
 		if conf.Handlers.Secret == nil {
 			b := make([]byte, 128)

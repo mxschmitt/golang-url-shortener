@@ -39,7 +39,7 @@ func initShortener(log *logrus.Logger) (func(), error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
 	}
-	handler, err := handlers.New(conf.Handlers, *store, log)
+	handler, err := handlers.New(conf.Handlers, *store, log, false)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create handlers")
 	}
