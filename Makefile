@@ -22,6 +22,6 @@ getGoDependencies:
 
 buildProject:
 	@mkdir releases
-	gox -output="releases/{{.OS}}_{{.Arch}}/{{.OS}}_{{.Arch}}"
+	gox -output="releases/{{.Dir}_{{.OS}}_{{.Arch}}/{{.Dir}"
 	find releases -maxdepth 1 -mindepth 1 -type d -exec cp build/config.json {} \;
 	find releases -maxdepth 1 -mindepth 1 -type d -exec tar -cvjf {}.tar.bz2 {} \;

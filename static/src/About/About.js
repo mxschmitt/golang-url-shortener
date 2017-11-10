@@ -4,7 +4,7 @@ import { Container } from 'semantic-ui-react'
 export default class AppComponent extends Component {
     render() {
         return (
-            <Container id='rootContainer' >
+            <Container >
                 <div>About</div>
             </Container>
         )
