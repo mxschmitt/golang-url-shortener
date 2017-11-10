@@ -16,8 +16,7 @@ main.db
 debug
 *db.lock
 
-static/bower_components
 /config.json
-static.go
+/handlers/static.go
 /handlers/tmpls/tmpls.go
-/build/schema.json
+/releases
