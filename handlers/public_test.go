@@ -90,8 +90,8 @@ func TestCreateEntry(t *testing.T) {
 
 func TestHandleInfo(t *testing.T) {
 	t.Run("check existing entry", func(t *testing.T) {
-		reqBody, err := json.Marshal(store.Entry{
-			URL: testURL,
+		reqBody, err := json.Marshal(gin.H{
+			"URL": testURL,
 		})
 		if err != nil {
 			t.Fatalf("could not marshal json: %v", err)
@@ -109,7 +109,7 @@ func TestHandleInfo(t *testing.T) {
 		if err != nil {
 			t.Fatalf("could not marshal the body: %v", err)
 		}
-		req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/info", bytes.NewBuffer(body))
+		req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/lookup", bytes.NewBuffer(body))
 		if err != nil {
 			t.Fatalf("could not create request %v", err)
 		}
@@ -122,7 +122,7 @@ func TestHandleInfo(t *testing.T) {
 		if resp.StatusCode != http.StatusOK {
 			t.Errorf("expected status %d; got %d", http.StatusOK, resp.StatusCode)
 		}
-		var entry store.Entry
+		var entry store.EntryPublicData
 		if err = json.NewDecoder(resp.Body).Decode(&entry); err != nil {
 			t.Fatalf("could not unmarshal data: %v", err)
 		}
@@ -131,7 +131,7 @@ func TestHandleInfo(t *testing.T) {
 		}
 	})
 	t.Run("invalid body", func(t *testing.T) {
-		req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/info", bytes.NewBuffer(nil))
+		req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/lookup", bytes.NewBuffer(nil))
 		if err != nil {
 			t.Fatalf("could not create request %v", err)
 		}
@@ -157,7 +157,7 @@ func TestHandleInfo(t *testing.T) {
 		}
 	})
 	t.Run("no ID provided", func(t *testing.T) {
-		req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/info", bytes.NewBufferString("{}"))
+		req, err := http.NewRequest("POST", server.URL+"/api/v1/protected/lookup", bytes.NewBufferString("{}"))
 		if err != nil {
 			t.Fatalf("could not create request %v", err)
 		}

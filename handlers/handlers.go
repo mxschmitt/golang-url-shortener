@@ -90,7 +90,7 @@ func (h *Handler) setHandlers() error {
 	protected := h.engine.Group("/api/v1/protected")
 	protected.Use(h.authMiddleware)
 	protected.POST("/create", h.handleCreate)
-	protected.POST("/info", h.handleInfo)
+	protected.POST("/lookup", h.handleLookup)
 
 	h.engine.NoRoute(h.handleAccess, gin.WrapH(http.FileServer(FS(false))))
 	return nil

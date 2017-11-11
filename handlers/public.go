@@ -13,8 +13,8 @@ type URLUtil struct {
 	URL string `binding:"required"`
 }
 
-// handleInfo is the http handler for getting the infos
-func (h *Handler) handleInfo(c *gin.Context) {
+// handleLookup is the http handler for getting the infos
+func (h *Handler) handleLookup(c *gin.Context) {
 	var data struct {
 		ID string `binding:"required"`
 	}
@@ -30,11 +30,13 @@ func (h *Handler) handleInfo(c *gin.Context) {
 	user := c.MustGet("user").(*jwtClaims)
 	if entry.OAuthID != user.OAuthID || entry.OAuthProvider != user.OAuthProvider {
 		c.JSON(http.StatusOK, store.Entry{
-			URL: entry.URL,
+			Public: store.EntryPublicData{
+				URL: entry.Public.URL,
+			},
 		})
 		return
 	}
-	c.JSON(http.StatusOK, entry)
+	c.JSON(http.StatusOK, entry.Public)
 }
 
 // handleAccess handles the access for incoming requests
@@ -54,7 +56,7 @@ func (h *Handler) handleAccess(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.Redirect(http.StatusTemporaryRedirect, entry.URL)
+	c.Redirect(http.StatusTemporaryRedirect, entry.Public.URL)
 }
 
 // handleCreate handles requests to create an entry
@@ -66,7 +68,9 @@ func (h *Handler) handleCreate(c *gin.Context) {
 	}
 	user := c.MustGet("user").(*jwtClaims)
 	id, err := h.store.CreateEntry(store.Entry{
-		URL:           data.URL,
+		Public: store.EntryPublicData{
+			URL: data.URL,
+		},
 		RemoteAddr:    c.ClientIP(),
 		OAuthProvider: user.OAuthProvider,
 		OAuthID:       user.OAuthID,
