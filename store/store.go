@@ -23,10 +23,11 @@ type Store struct {
 
 // Entry is the data set which is stored in the DB as JSON
 type Entry struct {
-	URL                  string
-	VisitCount           int
-	RemoteAddr           string `json:",omitempty"`
-	CreatedOn, LastVisit time.Time
+	URL                    string
+	VisitCount             int
+	RemoteAddr             string `json:",omitempty"`
+	OAuthProvider, OAuthID string
+	CreatedOn, LastVisit   time.Time
 }
 
 // ErrNoEntryFound is returned when no entry to a id is found
@@ -113,13 +114,13 @@ func (s *Store) GetEntryByIDRaw(id string) ([]byte, error) {
 }
 
 // CreateEntry creates a new record and returns his short id
-func (s *Store) CreateEntry(URL, remoteAddr string) (string, error) {
+func (s *Store) CreateEntry(URL, remoteAddr, oAuthProvider, oAuthID string) (string, error) {
 	if !govalidator.IsURL(URL) {
 		return "", ErrNoValidURL
 	}
 	// try it 10 times to make a short URL
 	for i := 1; i <= 10; i++ {
-		id, err := s.createEntry(URL, remoteAddr)
+		id, err := s.createEntry(URL, remoteAddr, oAuthProvider, oAuthID)
 		if err != nil {
 			s.log.Debugf("Could not create entry: %v", err)
 			continue

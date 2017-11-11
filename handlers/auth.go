@@ -24,16 +24,9 @@ type jwtClaims struct {
 }
 
 type oAuthUser struct {
-	Sub           string `json:"sub"`
-	Name          string `json:"name"`
-	GivenName     string `json:"given_name"`
-	FamilyName    string `json:"family_name"`
-	Profile       string `json:"profile"`
-	Picture       string `json:"picture"`
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Gender        string `json:"gender"`
-	Hd            string `json:"hd"`
+	Sub     string `json:"sub"`
+	Name    string `json:"name"`
+	Picture string `json:"picture"`
 }
 
 type checkResponse struct {
@@ -68,7 +61,6 @@ func (h *Handler) handleGoogleRedirect(c *gin.Context) {
 }
 
 func (h *Handler) authMiddleware(c *gin.Context) {
-
 	authError := func() error {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -83,6 +75,7 @@ func (h *Handler) authMiddleware(c *gin.Context) {
 		if !token.Valid {
 			return errors.New("token is not valid")
 		}
+		c.Set("user", token.Claims)
 		return nil
 	}()
 	if authError != nil {

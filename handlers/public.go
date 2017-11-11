@@ -27,7 +27,13 @@ func (h *Handler) handleInfo(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	entry.RemoteAddr = ""
+	user := c.MustGet("user").(*jwtClaims)
+	if entry.OAuthID != user.OAuthID || entry.OAuthProvider != user.OAuthProvider {
+		c.JSON(http.StatusOK, store.Entry{
+			URL: entry.URL,
+		})
+		return
+	}
 	c.JSON(http.StatusOK, entry)
 }
 
@@ -58,8 +64,8 @@ func (h *Handler) handleCreate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	id, err := h.store.CreateEntry(data.URL, c.ClientIP())
+	user := c.MustGet("user").(*jwtClaims)
+	id, err := h.store.CreateEntry(data.URL, c.ClientIP(), user.OAuthProvider, user.OAuthID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

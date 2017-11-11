@@ -7,11 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>You will be redirected</title>
     <script>
-        window.opener.dispatchEvent(new CustomEvent('onAuthCallback', {
-            detail: {
-                token: {{ .token }}
-            }
-        }));
+        window.opener.postMessage({{ .token }}, window.location.origin)
         window.close();
     </script>
 </head>
