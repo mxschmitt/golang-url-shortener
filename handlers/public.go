@@ -65,7 +65,12 @@ func (h *Handler) handleCreate(c *gin.Context) {
 		return
 	}
 	user := c.MustGet("user").(*jwtClaims)
-	id, err := h.store.CreateEntry(data.URL, c.ClientIP(), user.OAuthProvider, user.OAuthID)
+	id, err := h.store.CreateEntry(store.Entry{
+		URL:           data.URL,
+		RemoteAddr:    c.ClientIP(),
+		OAuthProvider: user.OAuthProvider,
+		OAuthID:       user.OAuthID,
+	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
