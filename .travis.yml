@@ -1,6 +1,9 @@
 language: go
 go:
   - master
+env:
+  global:
+    secure: p0OlY1WSmAU5/0akWxct0czbJWBXL7j9IYjAsELeBqWL/qmbs+14iyjSj2Im9y/3ltv7xXd8ro46CgAxDON6zyczfhVjHoEU+NoV1VyFtB0sBENRSAT+pzxhe0aPjmL4uxagZyzt7gCfmeeMohMMKaOZ80IirLea4Fy0CMIUeDfNZNVKuaMlCQ/ntucTHA9vHFFwMW9yuf2W6kgu9PX+eb/7GcpDIeJ8nwtzm2nllpldn1s6acrKSUShlh1Lq1zS1gl18dt0cZRrUUMe21zWeLlsTmSuTFD024Nh4d49GNy05rlzoPd5D2W1XXM7X2Kxzj/kKBdij3KLZX3DvKczHdqTxuA3skG29mqDGN3JICzzAsTlnJnJztOUPr9cSaV7zwBR39LKsCHYVPDB0nhfSPk/68umGSRUVyCn7zR/hEdUSTCGX0EWyCdsmTzu21qERzL4w/D4ODovYWXg3is6iCsOaJJ5uK5NCBNlbZZQMxrhwTVTfbH/jhTiyHEIU08WupSZkE+rRt2bFFlPN707a852C2Cqur98IcMwLpWTCGLdBN5dDpzjbY6pCuJR63TFlbW3ChKat0rJebGEWFEAK6XPhQEATkEwGtq8yCuOamnXiDCkrbHIyW1QRKsDRVHs2e9Zbacne4KMOE72BRuYf7lszwocIDSqJ6Qs7uiMP4g=
 install:
   - . $HOME/.nvm/nvm.sh
   - nvm install stable
@@ -8,7 +11,7 @@ install:
   - npm install
 script:
   - make
-  - goveralls -service=travis-ci -ignore="handlers/static.go,handlers/tmpls/tmpls.go"
+  - goveralls -service=travis-ci -repotoken=$COVERALLS_TOKEN -ignore="handlers/static.go,handlers/tmpls/tmpls.go"
 deploy:
   provider: bintray
   user: maxibanki
