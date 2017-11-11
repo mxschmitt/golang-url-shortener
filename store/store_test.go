@@ -33,7 +33,10 @@ func TestGenerateRandomString(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			rnd := generateRandomString(tc.length)
+			rnd, err := generateRandomString(tc.length)
+			if err != nil {
+				t.Fatalf("could not generate random string: %v", err)
+			}
 			if len(rnd) != int(tc.length) {
 				t.Fatalf("length of %s random string is %d not the expected one: %d", tc.name, len(rnd), tc.length)
 			}
