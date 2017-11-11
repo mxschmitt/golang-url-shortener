@@ -33,7 +33,7 @@ func (s *Store) createEntry(entry Entry) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "could not generate random string")
 	}
-	entry.CreatedOn = time.Now()
+	entry.Public.CreatedOn = time.Now()
 	raw, err := json.Marshal(entry)
 	if err != nil {
 		return "", err
