@@ -69,12 +69,12 @@ func TestCreateEntry(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	defer cleanup(store)
-	_, err = store.CreateEntry("", "")
+	_, err = store.CreateEntry(Entry{})
 	if err != ErrNoValidURL {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	for i := 1; i <= 100; i++ {
-		_, err := store.CreateEntry("https://golang.org/", "")
+		_, err := store.CreateEntry(Entry{URL: "https://golang.org/"})
 		if err != nil && err != ErrGeneratingTriesFailed {
 			t.Fatalf("unexpected error during creating entry: %v", err)
 		}
@@ -103,7 +103,7 @@ func TestIncreaseVisitCounter(t *testing.T) {
 		t.Fatalf("could not create store: %v", err)
 	}
 	defer cleanup(store)
-	id, err := store.CreateEntry("https://golang.org/", "")
+	id, err := store.CreateEntry(Entry{URL: "https://golang.org/"})
 	if err != nil {
 		t.Fatalf("could not create entry: %v", err)
 	}

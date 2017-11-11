@@ -41,20 +41,15 @@ func (s *Store) createEntryRaw(key, value []byte) error {
 }
 
 // createEntry creates a new entry
-func (s *Store) createEntry(URL, remoteAddr, oAuthProvider, oAuthID string) (string, error) {
+func (s *Store) createEntry(entry Entry) (string, error) {
 	id, err := generateRandomString(s.idLength)
 	if err != nil {
 		return "", errors.Wrap(err, "could not generate random string")
 	}
 	exists := s.checkExistence(id)
 	if !exists {
-		raw, err := json.Marshal(Entry{
-			URL:           URL,
-			RemoteAddr:    remoteAddr,
-			CreatedOn:     time.Now(),
-			OAuthProvider: oAuthProvider,
-			OAuthID:       oAuthID,
-		})
+		entry.CreatedOn = time.Now()
+		raw, err := json.Marshal(entry)
 		if err != nil {
 			return "", err
 		}
