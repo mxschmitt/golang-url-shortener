@@ -41,7 +41,7 @@ export default class HomeComponent extends Component {
               <Input required size='big' ref={input => this.urlInput = input} action={{ icon: 'arrow right', labelPosition: 'right', content: 'Shorten' }} type='url' onChange={this.handleURLChange} name='url' placeholder='Paste a link to shorten it' />
             </Form.Field>
           </Form>
-        </Segment >
+        </Segment>
         <Card.Group itemsPerRow="2">
           {links.map((link, i) => <Card key={i}>
             <Card.Content>

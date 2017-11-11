@@ -7,6 +7,7 @@ import 'semantic-ui-css/semantic.min.css';
 import About from './About/About'
 import Home from './Home/Home'
 import ShareX from './ShareX/ShareX'
+import Lookup from './Lookup/Lookup'
 
 export default class BaseComponent extends Component {
     state = {
@@ -51,13 +52,15 @@ export default class BaseComponent extends Component {
     }
 
     onAuthCallback = data => {
-        // clear the old event listener, so that the event can only emitted be once
-        window.removeEventListener('onAuthCallback', this.onAuthCallback);
-        window.localStorage.setItem('token', data.detail.token);
-        this.checkAuth();
+        if (data.isTrusted) {
+            // clear the old event listener, so that the event can only emitted be once
+            window.removeEventListener('message', this.onAuthCallback);
+            window.localStorage.setItem('token', data.data);
+            this.checkAuth();
+        }
     }
     onAuthClick = () => {
-        window.addEventListener('onAuthCallback', this.onAuthCallback, false);
+        window.addEventListener('message', this.onAuthCallback, false);
         // Open the oAuth window that is it centered in the middle of the screen
         var wwidth = 400,
             wHeight = 500;
@@ -120,6 +123,7 @@ export default class BaseComponent extends Component {
                     <Route exact path="/" component={Home} />
                     <Route path="/about" component={About} />
                     <Route path="/ShareX" component={ShareX} />
+                    <Route path="/Lookup" component={Lookup} />
                 </Container>
             </HashRouter>
         )
