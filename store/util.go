@@ -70,8 +70,6 @@ func generateRandomString(length uint) (string, error) {
 			return "", err
 		}
 		n := num.Int64()
-		// Make sure that the number/byte/letter is inside
-		// the range of printable ASCII characters (excluding space and DEL)
 		if unicode.IsLetter(rune(n)) {
 			result += string(n)
 		}
