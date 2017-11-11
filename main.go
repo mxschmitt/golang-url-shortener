@@ -35,6 +35,9 @@ func initShortener(log *logrus.Logger) (func(), error) {
 		return nil, errors.Wrap(err, "could not get config")
 	}
 	conf := config.Get()
+	if conf.Handlers.EnableDebugMode {
+		log.SetLevel(logrus.DebugLevel)
+	}
 	store, err := store.New(conf.Store, log)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
