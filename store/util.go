@@ -1,9 +1,11 @@
 package store
 
 import (
+	"crypto/rand"
 	"encoding/json"
-	"math/rand"
+	"math/big"
 	"time"
+	"unicode"
 
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
@@ -40,7 +42,10 @@ func (s *Store) createEntryRaw(key, value []byte) error {
 
 // createEntry creates a new entry
 func (s *Store) createEntry(URL, remoteAddr string) (string, error) {
-	id := generateRandomString(s.idLength)
+	id, err := generateRandomString(s.idLength)
+	if err != nil {
+		return "", errors.Wrap(err, "could not generate random string")
+	}
 	exists := s.checkExistence(id)
 	if !exists {
 		raw, err := json.Marshal(Entry{
@@ -57,11 +62,19 @@ func (s *Store) createEntry(URL, remoteAddr string) (string, error) {
 }
 
 // generateRandomString generates a random string with an predefined length
-func generateRandomString(length uint) string {
-	letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	b := make([]rune, length)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+func generateRandomString(length uint) (string, error) {
+	var result string
+	for len(result) < int(length) {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(127)))
+		if err != nil {
+			return "", err
+		}
+		n := num.Int64()
+		// Make sure that the number/byte/letter is inside
+		// the range of printable ASCII characters (excluding space and DEL)
+		if unicode.IsLetter(rune(n)) {
+			result += string(n)
+		}
 	}
-	return string(b)
+	return result, nil
 }

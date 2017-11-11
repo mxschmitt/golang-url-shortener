@@ -8,6 +8,9 @@ export default class HomeComponent extends Component {
   state = {
     links: []
   }
+  componentDidMount() {
+    this.urlInput.focus()
+  }
   handleURLSubmit = () => {
     fetch('/api/v1/protected/create', {
       method: 'POST',
@@ -35,7 +38,7 @@ export default class HomeComponent extends Component {
           <Header size='huge'>Simplify your links</Header>
           <Form onSubmit={this.handleURLSubmit} autoComplete="off">
             <Form.Field>
-              <Input required size='big' action={{ icon: 'arrow right', labelPosition: 'right', content: 'Shorten' }} type='url' onChange={this.handleURLChange} name='url' placeholder='Paste a link to shorten it' />
+              <Input required size='big' ref={input => this.urlInput = input} action={{ icon: 'arrow right', labelPosition: 'right', content: 'Shorten' }} type='url' onChange={this.handleURLChange} name='url' placeholder='Paste a link to shorten it' />
             </Form.Field>
           </Form>
         </Segment >
@@ -55,14 +58,14 @@ export default class HomeComponent extends Component {
             </Card.Content>
             <Card.Content extra>
               <div className='ui two buttons'>
-                <Modal closeIcon trigger={<Button icon='qrcode' content='Show QR-Code'/>}>
+                <Modal closeIcon trigger={<Button icon='qrcode' content='Show QR-Code' />}>
                   <Modal.Header className="ui center aligned">{link[0]}</Modal.Header>
                   <Modal.Content style={{ textAlign: "center" }}>
                     <QRCode style={{ width: "75%" }} value={link[0]} />
                   </Modal.Content>
                 </Modal>
                 <Clipboard component="button" className="ui button" data-clipboard-text={link[0]} button-title="Copy the Shortened URL to Clipboard">
-                 <i class="clipboard icon"></i>
+                  <Icon name="clipboard" />
                   Copy to Clipboard
                 </Clipboard>
               </div>
