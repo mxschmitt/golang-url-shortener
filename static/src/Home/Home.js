@@ -45,7 +45,6 @@ export default class HomeComponent extends Component {
         <Card.Group itemsPerRow="2">
           {links.map((link, i) => <Card key={i}>
             <Card.Content>
-              <Image floated='right' size='mini' src='/assets/images/avatar/large/steve.jpg' />
               <Card.Header>
                 {new URL(link[1]).hostname}
               </Card.Header>

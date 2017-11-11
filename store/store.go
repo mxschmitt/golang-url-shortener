@@ -23,24 +23,23 @@ type Store struct {
 
 // Entry is the data set which is stored in the DB as JSON
 type Entry struct {
-	URL                    string
-	VisitCount             int
-	RemoteAddr             string `json:",omitempty"`
-	OAuthProvider, OAuthID string
-	CreatedOn, LastVisit   time.Time
+	URL, OAuthProvider, OAuthID string
+	VisitCount                  int
+	RemoteAddr                  string `json:",omitempty"`
+	CreatedOn, LastVisit        time.Time
 }
 
 // ErrNoEntryFound is returned when no entry to a id is found
-var ErrNoEntryFound = errors.New("no entry found")
+var ErrNoEntryFound = errors.New("no entry found with this ID")
 
 // ErrNoValidURL is returned when the URL is not valid
-var ErrNoValidURL = errors.New("no valid URL")
+var ErrNoValidURL = errors.New("the given URL is no valid URL")
 
-// ErrGeneratingTriesFailed is returned when the 10 tries to generate an id failed
-var ErrGeneratingTriesFailed = errors.New("could not generate unique id, db full?")
+// ErrGeneratingIDFailed is returned when the 10 tries to generate an id failed
+var ErrGeneratingIDFailed = errors.New("could not generate unique id, all ten tries failed")
 
 // ErrIDIsEmpty is returned when the given ID is empty
-var ErrIDIsEmpty = errors.New("id is empty")
+var ErrIDIsEmpty = errors.New("the given ID is empty")
 
 // New initializes the store with the db
 func New(storeConfig config.Store, log *logrus.Logger) (*Store, error) {
@@ -81,7 +80,7 @@ func (s *Store) GetEntryByID(id string) (*Entry, error) {
 func (s *Store) IncreaseVisitCounter(id string) error {
 	entry, err := s.GetEntryByID(id)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not get entry by ID")
 	}
 	entry.VisitCount++
 	entry.LastVisit = time.Now()
@@ -90,9 +89,8 @@ func (s *Store) IncreaseVisitCounter(id string) error {
 		return err
 	}
 	err = s.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(s.bucketName)
-		if err := bucket.Put([]byte(id), raw); err != nil {
-			return errors.Wrap(err, "could not put data into bucket")
+		if err := tx.Bucket(s.bucketName).Put([]byte(id), raw); err != nil {
+			return errors.Wrap(err, "could not put updated visitor count JSON into the bucket")
 		}
 		return nil
 	})
@@ -103,8 +101,7 @@ func (s *Store) IncreaseVisitCounter(id string) error {
 func (s *Store) GetEntryByIDRaw(id string) ([]byte, error) {
 	var raw []byte
 	err := s.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(s.bucketName)
-		raw = bucket.Get([]byte(id))
+		raw = tx.Bucket(s.bucketName).Get([]byte(id))
 		if raw == nil {
 			return ErrNoEntryFound
 		}
@@ -127,7 +124,7 @@ func (s *Store) CreateEntry(entry Entry) (string, error) {
 		}
 		return id, nil
 	}
-	return "", ErrGeneratingTriesFailed
+	return "", ErrGeneratingIDFailed
 }
 
 // Close closes the bolt db database

@@ -11,19 +11,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// checkExistens returns true if a entry with a given ID
-// exists and false if not
-func (s *Store) checkExistence(id string) bool {
-	raw, err := s.GetEntryByIDRaw(id)
-	if err != nil && err != ErrNoEntryFound {
-		return true
-	}
-	if raw != nil {
-		return true
-	}
-	return false
-}
-
 // createEntryRaw creates a entry with the given key value pair
 func (s *Store) createEntryRaw(key, value []byte) error {
 	err := s.db.Update(func(tx *bolt.Tx) error {
@@ -46,16 +33,12 @@ func (s *Store) createEntry(entry Entry) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "could not generate random string")
 	}
-	exists := s.checkExistence(id)
-	if !exists {
-		entry.CreatedOn = time.Now()
-		raw, err := json.Marshal(entry)
-		if err != nil {
-			return "", err
-		}
-		return id, s.createEntryRaw([]byte(id), raw)
+	entry.CreatedOn = time.Now()
+	raw, err := json.Marshal(entry)
+	if err != nil {
+		return "", err
 	}
-	return "", errors.New("entry already exists")
+	return id, s.createEntryRaw([]byte(id), raw)
 }
 
 // generateRandomString generates a random string with an predefined length

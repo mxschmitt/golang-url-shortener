@@ -75,7 +75,7 @@ func TestCreateEntry(t *testing.T) {
 	}
 	for i := 1; i <= 100; i++ {
 		_, err := store.CreateEntry(Entry{URL: "https://golang.org/"})
-		if err != nil && err != ErrGeneratingTriesFailed {
+		if err != nil && err != ErrGeneratingIDFailed {
 			t.Fatalf("unexpected error during creating entry: %v", err)
 		}
 	}
@@ -121,8 +121,9 @@ func TestIncreaseVisitCounter(t *testing.T) {
 	if entryBeforeInc.VisitCount+1 != entryAfterInc.VisitCount {
 		t.Fatalf("the increasement was not successful, the visit count is not correct")
 	}
-	if err = store.IncreaseVisitCounter(""); err != ErrIDIsEmpty {
-		t.Fatalf("could not get expected '%v' error: %v", ErrIDIsEmpty, err)
+	errIDIsEmpty := "could not get entry by ID: the given ID is empty"
+	if err = store.IncreaseVisitCounter(""); err.Error() != errIDIsEmpty {
+		t.Fatalf("could not get expected '%v'; got: %v", errIDIsEmpty, err)
 	}
 }
 
