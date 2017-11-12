@@ -19,6 +19,15 @@
 - Easy [ShareX](https://github.com/ShareX/ShareX) integration
 - Dockerizable
 
+## Webinterface
+
+![Short URLs](https://user-images.githubusercontent.com/17984549/32700384-955d9336-c7c4-11e7-9fab-4141a86a375c.png)
+
+---
+
+![Generate ShareX Configuration](https://user-images.githubusercontent.com/17984549/32700395-cf9f057a-c7c4-11e7-9d2b-7523c8a95a20.png)
+
+
 ## Documenation
 
 - [Installation](https://github.com/maxibanki/golang-url-shortener/wiki/Installation)
