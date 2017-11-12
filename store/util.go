@@ -17,7 +17,7 @@ func (s *Store) createEntryRaw(key, value []byte) error {
 		bucket := tx.Bucket(s.bucketName)
 		raw := bucket.Get(key)
 		if raw != nil {
-			return errors.New("entry value is not empty")
+			return errors.New("entry already exists")
 		}
 		if err := bucket.Put(key, value); err != nil {
 			return errors.Wrap(err, "could not put data into bucket")
@@ -28,10 +28,16 @@ func (s *Store) createEntryRaw(key, value []byte) error {
 }
 
 // createEntry creates a new entry
-func (s *Store) createEntry(entry Entry) (string, error) {
-	id, err := generateRandomString(s.idLength)
-	if err != nil {
-		return "", errors.Wrap(err, "could not generate random string")
+func (s *Store) createEntry(entry Entry, givenID string) (string, error) {
+	var id string
+	var err error
+	if givenID != "" {
+		id = givenID
+	} else {
+		id, err = generateRandomString(s.idLength)
+		if err != nil {
+			return "", errors.Wrap(err, "could not generate random string")
+		}
 	}
 	entry.Public.CreatedOn = time.Now()
 	raw, err := json.Marshal(entry)
