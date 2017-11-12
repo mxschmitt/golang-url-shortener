@@ -116,14 +116,16 @@ func (s *Store) GetEntryByIDRaw(id string) ([]byte, error) {
 }
 
 // CreateEntry creates a new record and returns his short id
-func (s *Store) CreateEntry(entry Entry) (string, error) {
+func (s *Store) CreateEntry(entry Entry, givenID string) (string, error) {
 	if !govalidator.IsURL(entry.Public.URL) {
 		return "", ErrNoValidURL
 	}
 	// try it 10 times to make a short URL
 	for i := 1; i <= 10; i++ {
-		id, err := s.createEntry(entry)
-		if err != nil {
+		id, err := s.createEntry(entry, givenID)
+		if err != nil && givenID != "" {
+			return "", err
+		} else if err != nil {
 			s.log.Debugf("Could not create entry: %v", err)
 			continue
 		}

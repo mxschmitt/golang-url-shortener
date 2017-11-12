@@ -11,6 +11,7 @@ import (
 // un- and marshalling
 type URLUtil struct {
 	URL string `binding:"required"`
+	ID  string
 }
 
 // handleLookup is the http handler for getting the infos
@@ -74,7 +75,7 @@ func (h *Handler) handleCreate(c *gin.Context) {
 		RemoteAddr:    c.ClientIP(),
 		OAuthProvider: user.OAuthProvider,
 		OAuthID:       user.OAuthID,
-	})
+	}, data.ID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
