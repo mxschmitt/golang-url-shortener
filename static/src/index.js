@@ -96,7 +96,7 @@ export default class BaseComponent extends Component {
         }
         return (
             <HashRouter>
-                <Container style={{ marginTop: "15px" }}>
+                <Container style={{ paddingTop: "15px" }}>
                     <Menu stackable>
                         <Menu.Item as={Link} to="/" name='shorten' onClick={this.handleItemClick} >
                             <Image src={userData.Picture} alt='user profile' circular size='mini' />
