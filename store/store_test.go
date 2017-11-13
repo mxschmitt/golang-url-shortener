@@ -4,7 +4,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -41,7 +40,7 @@ func TestGenerateRandomString(t *testing.T) {
 
 func TestNewStore(t *testing.T) {
 	t.Run("create store with correct arguments", func(r *testing.T) {
-		store, err := New(logrus.New())
+		store, err := New()
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -50,7 +49,7 @@ func TestNewStore(t *testing.T) {
 }
 
 func TestCreateEntry(t *testing.T) {
-	store, err := New(logrus.New())
+	store, err := New()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -72,7 +71,7 @@ func TestCreateEntry(t *testing.T) {
 }
 
 func TestGetEntryByID(t *testing.T) {
-	store, err := New(logrus.New())
+	store, err := New()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -88,7 +87,7 @@ func TestGetEntryByID(t *testing.T) {
 }
 
 func TestIncreaseVisitCounter(t *testing.T) {
-	store, err := New(logrus.New())
+	store, err := New()
 	if err != nil {
 		t.Fatalf("could not create store: %v", err)
 	}

@@ -14,7 +14,6 @@ import (
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2/google"
 )
@@ -47,11 +46,11 @@ func TestCreateBackend(t *testing.T) {
 	if err := util.ReadInConfig(); err != nil {
 		t.Fatalf("could not reload config file: %v", err)
 	}
-	store, err := store.New(logrus.New())
+	store, err := store.New()
 	if err != nil {
 		t.Fatalf("could not create store: %v", err)
 	}
-	handler, err := New(*store, logrus.New(), true)
+	handler, err := New(*store, true)
 	if err != nil {
 		t.Fatalf("could not create handler: %v", err)
 	}

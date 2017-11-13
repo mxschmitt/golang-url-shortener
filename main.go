@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/signal"
 
@@ -17,32 +18,31 @@ import (
 func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
-	log := logrus.New()
-	log.Formatter = &logrus.TextFormatter{
+	logrus.SetFormatter(&logrus.TextFormatter{
 		ForceColors: true,
-	}
-	log.Out = ansicolor.NewAnsiColorWriter(os.Stdout)
-	close, err := initShortener(log)
+	})
+	logrus.SetOutput(ansicolor.NewAnsiColorWriter(os.Stdout))
+	close, err := initShortener()
 	if err != nil {
-		log.Fatalf("could not init shortener: %v", err)
+		logrus.Fatalf("could not init shortener: %v", err)
 	}
 	<-stop
-	log.Println("Shutting down...")
+	logrus.Println("Shutting down...")
 	close()
 }
 
-func initShortener(log *logrus.Logger) (func(), error) {
+func initShortener() (func(), error) {
 	if err := util.ReadInConfig(); err != nil {
 		return nil, errors.Wrap(err, "could not reload config file")
 	}
 	if viper.GetBool("General.EnableDebugMode") {
-		log.SetLevel(logrus.DebugLevel)
+		logrus.SetLevel(logrus.DebugLevel)
 	}
-	store, err := store.New(log)
+	store, err := store.New()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
 	}
-	handler, err := handlers.New(*store, log, false)
+	handler, err := handlers.New(*store, false)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create handlers")
 	}
