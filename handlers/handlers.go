@@ -2,17 +2,17 @@
 package handlers
 
 import (
-	"crypto/rand"
 	"html/template"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/contrib/ginrus"
+	"github.com/spf13/viper"
 
 	"github.com/gin-gonic/gin"
-	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/maxibanki/golang-url-shortener/handlers/tmpls"
 	"github.com/maxibanki/golang-url-shortener/store"
+	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
@@ -21,21 +21,18 @@ import (
 // Handler holds the funcs and attributes for the
 // http communication
 type Handler struct {
-	config                 config.Handlers
-	store                  store.Store
-	engine                 *gin.Engine
-	oAuthConf              *oauth2.Config
-	log                    *logrus.Logger
-	DoNotCheckConfigViaGet bool // DoNotCheckConfigViaGet is for the unit testing usage
+	store     store.Store
+	engine    *gin.Engine
+	oAuthConf *oauth2.Config
+	log       *logrus.Logger
 }
 
 // New initializes the http handlers
-func New(handlerConfig config.Handlers, store store.Store, log *logrus.Logger, testing bool) (*Handler, error) {
-	if !handlerConfig.EnableDebugMode {
+func New(store store.Store, log *logrus.Logger, testing bool) (*Handler, error) {
+	if !viper.GetBool("General.EnableDebugMode") {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	h := &Handler{
-		config: handlerConfig,
 		store:  store,
 		log:    log,
 		engine: gin.New(),
@@ -44,8 +41,8 @@ func New(handlerConfig config.Handlers, store store.Store, log *logrus.Logger, t
 		return nil, errors.Wrap(err, "could not set handlers")
 	}
 	if !testing {
-		if err := h.checkIfSecretExist(); err != nil {
-			return nil, errors.Wrap(err, "could not check if secret exist")
+		if err := util.CheckForPrivateKey(); err != nil {
+			return nil, errors.Wrap(err, "could not check for privat key")
 		}
 	}
 	h.initOAuth()
@@ -65,23 +62,6 @@ func (h *Handler) setTemplateFromFS(name string) error {
 	return nil
 }
 
-func (h *Handler) checkIfSecretExist() error {
-	if !h.DoNotCheckConfigViaGet {
-		conf := config.Get()
-		if conf.Handlers.Secret == nil {
-			b := make([]byte, 128)
-			if _, err := rand.Read(b); err != nil {
-				return err
-			}
-			conf.Handlers.Secret = b
-			if err := config.Set(conf); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
 func (h *Handler) setHandlers() error {
 	if err := h.setTemplateFromFS("token.tmpl"); err != nil {
 		return errors.Wrap(err, "could not set template from FS")
@@ -98,7 +78,7 @@ func (h *Handler) setHandlers() error {
 
 // Listen starts the http server
 func (h *Handler) Listen() error {
-	return h.engine.Run(h.config.ListenAddr)
+	return h.engine.Run(viper.GetString("http.ListenAddr"))
 }
 
 // CloseStore stops the http server and the closes the db gracefully

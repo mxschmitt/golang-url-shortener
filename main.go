@@ -6,10 +6,11 @@ import (
 
 	"github.com/shiena/ansicolor"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
-	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/maxibanki/golang-url-shortener/handlers"
 	"github.com/maxibanki/golang-url-shortener/store"
+	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
 )
 
@@ -31,18 +32,17 @@ func main() {
 }
 
 func initShortener(log *logrus.Logger) (func(), error) {
-	if err := config.Preload(); err != nil {
-		return nil, errors.Wrap(err, "could not get config")
+	if err := util.ReadInConfig(); err != nil {
+		return nil, errors.Wrap(err, "could not reload config file")
 	}
-	conf := config.Get()
-	if conf.Handlers.EnableDebugMode {
+	if viper.GetBool("General.EnableDebugMode") {
 		log.SetLevel(logrus.DebugLevel)
 	}
-	store, err := store.New(conf.Store, log)
+	store, err := store.New(log)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
 	}
-	handler, err := handlers.New(conf.Handlers, *store, log, false)
+	handler, err := handlers.New(*store, log, false)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create handlers")
 	}

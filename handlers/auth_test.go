@@ -6,16 +6,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/maxibanki/golang-url-shortener/store"
+	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"golang.org/x/oauth2/google"
 )
 
@@ -24,7 +24,7 @@ const (
 )
 
 var (
-	secret           = []byte("our really great secret")
+	secret           []byte
 	server           *httptest.Server
 	closeServer      func() error
 	handler          *Handler
@@ -41,18 +41,22 @@ var (
 )
 
 func TestCreateBackend(t *testing.T) {
-	store, err := store.New(config.Store{
-		DBPath:          testingDBName,
-		ShortedIDLength: 4,
-	}, logrus.New())
+	secret = util.GetPrivateKey()
+	viper.SetConfigName("config")
+	viper.AddConfigPath("../")
+	util.SetConfigDefaults()
+	err := viper.ReadInConfig()
+	if err != nil {
+		t.Fatalf("could not reload config file: %v", err)
+	}
+	if err := util.CheckForDatadir(); err != nil {
+		t.Fatalf("could not reload config file: %v", err)
+	}
+	store, err := store.New(logrus.New())
 	if err != nil {
 		t.Fatalf("could not create store: %v", err)
 	}
-	handler, err := New(config.Handlers{
-		ListenAddr: ":8080",
-		Secret:     secret,
-		BaseURL:    "http://127.0.0.1",
-	}, *store, logrus.New(), true)
+	handler, err := New(*store, logrus.New(), true)
 	if err != nil {
 		t.Fatalf("could not create handler: %v", err)
 	}
@@ -61,9 +65,6 @@ func TestCreateBackend(t *testing.T) {
 		server.Close()
 		if err := handler.CloseStore(); err != nil {
 			return errors.Wrap(err, "could not close store")
-		}
-		if err := os.Remove(testingDBName); err != nil {
-			return errors.Wrap(err, "could not remove testing db")
 		}
 		return nil
 	}

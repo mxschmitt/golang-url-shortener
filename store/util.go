@@ -48,7 +48,7 @@ func (s *Store) createEntry(entry Entry, givenID string) (string, error) {
 }
 
 // generateRandomString generates a random string with an predefined length
-func generateRandomString(length uint) (string, error) {
+func generateRandomString(length int) (string, error) {
 	var result string
 	for len(result) < int(length) {
 		num, err := rand.Int(rand.Reader, big.NewInt(int64(127)))

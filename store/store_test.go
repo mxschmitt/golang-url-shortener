@@ -2,27 +2,22 @@ package store
 
 import (
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/maxibanki/golang-url-shortener/config"
+	"github.com/spf13/viper"
 )
 
 const (
 	testingDBName = "test.db"
 )
 
-var validConfig = config.Store{
-	DBPath:          testingDBName,
-	ShortedIDLength: 4,
-}
-
 func TestGenerateRandomString(t *testing.T) {
+	viper.SetDefault("General.DataDir", "data")
+	viper.SetDefault("General.ShortedIDLength", 4)
 	tt := []struct {
 		name   string
-		length uint
+		length int
 	}{
 		{"fourtytwo long", 42},
 		{"sixteen long", 16},
@@ -45,14 +40,8 @@ func TestGenerateRandomString(t *testing.T) {
 }
 
 func TestNewStore(t *testing.T) {
-	t.Run("create store without file name provided", func(r *testing.T) {
-		_, err := New(config.Store{}, logrus.New())
-		if !strings.Contains(err.Error(), "could not open bolt DB database") {
-			t.Fatalf("unexpected error: %v", err)
-		}
-	})
 	t.Run("create store with correct arguments", func(r *testing.T) {
-		store, err := New(validConfig, logrus.New())
+		store, err := New(logrus.New())
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -61,10 +50,7 @@ func TestNewStore(t *testing.T) {
 }
 
 func TestCreateEntry(t *testing.T) {
-	store, err := New(config.Store{
-		DBPath:          testingDBName,
-		ShortedIDLength: 1,
-	}, logrus.New())
+	store, err := New(logrus.New())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -86,7 +72,7 @@ func TestCreateEntry(t *testing.T) {
 }
 
 func TestGetEntryByID(t *testing.T) {
-	store, err := New(validConfig, logrus.New())
+	store, err := New(logrus.New())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -102,7 +88,7 @@ func TestGetEntryByID(t *testing.T) {
 }
 
 func TestIncreaseVisitCounter(t *testing.T) {
-	store, err := New(validConfig, logrus.New())
+	store, err := New(logrus.New())
 	if err != nil {
 		t.Fatalf("could not create store: %v", err)
 	}
