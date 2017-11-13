@@ -12,12 +12,10 @@
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
-main.db
-debug
-*db.lock
 
 /config.*
 /handlers/static.go
 /handlers/tmpls/tmpls.go
+/store/main.db
 /releases
 /data
