@@ -11,21 +11,23 @@ import (
 
 var dataDirPath string
 
+// ReadInConfig loads the configuration and other needed folders for further usage
 func ReadInConfig() error {
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("gus")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
-	SetConfigDefaults()
+	setConfigDefaults()
 	err := viper.ReadInConfig()
 	if err != nil {
 		return errors.Wrap(err, "could not reload config file")
 	}
-	return CheckForDatadir()
+	return checkForDatadir()
 }
 
-func SetConfigDefaults() {
+// setConfigDefaults sets the default values for the configuration
+func setConfigDefaults() {
 	viper.SetDefault("http.ListenAddr", ":8080")
 	viper.SetDefault("http.BaseURL", "http://localhost:3000")
 
@@ -34,11 +36,13 @@ func SetConfigDefaults() {
 	viper.SetDefault("General.ShortedIDLength", 4)
 }
 
+// GetDataDir returns the absolute path of the data directory
 func GetDataDir() string {
 	return dataDirPath
 }
 
-func CheckForDatadir() error {
+// checkForDatadir checks for the data dir and creates it if it not exists
+func checkForDatadir() error {
 	var err error
 	dataDirPath, err = filepath.Abs(viper.GetString("General.DataDir"))
 	if err != nil {

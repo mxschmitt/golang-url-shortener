@@ -11,6 +11,7 @@ import (
 
 var privateKey []byte
 
+// CheckForPrivateKey checks if already an private key exists, if not one will be randomly generated
 func CheckForPrivateKey() error {
 	privateDat := filepath.Join(GetDataDir(), "private.dat")
 	d, err := ioutil.ReadFile(privateDat)
@@ -31,6 +32,7 @@ func CheckForPrivateKey() error {
 	return nil
 }
 
+// GetPrivateKey returns the private key from the memory
 func GetPrivateKey() []byte {
 	return privateKey
 }
