@@ -1,0 +1,4 @@
+General:
+  DataDir: ../data
+  EnableDebugMode: true
+  ShortedIDLength: 4
