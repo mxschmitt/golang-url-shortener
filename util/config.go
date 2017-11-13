@@ -9,14 +9,19 @@ import (
 	"github.com/spf13/viper"
 )
 
-var dataDirPath string
+var (
+	dataDirPath        string
+	DoNotSetConfigName = false
+)
 
 // ReadInConfig loads the configuration and other needed folders for further usage
 func ReadInConfig() error {
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("gus")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.SetConfigName("config")
+	if !DoNotSetConfigName {
+		viper.SetConfigName("config")
+	}
 	viper.AddConfigPath(".")
 	setConfigDefaults()
 	err := viper.ReadInConfig()

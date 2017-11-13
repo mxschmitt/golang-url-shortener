@@ -42,8 +42,8 @@ var (
 
 func TestCreateBackend(t *testing.T) {
 	secret = util.GetPrivateKey()
-	viper.AddConfigPath("../")
-	viper.Set("General.DataDir", "../data")
+	viper.SetConfigName("test")
+	util.DoNotSetConfigName = true
 	if err := util.ReadInConfig(); err != nil {
 		t.Fatalf("could not reload config file: %v", err)
 	}
