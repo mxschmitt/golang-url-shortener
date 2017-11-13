@@ -7,6 +7,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/maxibanki/golang-url-shortener/util"
+	"github.com/spf13/viper"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -38,15 +41,15 @@ type checkResponse struct {
 
 func (h *Handler) initOAuth() {
 	h.oAuthConf = &oauth2.Config{
-		ClientID:     h.config.OAuth.Google.ClientID,
-		ClientSecret: h.config.OAuth.Google.ClientSecret,
-		RedirectURL:  h.config.BaseURL + "/api/v1/callback",
+		ClientID:     viper.GetString("oAuth.Google.ClientID"),
+		ClientSecret: viper.GetString("oAuth.Google.ClientSecret"),
+		RedirectURL:  viper.GetString("http.BaseURL") + "/api/v1/callback",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 		},
 		Endpoint: google.Endpoint,
 	}
-	h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(h.config.Secret)))
+	h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
 	h.engine.GET("/api/v1/login", h.handleGoogleRedirect)
 	h.engine.GET("/api/v1/callback", h.handleGoogleCallback)
 	h.engine.POST("/api/v1/check", h.handleGoogleCheck)
@@ -67,7 +70,7 @@ func (h *Handler) authMiddleware(c *gin.Context) {
 			return errors.New("'Authorization' header not set")
 		}
 		token, err := jwt.ParseWithClaims(authHeader, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
-			return h.config.Secret, nil
+			return util.GetPrivateKey(), nil
 		})
 		if err != nil {
 			return fmt.Errorf("could not parse token: %v", err)
@@ -79,7 +82,7 @@ func (h *Handler) authMiddleware(c *gin.Context) {
 		return nil
 	}()
 	if authError != nil {
-		if h.config.EnableDebugMode {
+		if viper.GetBool("General.EnableDebugMode") {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": fmt.Sprintf("token is not valid: %v", authError),
 			})
@@ -103,7 +106,7 @@ func (h *Handler) handleGoogleCheck(c *gin.Context) {
 		return
 	}
 	token, err := jwt.ParseWithClaims(data.Token, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return h.config.Secret, nil
+		return util.GetPrivateKey(), nil
 	})
 	if claims, ok := token.Claims.(*jwtClaims); ok && token.Valid {
 		c.JSON(http.StatusOK, checkResponse{
@@ -159,7 +162,7 @@ func (h *Handler) handleGoogleCallback(c *gin.Context) {
 		user.Picture,
 	})
 
-	tokenString, err := token.SignedString(h.config.Secret)
+	tokenString, err := token.SignedString(util.GetPrivateKey())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("could not sign token: %v", err)})
 		return

@@ -1,0 +1,11 @@
+http:
+  ListenAddr: ':8080'
+  BaseURL: 'http://localhost:3000'
+General:
+  DBPath: main.db
+  EnableDebugMode: true
+  ShortedIDLength: 4
+oAuth:
+  Google:
+    ClientID: replace me
+    ClientSecret: replace me

@@ -3,13 +3,15 @@ package store
 
 import (
 	"encoding/json"
+	"path/filepath"
 	"time"
 
+	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/boltdb/bolt"
-	"github.com/maxibanki/golang-url-shortener/config"
 	"github.com/pkg/errors"
 )
 
@@ -17,7 +19,7 @@ import (
 type Store struct {
 	db         *bolt.DB
 	bucketName []byte
-	idLength   uint
+	idLength   int
 	log        *logrus.Logger
 }
 
@@ -47,8 +49,8 @@ var ErrGeneratingIDFailed = errors.New("could not generate unique id, all ten tr
 var ErrIDIsEmpty = errors.New("the given ID is empty")
 
 // New initializes the store with the db
-func New(storeConfig config.Store, log *logrus.Logger) (*Store, error) {
-	db, err := bolt.Open(storeConfig.DBPath, 0644, &bolt.Options{Timeout: 1 * time.Second})
+func New(log *logrus.Logger) (*Store, error) {
+	db, err := bolt.Open(filepath.Join(util.GetDataDir(), "main.db"), 0644, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open bolt DB database")
 	}
@@ -62,7 +64,7 @@ func New(storeConfig config.Store, log *logrus.Logger) (*Store, error) {
 	}
 	return &Store{
 		db:         db,
-		idLength:   storeConfig.ShortedIDLength,
+		idLength:   viper.GetInt("General.ShortedIDLength"),
 		bucketName: bucketName,
 		log:        log,
 	}, nil

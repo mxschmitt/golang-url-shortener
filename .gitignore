@@ -16,7 +16,8 @@ main.db
 debug
 *db.lock
 
-/config.json
+/config.*
 /handlers/static.go
 /handlers/tmpls/tmpls.go
 /releases
+/data
