@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/contrib/ginrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,6 @@ import (
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -24,17 +24,15 @@ type Handler struct {
 	store     store.Store
 	engine    *gin.Engine
 	oAuthConf *oauth2.Config
-	log       *logrus.Logger
 }
 
 // New initializes the http handlers
-func New(store store.Store, log *logrus.Logger, testing bool) (*Handler, error) {
+func New(store store.Store, testing bool) (*Handler, error) {
 	if !viper.GetBool("General.EnableDebugMode") {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	h := &Handler{
 		store:  store,
-		log:    log,
 		engine: gin.New(),
 	}
 	if err := h.setHandlers(); err != nil {
@@ -66,7 +64,7 @@ func (h *Handler) setHandlers() error {
 	if err := h.setTemplateFromFS("token.tmpl"); err != nil {
 		return errors.Wrap(err, "could not set template from FS")
 	}
-	h.engine.Use(ginrus.Ginrus(h.log, time.RFC3339, false))
+	h.engine.Use(ginrus.Ginrus(logrus.StandardLogger(), time.RFC3339, false))
 	protected := h.engine.Group("/api/v1/protected")
 	protected.Use(h.authMiddleware)
 	protected.POST("/create", h.handleCreate)

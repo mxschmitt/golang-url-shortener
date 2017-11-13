@@ -20,7 +20,6 @@ type Store struct {
 	db         *bolt.DB
 	bucketName []byte
 	idLength   int
-	log        *logrus.Logger
 }
 
 // Entry is the data set which is stored in the DB as JSON
@@ -49,7 +48,7 @@ var ErrGeneratingIDFailed = errors.New("could not generate unique id, all ten tr
 var ErrIDIsEmpty = errors.New("the given ID is empty")
 
 // New initializes the store with the db
-func New(log *logrus.Logger) (*Store, error) {
+func New() (*Store, error) {
 	db, err := bolt.Open(filepath.Join(util.GetDataDir(), "main.db"), 0644, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open bolt DB database")
@@ -66,7 +65,6 @@ func New(log *logrus.Logger) (*Store, error) {
 		db:         db,
 		idLength:   viper.GetInt("General.ShortedIDLength"),
 		bucketName: bucketName,
-		log:        log,
 	}, nil
 }
 
@@ -128,7 +126,7 @@ func (s *Store) CreateEntry(entry Entry, givenID string) (string, error) {
 		if err != nil && givenID != "" {
 			return "", err
 		} else if err != nil {
-			s.log.Debugf("Could not create entry: %v", err)
+			logrus.Debugf("Could not create entry: %v", err)
 			continue
 		}
 		return id, nil

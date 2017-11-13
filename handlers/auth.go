@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/maxibanki/golang-url-shortener/util"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -86,7 +87,7 @@ func (h *Handler) authMiddleware(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": fmt.Sprintf("token is not valid: %v", authError),
 			})
-			h.log.Debugf("Authentication middleware failed: %v\n", authError)
+			logrus.Debugf("Authentication middleware failed: %v\n", authError)
 		} else {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": "authentication failed",
