@@ -11,7 +11,7 @@ install:
   - npm install
 script:
   - make
-  - goveralls -service=travis-ci -repotoken=$COVERALLS_TOKEN -ignore="handlers/static.go,handlers/tmpls/tmpls.go"
+  - goveralls -service=travis-ci -ignore="handlers/static.go,handlers/tmpls/tmpls.go"
 deploy:
   provider: bintray
   user: maxibanki
