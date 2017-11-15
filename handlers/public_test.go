@@ -24,7 +24,6 @@ func TestCreateEntry(t *testing.T) {
 		name           string
 		ignoreResponse bool
 		contentType    string
-		authToken      string
 		response       gin.H
 		requestBody    URLUtil
 		statusCode     int

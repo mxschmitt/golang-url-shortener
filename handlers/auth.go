@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"time"
 
+	"github.com/maxibanki/golang-url-shortener/handlers/auth"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -15,84 +13,47 @@ import (
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 )
 
-type jwtClaims struct {
-	jwt.StandardClaims
-	OAuthProvider string
-	OAuthID       string
-	OAuthName     string
-	OAuthPicture  string
-}
-
-type oAuthUser struct {
-	Sub     string `json:"sub"`
-	Name    string `json:"name"`
-	Picture string `json:"picture"`
-}
-
-type checkResponse struct {
-	ID       string
-	Name     string
-	Picture  string
-	Provider string
-}
-
 func (h *Handler) initOAuth() {
-	h.oAuthConf = &oauth2.Config{
-		ClientID:     viper.GetString("oAuth.Google.ClientID"),
-		ClientSecret: viper.GetString("oAuth.Google.ClientSecret"),
-		RedirectURL:  viper.GetString("http.BaseURL") + "/api/v1/callback",
-		Scopes: []string{
-			"https://www.googleapis.com/auth/userinfo.email",
-		},
-		Endpoint: google.Endpoint,
-	}
 	h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
-	h.engine.GET("/api/v1/login", h.handleGoogleRedirect)
-	h.engine.GET("/api/v1/callback", h.handleGoogleCallback)
+
+	auth.WithAdapterWrapper(auth.NewGoogleAdapter(viper.GetString("oAuth.Google.ClientID"), viper.GetString("oAuth.Google.ClientSecret"), viper.GetString("http.BaseURL")), h.engine.Group("/api/v1/auth/google"))
+
 	h.engine.POST("/api/v1/check", h.handleGoogleCheck)
 }
 
-func (h *Handler) handleGoogleRedirect(c *gin.Context) {
-	state := h.randToken()
-	session := sessions.Default(c)
-	session.Set("state", state)
-	session.Save()
-	c.Redirect(http.StatusTemporaryRedirect, h.oAuthConf.AuthCodeURL(state))
+func (h *Handler) parseJWT(wt string) (*auth.JWTClaims, error) {
+	token, err := jwt.ParseWithClaims(wt, &auth.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return util.GetPrivateKey(), nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not parse token: %v", err)
+	}
+	if !token.Valid {
+		return nil, errors.New("token is not valid")
+	}
+	return token.Claims.(*auth.JWTClaims), nil
 }
 
 func (h *Handler) authMiddleware(c *gin.Context) {
 	authError := func() error {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
+		wt := c.GetHeader("Authorization")
+		if wt == "" {
 			return errors.New("'Authorization' header not set")
 		}
-		token, err := jwt.ParseWithClaims(authHeader, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
-			return util.GetPrivateKey(), nil
-		})
+		claims, err := h.parseJWT(wt)
 		if err != nil {
-			return fmt.Errorf("could not parse token: %v", err)
+			return err
 		}
-		if !token.Valid {
-			return errors.New("token is not valid")
-		}
-		c.Set("user", token.Claims)
+		c.Set("user", claims)
 		return nil
 	}()
 	if authError != nil {
-		if viper.GetBool("General.EnableDebugMode") {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-				"error": fmt.Sprintf("token is not valid: %v", authError),
-			})
-			logrus.Debugf("Authentication middleware failed: %v\n", authError)
-		} else {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-				"error": "authentication failed",
-			})
-		}
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"error": "authentication failed",
+		})
+		logrus.Debugf("Authentication middleware failed: %v\n", authError)
 		return
 	}
 	c.Next()
@@ -106,69 +67,15 @@ func (h *Handler) handleGoogleCheck(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	token, err := jwt.ParseWithClaims(data.Token, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return util.GetPrivateKey(), nil
-	})
-	if claims, ok := token.Claims.(*jwtClaims); ok && token.Valid {
-		c.JSON(http.StatusOK, checkResponse{
-			ID:       claims.OAuthID,
-			Name:     claims.OAuthName,
-			Picture:  claims.OAuthPicture,
-			Provider: claims.OAuthProvider,
-		})
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	}
-}
-
-func (h *Handler) handleGoogleCallback(c *gin.Context) {
-	session := sessions.Default(c)
-	retrievedState := session.Get("state")
-	if retrievedState != c.Query("state") {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("invalid session state: %s", retrievedState)})
-		return
-	}
-
-	oAuthToken, err := h.oAuthConf.Exchange(oauth2.NoContext, c.Query("code"))
+	claims, err := h.parseJWT(data.Token)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not exchange code: %v", err)})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-
-	client := h.oAuthConf.Client(oauth2.NoContext, oAuthToken)
-	oAuthUserInfoReq, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("could not get user data: %v", err)})
-		return
-	}
-	defer oAuthUserInfoReq.Body.Close()
-	data, err := ioutil.ReadAll(oAuthUserInfoReq.Body)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("could not read body: %v", err)})
-		return
-	}
-	var user oAuthUser
-	if err = json.Unmarshal(data, &user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("decoding user info failed: %v", err)})
-		return
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwtClaims{
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24 * 365).Unix(),
-		},
-		"google",
-		user.Sub,
-		user.Name,
-		user.Picture,
-	})
-
-	tokenString, err := token.SignedString(util.GetPrivateKey())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("could not sign token: %v", err)})
-		return
-	}
-	c.HTML(http.StatusOK, "token.tmpl", gin.H{
-		"token": tokenString,
+	c.JSON(http.StatusOK, gin.H{
+		"ID":       claims.OAuthID,
+		"Name":     claims.OAuthName,
+		"Picture":  claims.OAuthPicture,
+		"Provider": claims.OAuthProvider,
 	})
 }

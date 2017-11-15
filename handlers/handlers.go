@@ -15,15 +15,13 @@ import (
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
-	"golang.org/x/oauth2"
 )
 
 // Handler holds the funcs and attributes for the
 // http communication
 type Handler struct {
-	store     store.Store
-	engine    *gin.Engine
-	oAuthConf *oauth2.Config
+	store  store.Store
+	engine *gin.Engine
 }
 
 // New initializes the http handlers

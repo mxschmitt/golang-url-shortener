@@ -6,28 +6,23 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"github.com/maxibanki/golang-url-shortener/handlers/auth"
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	"golang.org/x/oauth2/google"
-)
-
-const (
-	testingDBName = "main.db"
 )
 
 var (
 	secret           []byte
 	server           *httptest.Server
 	closeServer      func() error
-	handler          *Handler
-	testingClaimData = jwtClaims{
+	testingClaimData = auth.JWTClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24 * 365).Unix(),
 		},
@@ -61,25 +56,6 @@ func TestCreateBackend(t *testing.T) {
 			return errors.Wrap(err, "could not close store")
 		}
 		return nil
-	}
-}
-
-func TestHandleGoogleRedirect(t *testing.T) {
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		}, // don't follow redirects
-	}
-	resp, err := client.Get(server.URL + "/api/v1/login")
-	if err != nil {
-		t.Fatalf("could not get login request: %v", err)
-	}
-	if resp.StatusCode != http.StatusTemporaryRedirect {
-		t.Fatalf("expected status code: %d; got: %d", http.StatusTemporaryRedirect, resp.StatusCode)
-	}
-	location := resp.Header.Get("Location")
-	if !strings.HasPrefix(location, google.Endpoint.AuthURL) {
-		t.Fatalf("redirect is not correct, got: %s", location)
 	}
 }
 
@@ -129,7 +105,7 @@ func TestCheckToken(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not execute get request: %v", err)
 	}
-	var data checkResponse
+	var data gin.H
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		t.Fatalf("could not decode json: %v", err)
 	}
@@ -140,22 +116,22 @@ func TestCheckToken(t *testing.T) {
 	}{
 		{
 			name:          "ID",
-			currentValue:  data.ID,
+			currentValue:  data["ID"].(string),
 			expectedValue: testingClaimData.OAuthID,
 		},
 		{
 			name:          "Name",
-			currentValue:  data.Name,
+			currentValue:  data["Name"].(string),
 			expectedValue: testingClaimData.OAuthName,
 		},
 		{
 			name:          "Picture",
-			currentValue:  data.Picture,
+			currentValue:  data["Picture"].(string),
 			expectedValue: testingClaimData.OAuthPicture,
 		},
 		{
 			name:          "Provider",
-			currentValue:  data.Provider,
+			currentValue:  data["Provider"].(string),
 			expectedValue: testingClaimData.OAuthProvider,
 		},
 	}

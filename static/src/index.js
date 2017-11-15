@@ -66,7 +66,7 @@ export default class BaseComponent extends Component {
             wHeight = 500;
         var wLeft = (window.screen.width / 2) - (wwidth / 2);
         var wTop = (window.screen.height / 2) - (wHeight / 2);
-        window.open('/api/v1/login', '', `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
+        window.open('/api/v1/auth/google/login', '', `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
     }
 
     handleLogout = () => {
