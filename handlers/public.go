@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/maxibanki/golang-url-shortener/handlers/auth"
 	"github.com/maxibanki/golang-url-shortener/store"
 )
 
@@ -28,7 +29,7 @@ func (h *Handler) handleLookup(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	user := c.MustGet("user").(*jwtClaims)
+	user := c.MustGet("user").(*auth.JWTClaims)
 	if entry.OAuthID != user.OAuthID || entry.OAuthProvider != user.OAuthProvider {
 		c.JSON(http.StatusOK, store.Entry{
 			Public: store.EntryPublicData{
@@ -67,7 +68,7 @@ func (h *Handler) handleCreate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	user := c.MustGet("user").(*jwtClaims)
+	user := c.MustGet("user").(*auth.JWTClaims)
 	id, err := h.store.CreateEntry(store.Entry{
 		Public: store.EntryPublicData{
 			URL: data.URL,

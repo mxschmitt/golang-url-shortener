@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/signal"
 
@@ -48,12 +47,12 @@ func initShortener() (func(), error) {
 	}
 	go func() {
 		if err := handler.Listen(); err != nil {
-			log.Fatalf("could not listen to http handlers: %v", err)
+			logrus.Fatalf("could not listen to http handlers: %v", err)
 		}
 	}()
 	return func() {
 		if err = handler.CloseStore(); err != nil {
-			log.Printf("failed to stop the handlers: %v", err)
+			logrus.Printf("failed to stop the handlers: %v", err)
 		}
 	}, nil
 }
