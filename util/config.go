@@ -10,7 +10,9 @@ import (
 )
 
 var (
-	dataDirPath        string
+	dataDirPath string
+	// DoNotSetConfigName is used to predefine if the ConfigName should be set.
+	// used for the unit testing reason
 	DoNotSetConfigName = false
 )
 

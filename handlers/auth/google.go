@@ -14,6 +14,7 @@ type googleAdapter struct {
 	config *oauth2.Config
 }
 
+// NewGoogleAdapter creates an oAuth adapter out of the credentials and the baseURL
 func NewGoogleAdapter(clientID, clientSecret, baseURL string) Adapter {
 	return &googleAdapter{&oauth2.Config{
 		ClientID:     clientID,
@@ -26,7 +27,7 @@ func NewGoogleAdapter(clientID, clientSecret, baseURL string) Adapter {
 	}}
 }
 
-func (a *googleAdapter) GetRedirectURl(state string) string {
+func (a *googleAdapter) GetRedirectURL(state string) string {
 	return a.config.AuthCodeURL(state)
 }
 
