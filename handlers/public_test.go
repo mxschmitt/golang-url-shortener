@@ -25,7 +25,7 @@ func TestCreateEntry(t *testing.T) {
 		ignoreResponse bool
 		contentType    string
 		response       gin.H
-		requestBody    URLUtil
+		requestBody    urlUtil
 		statusCode     int
 	}{
 		{
@@ -37,7 +37,7 @@ func TestCreateEntry(t *testing.T) {
 		},
 		{
 			name: "short URL generation",
-			requestBody: URLUtil{
+			requestBody: urlUtil{
 				URL: "https://www.google.de/",
 			},
 			statusCode:  http.StatusOK,
@@ -45,7 +45,7 @@ func TestCreateEntry(t *testing.T) {
 		},
 		{
 			name: "no valid URL",
-			requestBody: URLUtil{
+			requestBody: urlUtil{
 				URL: "this is really not a URL",
 			},
 			statusCode:     http.StatusBadRequest,
@@ -76,7 +76,7 @@ func TestCreateEntry(t *testing.T) {
 			if tc.ignoreResponse {
 				return
 			}
-			var parsed URLUtil
+			var parsed urlUtil
 			if err := json.Unmarshal(respBody, &parsed); err != nil {
 				t.Fatalf("could not unmarshal data: %v", err)
 			}
@@ -96,7 +96,7 @@ func TestHandleInfo(t *testing.T) {
 			t.Fatalf("could not marshal json: %v", err)
 		}
 		respBody := createEntryWithJSON(t, reqBody, "application/json; charset=utf-8", http.StatusOK)
-		var parsed URLUtil
+		var parsed urlUtil
 		if err = json.Unmarshal(respBody, &parsed); err != nil {
 			t.Fatalf("could not unmarshal data: %v", err)
 		}

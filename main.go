@@ -41,7 +41,7 @@ func initShortener() (func(), error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
 	}
-	handler, err := handlers.New(*store, false)
+	handler, err := handlers.New(*store)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create handlers")
 	}

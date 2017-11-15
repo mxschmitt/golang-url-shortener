@@ -11,28 +11,28 @@ import (
 
 var privateKey []byte
 
-// CheckForPrivateKey checks if already an private key exists, if not one will be randomly generated
+// CheckForPrivateKey checks if already an private key exists, if not it will be randomly generated
 func CheckForPrivateKey() error {
-	privateDat := filepath.Join(GetDataDir(), "private.dat")
-	d, err := ioutil.ReadFile(privateDat)
+	privateDatPath := filepath.Join(GetDataDir(), "private.dat")
+	privateDatContent, err := ioutil.ReadFile(privateDatPath)
 	if err == nil {
-		privateKey = d
+		privateKey = privateDatContent
 	} else if os.IsNotExist(err) {
-		b := make([]byte, 256)
-		if _, err := rand.Read(b); err != nil {
+		randomGeneratedKey := make([]byte, 256)
+		if _, err := rand.Read(randomGeneratedKey); err != nil {
 			return errors.Wrap(err, "could not read random bytes")
 		}
-		if err = ioutil.WriteFile(privateDat, b, 0644); err != nil {
+		if err = ioutil.WriteFile(privateDatPath, randomGeneratedKey, 0644); err != nil {
 			return errors.Wrap(err, "could not write private key")
 		}
-		privateKey = b
+		privateKey = randomGeneratedKey
 	} else if err != nil {
 		return errors.Wrap(err, "could not read private key")
 	}
 	return nil
 }
 
-// GetPrivateKey returns the private key from the memory
+// GetPrivateKey returns the private key from the loaded private key
 func GetPrivateKey() []byte {
 	return privateKey
 }

@@ -24,8 +24,11 @@ type Handler struct {
 	engine *gin.Engine
 }
 
+// DoNotPrivateKeyChecking is used for testing
+var DoNotPrivateKeyChecking = false
+
 // New initializes the http handlers
-func New(store store.Store, testing bool) (*Handler, error) {
+func New(store store.Store) (*Handler, error) {
 	if !viper.GetBool("General.EnableDebugMode") {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -36,7 +39,7 @@ func New(store store.Store, testing bool) (*Handler, error) {
 	if err := h.setHandlers(); err != nil {
 		return nil, errors.Wrap(err, "could not set handlers")
 	}
-	if !testing {
+	if !DoNotPrivateKeyChecking {
 		if err := util.CheckForPrivateKey(); err != nil {
 			return nil, errors.Wrap(err, "could not check for privat key")
 		}
