@@ -29,6 +29,7 @@ type Entry struct {
 	Public                 EntryPublicData
 }
 
+// EntryPublicData is the public part of an entry
 type EntryPublicData struct {
 	CreatedOn, LastVisit time.Time
 	VisitCount           int
@@ -73,12 +74,12 @@ func (s *Store) GetEntryByID(id string) (*Entry, error) {
 	if id == "" {
 		return nil, ErrIDIsEmpty
 	}
-	raw, err := s.GetEntryByIDRaw(id)
+	rawEntry, err := s.GetEntryByIDRaw(id)
 	if err != nil {
 		return nil, err
 	}
 	var entry *Entry
-	return entry, json.Unmarshal(raw, &entry)
+	return entry, json.Unmarshal(rawEntry, &entry)
 }
 
 // IncreaseVisitCounter increments the visit counter of an entry
@@ -93,26 +94,24 @@ func (s *Store) IncreaseVisitCounter(id string) error {
 	if err != nil {
 		return err
 	}
-	err = s.db.Update(func(tx *bolt.Tx) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
 		if err := tx.Bucket(s.bucketName).Put([]byte(id), raw); err != nil {
 			return errors.Wrap(err, "could not put updated visitor count JSON into the bucket")
 		}
 		return nil
 	})
-	return err
 }
 
 // GetEntryByIDRaw returns the raw data (JSON) of a data set
 func (s *Store) GetEntryByIDRaw(id string) ([]byte, error) {
 	var raw []byte
-	err := s.db.View(func(tx *bolt.Tx) error {
+	return raw, s.db.View(func(tx *bolt.Tx) error {
 		raw = tx.Bucket(s.bucketName).Get([]byte(id))
 		if raw == nil {
 			return ErrNoEntryFound
 		}
 		return nil
 	})
-	return raw, err
 }
 
 // CreateEntry creates a new record and returns his short id

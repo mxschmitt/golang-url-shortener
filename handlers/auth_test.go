@@ -45,7 +45,8 @@ func TestCreateBackend(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not create store: %v", err)
 	}
-	handler, err := New(*store, true)
+	DoNotPrivateKeyChecking = true
+	handler, err := New(*store)
 	if err != nil {
 		t.Fatalf("could not create handler: %v", err)
 	}

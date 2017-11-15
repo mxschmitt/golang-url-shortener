@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,9 +9,9 @@ import (
 	"github.com/maxibanki/golang-url-shortener/store"
 )
 
-// URLUtil is used to help in- and outgoing requests for json
+// urlUtil is used to help in- and outgoing requests for json
 // un- and marshalling
-type URLUtil struct {
+type urlUtil struct {
 	URL string `binding:"required"`
 	ID  string
 }
@@ -63,7 +64,7 @@ func (h *Handler) handleAccess(c *gin.Context) {
 
 // handleCreate handles requests to create an entry
 func (h *Handler) handleCreate(c *gin.Context) {
-	var data URLUtil
+	var data urlUtil
 	if err := c.ShouldBind(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -83,4 +84,12 @@ func (h *Handler) handleCreate(c *gin.Context) {
 	}
 	data.URL = h.getSchemaAndHost(c) + "/" + id
 	c.JSON(http.StatusOK, data)
+}
+
+func (h *Handler) getSchemaAndHost(c *gin.Context) string {
+	protocol := "http"
+	if c.Request.TLS != nil {
+		protocol = "https"
+	}
+	return fmt.Sprintf("%s://%s", protocol, c.Request.Host)
 }

@@ -11,8 +11,8 @@ import (
 
 var (
 	dataDirPath string
-	// DoNotSetConfigName is used to predefine if the ConfigName should be set.
-	// used for the unit testing reason
+	// DoNotSetConfigName is used to predefine if the name of the config should be set.
+	// Used for the unit testing
 	DoNotSetConfigName = false
 )
 
@@ -26,8 +26,7 @@ func ReadInConfig() error {
 	}
 	viper.AddConfigPath(".")
 	setConfigDefaults()
-	err := viper.ReadInConfig()
-	if err != nil {
+	if err := viper.ReadInConfig(); err != nil {
 		return errors.Wrap(err, "could not reload config file")
 	}
 	return checkForDatadir()
@@ -56,8 +55,7 @@ func checkForDatadir() error {
 		return errors.Wrap(err, "could not get relative data dir path")
 	}
 	if _, err = os.Stat(dataDirPath); os.IsNotExist(err) {
-		err = os.MkdirAll(dataDirPath, 0755)
-		if err != nil {
+		if err = os.MkdirAll(dataDirPath, 0755); err != nil {
 			return errors.Wrap(err, "could not create config directory")
 		}
 	}

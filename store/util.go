@@ -13,10 +13,9 @@ import (
 
 // createEntryRaw creates a entry with the given key value pair
 func (s *Store) createEntryRaw(key, value []byte) error {
-	err := s.db.Update(func(tx *bolt.Tx) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(s.bucketName)
-		raw := bucket.Get(key)
-		if raw != nil {
+		if raw := bucket.Get(key); raw != nil {
 			return errors.New("entry already exists")
 		}
 		if err := bucket.Put(key, value); err != nil {
@@ -24,27 +23,23 @@ func (s *Store) createEntryRaw(key, value []byte) error {
 		}
 		return nil
 	})
-	return err
 }
 
-// createEntry creates a new entry
-func (s *Store) createEntry(entry Entry, givenID string) (string, error) {
-	var id string
+// createEntry creates a new entry with a randomly generated id. If on is present
+// then the given ID is used
+func (s *Store) createEntry(entry Entry, entryID string) (string, error) {
 	var err error
-	if givenID != "" {
-		id = givenID
-	} else {
-		id, err = generateRandomString(s.idLength)
-		if err != nil {
+	if entryID == "" {
+		if entryID, err = generateRandomString(s.idLength); err != nil {
 			return "", errors.Wrap(err, "could not generate random string")
 		}
 	}
 	entry.Public.CreatedOn = time.Now()
-	raw, err := json.Marshal(entry)
+	rawEntry, err := json.Marshal(entry)
 	if err != nil {
 		return "", err
 	}
-	return id, s.createEntryRaw([]byte(id), raw)
+	return entryID, s.createEntryRaw([]byte(entryID), rawEntry)
 }
 
 // generateRandomString generates a random string with an predefined length

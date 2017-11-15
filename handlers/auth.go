@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/maxibanki/golang-url-shortener/handlers/auth"
@@ -28,7 +27,7 @@ func (h *Handler) parseJWT(wt string) (*auth.JWTClaims, error) {
 		return util.GetPrivateKey(), nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("could not parse token: %v", err)
+		return nil, errors.Wrap(err, "could not parse token")
 	}
 	if !token.Valid {
 		return nil, errors.New("token is not valid")
