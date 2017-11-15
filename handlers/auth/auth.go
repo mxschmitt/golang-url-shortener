@@ -16,7 +16,7 @@ import (
 
 // Adapter will be implemented by each oAuth provider
 type Adapter interface {
-	GetRedirectURl(state string) string
+	GetRedirectURL(state string) string
 	GetUserData(state, code string) (*user, error)
 	GetOAuthProviderName() string
 }
@@ -25,6 +25,7 @@ type user struct {
 	ID, Name, Picture string
 }
 
+// JWTClaims are the data and general information which is stored in the JWT
 type JWTClaims struct {
 	jwt.StandardClaims
 	OAuthProvider string
@@ -33,8 +34,11 @@ type JWTClaims struct {
 	OAuthPicture  string
 }
 
+// AdapterWrapper wraps an normal oAuth Adapter with some generic functions
+// to be implemented directly by the gin router
 type AdapterWrapper struct{ Adapter }
 
+// WithAdapterWrapper creates an adapterWrapper out of the oAuth Adapter and an gin.RouterGroup
 func WithAdapterWrapper(a Adapter, h *gin.RouterGroup) *AdapterWrapper {
 	aw := &AdapterWrapper{a}
 	h.GET("/login", aw.HandleLogin)
@@ -42,14 +46,17 @@ func WithAdapterWrapper(a Adapter, h *gin.RouterGroup) *AdapterWrapper {
 	return aw
 }
 
+// HandleLogin handles the incoming http request for the oAuth process
+// and redirects to the generated URL of the provider
 func (a *AdapterWrapper) HandleLogin(c *gin.Context) {
 	state := a.randToken()
 	session := sessions.Default(c)
 	session.Set("state", state)
 	session.Save()
-	c.Redirect(http.StatusTemporaryRedirect, a.GetRedirectURl(state))
+	c.Redirect(http.StatusTemporaryRedirect, a.GetRedirectURL(state))
 }
 
+// HandleCallback handles and validates the callback which is coming back from the oAuth request
 func (a *AdapterWrapper) HandleCallback(c *gin.Context) {
 	session := sessions.Default(c)
 	sessionState := session.Get("state")
