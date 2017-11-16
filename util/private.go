@@ -19,7 +19,7 @@ func CheckForPrivateKey() error {
 		privateKey = privateDatContent
 	} else if os.IsNotExist(err) {
 		randomGeneratedKey := make([]byte, 256)
-		if _, err := rand.Read(randomGeneratedKey); err != nil {
+		if _, err = rand.Read(randomGeneratedKey); err != nil {
 			return errors.Wrap(err, "could not read random bytes")
 		}
 		if err = ioutil.WriteFile(privateDatPath, randomGeneratedKey, 0644); err != nil {

@@ -27,9 +27,9 @@ var (
 			ExpiresAt: time.Now().Add(time.Hour * 24 * 365).Unix(),
 		},
 		"google",
-		"sub sub sub",
+		"id",
 		"name",
-		"url",
+		"picture",
 	}
 	tokenString string
 )

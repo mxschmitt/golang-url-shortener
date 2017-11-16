@@ -34,7 +34,7 @@ func initShortener() (func(), error) {
 	if err := util.ReadInConfig(); err != nil {
 		return nil, errors.Wrap(err, "could not reload config file")
 	}
-	if viper.GetBool("General.EnableDebugMode") {
+	if viper.GetBool("enable_debug_mode") {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 	store, err := store.New()

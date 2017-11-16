@@ -29,7 +29,7 @@ var DoNotPrivateKeyChecking = false
 
 // New initializes the http handlers
 func New(store store.Store) (*Handler, error) {
-	if !viper.GetBool("General.EnableDebugMode") {
+	if !viper.GetBool("enable_debug_mode") {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	h := &Handler{
@@ -77,7 +77,7 @@ func (h *Handler) setHandlers() error {
 
 // Listen starts the http server
 func (h *Handler) Listen() error {
-	return h.engine.Run(viper.GetString("http.ListenAddr"))
+	return h.engine.Run(viper.GetString("listen_addr"))
 }
 
 // CloseStore stops the http server and the closes the db gracefully

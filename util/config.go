@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
@@ -26,20 +28,24 @@ func ReadInConfig() error {
 	}
 	viper.AddConfigPath(".")
 	setConfigDefaults()
-	if err := viper.ReadInConfig(); err != nil {
-		return errors.Wrap(err, "could not reload config file")
+	switch err := viper.ReadInConfig(); err.(type) {
+	case viper.ConfigFileNotFoundError:
+		logrus.Info("No configuration file found, using defaults and environment overrides.")
+		break
+	default:
+		return errors.Wrap(err, "could not read config file")
 	}
 	return checkForDatadir()
 }
 
 // setConfigDefaults sets the default values for the configuration
 func setConfigDefaults() {
-	viper.SetDefault("http.ListenAddr", ":8080")
-	viper.SetDefault("http.BaseURL", "http://localhost:3000")
+	viper.SetDefault("listen_addr", ":8080")
+	viper.SetDefault("base_url", "http://localhost:3000")
 
-	viper.SetDefault("General.DataDir", "data")
-	viper.SetDefault("General.EnableDebugMode", true)
-	viper.SetDefault("General.ShortedIDLength", 4)
+	viper.SetDefault("data_dir", "data")
+	viper.SetDefault("enable_debug_mode", true)
+	viper.SetDefault("shorted_id_length", 4)
 }
 
 // GetDataDir returns the absolute path of the data directory
@@ -50,7 +56,7 @@ func GetDataDir() string {
 // checkForDatadir checks for the data dir and creates it if it not exists
 func checkForDatadir() error {
 	var err error
-	dataDirPath, err = filepath.Abs(viper.GetString("General.DataDir"))
+	dataDirPath, err = filepath.Abs(viper.GetString("data_dir"))
 	if err != nil {
 		return errors.Wrap(err, "could not get relative data dir path")
 	}

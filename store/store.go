@@ -64,7 +64,7 @@ func New() (*Store, error) {
 	}
 	return &Store{
 		db:         db,
-		idLength:   viper.GetInt("General.ShortedIDLength"),
+		idLength:   viper.GetInt("shorted_id_length"),
 		bucketName: bucketName,
 	}, nil
 }

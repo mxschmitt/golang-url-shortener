@@ -17,7 +17,7 @@ import (
 func (h *Handler) initOAuth() {
 	h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
 
-	auth.WithAdapterWrapper(auth.NewGoogleAdapter(viper.GetString("oAuth.Google.ClientID"), viper.GetString("oAuth.Google.ClientSecret"), viper.GetString("http.BaseURL")), h.engine.Group("/api/v1/auth/google"))
+	auth.WithAdapterWrapper(auth.NewGoogleAdapter(viper.GetString("Google.ClientID"), viper.GetString("Google.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/google"))
 
 	h.engine.POST("/api/v1/check", h.handleGoogleCheck)
 }
