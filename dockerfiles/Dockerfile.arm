@@ -1,0 +1,6 @@
+FROM scratch
+COPY releases/golang-url-shortener_linux_arm/golang-url-shortener /url-shortener
+# Volumes to mount config.json and to persist main.db
+VOLUME ["/data", "/config"]
+EXPOSE 8080
+ENTRYPOINT [ "/url-shortener" ]
