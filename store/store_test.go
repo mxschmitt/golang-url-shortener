@@ -12,8 +12,8 @@ const (
 )
 
 func TestGenerateRandomString(t *testing.T) {
-	viper.SetDefault("General.DataDir", "data")
-	viper.SetDefault("General.ShortedIDLength", 4)
+	viper.SetDefault("data_dir", "data")
+	viper.SetDefault("shorted_id_length", 4)
 	tt := []struct {
 		name   string
 		length int

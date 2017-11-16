@@ -55,7 +55,7 @@ func (h *Handler) handleAccess(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	if h.store.IncreaseVisitCounter(id); err != nil {
+	if err := h.store.IncreaseVisitCounter(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
