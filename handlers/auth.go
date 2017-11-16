@@ -18,8 +18,9 @@ func (h *Handler) initOAuth() {
 	h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
 
 	auth.WithAdapterWrapper(auth.NewGoogleAdapter(viper.GetString("Google.ClientID"), viper.GetString("Google.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/google"))
+	auth.WithAdapterWrapper(auth.NewGithubAdapter(viper.GetString("GitHub.ClientID"), viper.GetString("GitHub.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/github"))
 
-	h.engine.POST("/api/v1/check", h.handleGoogleCheck)
+	h.engine.POST("/api/v1/check", h.handleAuthCheck)
 }
 
 func (h *Handler) parseJWT(wt string) (*auth.JWTClaims, error) {
@@ -58,7 +59,7 @@ func (h *Handler) authMiddleware(c *gin.Context) {
 	c.Next()
 }
 
-func (h *Handler) handleGoogleCheck(c *gin.Context) {
+func (h *Handler) handleAuthCheck(c *gin.Context) {
 	var data struct {
 		Token string `binding:"required"`
 	}

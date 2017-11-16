@@ -32,6 +32,8 @@ func ReadInConfig() error {
 	case viper.ConfigFileNotFoundError:
 		logrus.Info("No configuration file found, using defaults and environment overrides.")
 		break
+	case nil:
+		break
 	default:
 		return errors.Wrap(err, "could not read config file")
 	}

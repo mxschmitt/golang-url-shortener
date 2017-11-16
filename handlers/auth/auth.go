@@ -65,19 +65,16 @@ func (a *AdapterWrapper) HandleCallback(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("invalid session state: %s", sessionState)})
 		return
 	}
-
 	user, err := a.GetUserData(receivedState, c.Query("code"))
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-
 	token, err := a.newJWT(user, a.GetOAuthProviderName())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.HTML(http.StatusOK, "token.tmpl", gin.H{
 		"token": token,
 	})

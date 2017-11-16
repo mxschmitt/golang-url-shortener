@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom';
 import { HashRouter, Route, Link } from 'react-router-dom'
-import { Menu, Container, Modal, Button, Image } from 'semantic-ui-react'
+import { Menu, Container, Modal, Button, Image, Icon } from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css';
 
 import About from './About/About'
 import Home from './Home/Home'
 import ShareX from './ShareX/ShareX'
 import Lookup from './Lookup/Lookup'
+
+import './index.css'
 
 export default class BaseComponent extends Component {
     state = {
@@ -51,7 +53,7 @@ export default class BaseComponent extends Component {
         }
     }
 
-    onAuthCallback = data => {
+    onOAuthCallback = data => {
         if (data.isTrusted) {
             // clear the old event listener, so that the event can only emitted be once
             window.removeEventListener('message', this.onAuthCallback);
@@ -59,14 +61,14 @@ export default class BaseComponent extends Component {
             this.checkAuth();
         }
     }
-    onAuthClick = () => {
-        window.addEventListener('message', this.onAuthCallback, false);
+    onOAuthClick = provider => {
+        window.addEventListener('message', this.onOAuthCallback, false);
         // Open the oAuth window that is it centered in the middle of the screen
         var wwidth = 400,
             wHeight = 500;
         var wLeft = (window.screen.width / 2) - (wwidth / 2);
         var wTop = (window.screen.height / 2) - (wHeight / 2);
-        window.open('/api/v1/auth/google/login', '', `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
+        window.open(`/api/v1/auth/${provider}/login`, '', `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
     }
 
     handleLogout = () => {
@@ -85,9 +87,16 @@ export default class BaseComponent extends Component {
                     <Modal.Content>
                         <p>Currently you are only able to use Google as authentication service:</p>
                         <div className='ui center aligned segment'>
-                            <Button className='ui google plus button' onClick={this.onAuthClick}>
-                                <i className='google icon'></i>
-                                Login with Google
+                            <Button className='ui google plus button' onClick={this.onOAuthClick.bind(this, "google")}>
+                                <Icon name='google' /> Login with Google
+                            </Button>
+                            <div className="ui divider"></div>
+                            <Button className='github' onClick={this.onOAuthClick.bind(this, "github")}>
+                                <Icon name='github' /> Login with GitHub
+                            </Button>
+                            <div className="ui divider"></div>
+                            <Button color='twitter' onClick={this.onOAuthClick.bind(this, "twitter")}>
+                                <Icon name='twitter' /> Login with Twitter
                             </Button>
                         </div>
                     </Modal.Content>
