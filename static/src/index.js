@@ -9,8 +9,6 @@ import Home from './Home/Home'
 import ShareX from './ShareX/ShareX'
 import Lookup from './Lookup/Lookup'
 
-import './index.css'
-
 export default class BaseComponent extends Component {
     state = {
         open: true,
@@ -85,18 +83,18 @@ export default class BaseComponent extends Component {
                         Authentication
                     </Modal.Header>
                     <Modal.Content>
-                        <p>Currently you are only able to use Google as authentication service:</p>
+                        <p>The following authentication services are currently available:</p>
                         <div className='ui center aligned segment'>
                             <Button className='ui google plus button' onClick={this.onOAuthClick.bind(this, "google")}>
                                 <Icon name='google' /> Login with Google
                             </Button>
                             <div className="ui divider"></div>
-                            <Button className='github' onClick={this.onOAuthClick.bind(this, "github")}>
+                            <Button style={{ backgroundColor: "#333", color: "white" }} onClick={this.onOAuthClick.bind(this, "github")}>
                                 <Icon name='github' /> Login with GitHub
                             </Button>
                             <div className="ui divider"></div>
-                            <Button color='twitter' onClick={this.onOAuthClick.bind(this, "twitter")}>
-                                <Icon name='twitter' /> Login with Twitter
+                            <Button style={{ backgroundColor: "#0067b8", color: "white" }} onClick={this.onOAuthClick.bind(this, "microsoft")}>
+                                <Icon name='windows' /> Login with Microsoft
                             </Button>
                         </div>
                     </Modal.Content>
