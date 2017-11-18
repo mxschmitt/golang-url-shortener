@@ -17,9 +17,19 @@ import (
 func (h *Handler) initOAuth() {
 	h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
 
-	auth.WithAdapterWrapper(auth.NewGoogleAdapter(viper.GetString("Google.ClientID"), viper.GetString("Google.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/google"))
-	auth.WithAdapterWrapper(auth.NewGithubAdapter(viper.GetString("GitHub.ClientID"), viper.GetString("GitHub.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/github"))
-	auth.WithAdapterWrapper(auth.NewMicrosoftAdapter(viper.GetString("Microsoft.ClientID"), viper.GetString("Microsoft.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/microsoft"))
+	h.providers = []string{}
+	if viper.GetString("Google.ClientSecret") != "" {
+		auth.WithAdapterWrapper(auth.NewGoogleAdapter(viper.GetString("Google.ClientID"), viper.GetString("Google.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/google"))
+		h.providers = append(h.providers, "google")
+	}
+	if viper.GetString("GitHub.ClientSecret") != "" {
+		auth.WithAdapterWrapper(auth.NewGithubAdapter(viper.GetString("GitHub.ClientID"), viper.GetString("GitHub.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/github"))
+		h.providers = append(h.providers, "github")
+	}
+	if viper.GetString("Microsoft.ClientSecret") != "" {
+		auth.WithAdapterWrapper(auth.NewMicrosoftAdapter(viper.GetString("Microsoft.ClientID"), viper.GetString("Microsoft.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/microsoft"))
+		h.providers = append(h.providers, "microsoft")
+	}
 
 	h.engine.POST("/api/v1/check", h.handleAuthCheck)
 }

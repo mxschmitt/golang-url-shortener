@@ -20,8 +20,9 @@ import (
 // Handler holds the funcs and attributes for the
 // http communication
 type Handler struct {
-	store  store.Store
-	engine *gin.Engine
+	store     store.Store
+	engine    *gin.Engine
+	providers []string
 }
 
 // DoNotPrivateKeyChecking is used for testing
@@ -70,6 +71,8 @@ func (h *Handler) setHandlers() error {
 	protected.Use(h.authMiddleware)
 	protected.POST("/create", h.handleCreate)
 	protected.POST("/lookup", h.handleLookup)
+
+	h.engine.GET("/api/v1/info", h.handleInfo)
 
 	h.engine.NoRoute(h.handleAccess, gin.WrapH(http.FileServer(FS(false))))
 	return nil

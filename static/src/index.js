@@ -14,7 +14,8 @@ export default class BaseComponent extends Component {
         open: true,
         userData: {},
         authorized: false,
-        activeItem: ""
+        activeItem: "",
+        providers: []
     }
 
     onOAuthClose() {
@@ -25,6 +26,11 @@ export default class BaseComponent extends Component {
 
     componentWillMount() {
         this.checkAuth()
+        this.loadInfo()
+    }
+
+    loadInfo = () => {
+        fetch('/api/v1/info').then(d => d.json()).then(d => this.setState({ providers: d.providers }))
     }
 
     checkAuth = () => {
@@ -61,12 +67,17 @@ export default class BaseComponent extends Component {
     }
     onOAuthClick = provider => {
         window.addEventListener('message', this.onOAuthCallback, false);
-        // Open the oAuth window that is it centered in the middle of the screen
-        var wwidth = 400,
-            wHeight = 500;
-        var wLeft = (window.screen.width / 2) - (wwidth / 2);
-        var wTop = (window.screen.height / 2) - (wHeight / 2);
-        window.open(`/api/v1/auth/${provider}/login`, '', `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
+        var url = `${window.location.origin}/api/v1/auth/${provider}/login`;
+        if (!this._oAuthPopup) {
+            // Open the oAuth window that is it centered in the middle of the screen
+            var wwidth = 400,
+                wHeight = 500;
+            var wLeft = (window.screen.width / 2) - (wwidth / 2);
+            var wTop = (window.screen.height / 2) - (wHeight / 2);
+            this._oAuthPopup = window.open(url, '', `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
+        } else {
+            this._oAuthPopup.location = url;
+        }
     }
 
     handleLogout = () => {
@@ -75,7 +86,7 @@ export default class BaseComponent extends Component {
     }
 
     render() {
-        const { open, authorized, activeItem, userData } = this.state
+        const { open, authorized, activeItem, userData, providers } = this.state
         if (!authorized) {
             return (
                 <Modal size='tiny' open={open} onClose={this.onOAuthClose}>
@@ -85,17 +96,24 @@ export default class BaseComponent extends Component {
                     <Modal.Content>
                         <p>The following authentication services are currently available:</p>
                         <div className='ui center aligned segment'>
-                            <Button className='ui google plus button' onClick={this.onOAuthClick.bind(this, "google")}>
-                                <Icon name='google' /> Login with Google
-                            </Button>
-                            <div className="ui divider"></div>
-                            <Button style={{ backgroundColor: "#333", color: "white" }} onClick={this.onOAuthClick.bind(this, "github")}>
-                                <Icon name='github' /> Login with GitHub
-                            </Button>
-                            <div className="ui divider"></div>
-                            <Button style={{ backgroundColor: "#0067b8", color: "white" }} onClick={this.onOAuthClick.bind(this, "microsoft")}>
-                                <Icon name='windows' /> Login with Microsoft
-                            </Button>
+                            {providers.length == 0 && <p>There are currently no correct oAuth credential maintained.</p>}
+                            {providers.indexOf("microsoft") != -1 && <div>
+                                <Button className='ui google plus button' onClick={this.onOAuthClick.bind(this, "google")}>
+                                    <Icon name='google' /> Login with Google
+                                </Button>
+                            </div>}
+                            {providers.indexOf("microsoft") != -1 && <div>
+                                <div className="ui divider"></div>
+                                <Button style={{ backgroundColor: "#333", color: "white" }} onClick={this.onOAuthClick.bind(this, "github")}>
+                                    <Icon name='github' /> Login with GitHub
+                                    </Button>
+                            </div>}
+                            {providers.indexOf("microsoft") != -1 && <div>
+                                <div className="ui divider"></div>
+                                <Button style={{ backgroundColor: "#0067b8", color: "white" }} onClick={this.onOAuthClick.bind(this, "microsoft")}>
+                                    <Icon name='windows' /> Login with Microsoft
+                                </Button>
+                            </div>}
                         </div>
                     </Modal.Content>
                 </Modal>

@@ -86,6 +86,10 @@ func (h *Handler) handleCreate(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
+func (h *Handler) handleInfo(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"providers": h.providers})
+}
+
 func (h *Handler) getSchemaAndHost(c *gin.Context) string {
 	protocol := "http"
 	if c.Request.TLS != nil {
