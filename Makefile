@@ -27,5 +27,7 @@ buildProject:
 	find releases -maxdepth 1 -mindepth 1 -type d -exec tar -cvjf {}.tar.bz2 {} \;
 
 buildDockerImage:
-	rm -rf releases/*
-	CGO_ENABLED=0 gox -output="releases/{{.Dir}}_{{.OS}}_{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 linux/arm"
+	@mkdir docker_releases
+	CGO_ENABLED=0 gox -output="docker_releases/{{.Dir}}_{{.OS}}_{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 linux/arm"
+	docker build -t maxibanki/golang_url_shortener:arm -f Dockerfile.arm .
+	docker build -t maxibanki/golang_url_shortener -f Dockerfile.amd64 .

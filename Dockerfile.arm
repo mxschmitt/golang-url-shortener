@@ -4,6 +4,6 @@ MAINTAINER Max Schmitt
 
 EXPOSE 8080
 
-COPY releases/golang-url-shortener_linux_arm/golang-url-shortener /
+COPY docker_releases/golang-url-shortener_linux_arm/golang-url-shortener /
 
 CMD ["/golang-url-shortener"]
