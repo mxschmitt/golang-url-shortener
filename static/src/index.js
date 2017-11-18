@@ -96,19 +96,19 @@ export default class BaseComponent extends Component {
                     <Modal.Content>
                         <p>The following authentication services are currently available:</p>
                         <div className='ui center aligned segment'>
-                            {providers.length == 0 && <p>There are currently no correct oAuth credential maintained.</p>}
-                            {providers.indexOf("microsoft") != -1 && <div>
+                            {providers.length === 0 && <p>There are currently no correct oAuth credentials maintained.</p>}
+                            {providers.indexOf("microsoft") !== -1 && <div>
                                 <Button className='ui google plus button' onClick={this.onOAuthClick.bind(this, "google")}>
                                     <Icon name='google' /> Login with Google
                                 </Button>
                             </div>}
-                            {providers.indexOf("microsoft") != -1 && <div>
+                            {providers.indexOf("microsoft") !== -1 && <div>
                                 <div className="ui divider"></div>
                                 <Button style={{ backgroundColor: "#333", color: "white" }} onClick={this.onOAuthClick.bind(this, "github")}>
                                     <Icon name='github' /> Login with GitHub
                                     </Button>
                             </div>}
-                            {providers.indexOf("microsoft") != -1 && <div>
+                            {providers.indexOf("microsoft") !== -1 && <div>
                                 <div className="ui divider"></div>
                                 <Button style={{ backgroundColor: "#0067b8", color: "white" }} onClick={this.onOAuthClick.bind(this, "microsoft")}>
                                     <Icon name='windows' /> Login with Microsoft
