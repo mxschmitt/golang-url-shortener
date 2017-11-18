@@ -6,6 +6,7 @@ LABEL description="This Dockerfile will install the Golang URL Shortener."
 
 EXPOSE 8080
 
+COPY ca-certificates.crt /etc/ssl/certs/
 COPY docker_releases/golang-url-shortener_linux_amd64/golang-url-shortener /
 
 VOLUME ["/data"]
