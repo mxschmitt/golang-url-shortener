@@ -63,6 +63,7 @@ export default class BaseComponent extends Component {
             window.removeEventListener('message', this.onAuthCallback);
             window.localStorage.setItem('token', data.data);
             this.checkAuth();
+            this._oAuthPopup = null;
         }
     }
     onOAuthClick = provider => {
