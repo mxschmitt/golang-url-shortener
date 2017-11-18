@@ -1,9 +1,13 @@
 FROM scratch
 
-MAINTAINER Max Schmitt
+LABEL maintainer="Max Schmitt <max@schmitt.mx>"
+LABEL readme.md="https://github.com/maxibanki/golang-url-shortener/blob/master/README.md"
+LABEL description="This Dockerfile will install the Golang URL Shortener."
 
 EXPOSE 8080
 
 COPY docker_releases/golang-url-shortener_linux_arm/golang-url-shortener /
+
+VOLUME ["/data"]
 
 CMD ["/golang-url-shortener"]
