@@ -12,8 +12,9 @@ script:
   - make
   - goveralls -service=travis-ci -ignore="handlers/static.go,handlers/tmpls/tmpls.go"
   - make buildDockerImage 
-  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-  - docker push USER/REPO;
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  - docker push maxibanki/golang_url_shortener
+  - docker push maxibanki/golang_url_shortener:arm
 deploy:
   provider: bintray
   user: maxibanki
