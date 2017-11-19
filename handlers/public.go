@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/maxibanki/golang-url-shortener/handlers/auth"
@@ -12,8 +13,9 @@ import (
 // urlUtil is used to help in- and outgoing requests for json
 // un- and marshalling
 type urlUtil struct {
-	URL string `binding:"required"`
-	ID  string
+	URL        string `binding:"required"`
+	ID         string
+	Expiration time.Time
 }
 
 // handleLookup is the http handler for getting the infos
@@ -50,9 +52,12 @@ func (h *Handler) handleAccess(c *gin.Context) {
 	}
 	entry, err := h.store.GetEntryByID(id)
 	if err == store.ErrIDIsEmpty || err == store.ErrNoEntryFound {
-		return // return normal 404 error if such an error occurs
+		return
 	} else if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	if time.Now().After(entry.Public.Expiration) && !entry.Public.Expiration.IsZero() {
 		return
 	}
 	if err := h.store.IncreaseVisitCounter(id); err != nil {
@@ -72,7 +77,8 @@ func (h *Handler) handleCreate(c *gin.Context) {
 	user := c.MustGet("user").(*auth.JWTClaims)
 	id, err := h.store.CreateEntry(store.Entry{
 		Public: store.EntryPublicData{
-			URL: data.URL,
+			URL:        data.URL,
+			Expiration: data.Expiration,
 		},
 		RemoteAddr:    c.ClientIP(),
 		OAuthProvider: user.OAuthProvider,

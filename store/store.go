@@ -31,9 +31,9 @@ type Entry struct {
 
 // EntryPublicData is the public part of an entry
 type EntryPublicData struct {
-	CreatedOn, LastVisit time.Time
-	VisitCount           int
-	URL                  string
+	CreatedOn, LastVisit, Expiration time.Time
+	VisitCount                       int
+	URL                              string
 }
 
 // ErrNoEntryFound is returned when no entry to a id is found

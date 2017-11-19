@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Segment, Header, Form, Input, Card } from 'semantic-ui-react'
+import moment from 'moment';
 
 import CustomCard from '../Card/Card'
 
@@ -26,7 +27,8 @@ export default class LookupComponent extends Component {
                     this.url,
                     this.VisitCount,
                     res.CratedOn,
-                    res.LastVisit
+                    res.LastVisit,
+                    moment(res.Expiration)
                 ]]
             }))
     }
@@ -43,7 +45,7 @@ export default class LookupComponent extends Component {
                     </Form>
                 </Segment>
                 <Card.Group itemsPerRow="2">
-                    {links.map((link, i) => <CustomCard key={i} header={new URL(link[0]).hostname} metaHeader={link[1]} description={link[0]} showInfoURL/>)}
+                    {links.map((link, i) => <CustomCard key={i} header={new URL(link[0]).hostname} metaHeader={link[1]} description={link[0]} expireDate={link[5]} showInfoURL/>)}
                 </Card.Group>
             </div>
         )
