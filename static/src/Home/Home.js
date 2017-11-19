@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Input, Segment, Form, Header, Card, Button, Select, Icon } from 'semantic-ui-react'
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
+import MediaQuery from 'react-responsive';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import CustomCard from '../Card/Card'
@@ -76,10 +77,17 @@ export default class HomeComponent extends Component {
             <Form.Field>
               <Input required size='large' type='url' ref={input => this.urlInput = input} onChange={this.handleURLChange} placeholder='Paste a link to shorten it' action>
                 <input />
-                <Select options={options} placeholder='Settings' onChange={this.onSettingsChange} multiple />
+                <MediaQuery query="(min-width: 768px)">
+                  <Select options={options} placeholder='Settings' onChange={this.onSettingsChange} multiple />
+                </MediaQuery>
                 <Button type='submit'>Shorten<Icon name="arrow right" /></Button>
               </Input>
             </Form.Field>
+            <MediaQuery query="(max-width: 767px)">
+              <Form.Field>
+                <Select options={options} placeholder='Settings' onChange={this.onSettingsChange} multiple fluid />
+              </Form.Field>
+            </MediaQuery>
             <Form.Group widths='equal'>
               {setOptions.indexOf("custom") > -1 && <Form.Field error={showCustomIDError}>
                 <Input label={window.location.origin + "/"} onChange={this.handleCustomIDChange} placeholder='my-shortened-url' />
@@ -93,7 +101,7 @@ export default class HomeComponent extends Component {
             </Form.Group>
           </Form>
         </Segment>
-        <Card.Group itemsPerRow="2">
+        <Card.Group itemsPerRow="2" stackable style={{ marginTop: "1rem" }}>
           {links.map((link, i) => <CustomCard key={i} header={new URL(link[1]).hostname} expireDate={link[2]} metaHeader={link[1]} description={link[0]} />)}
         </Card.Group>
       </div >

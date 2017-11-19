@@ -18,14 +18,13 @@
 - Easy [ShareX](https://github.com/ShareX/ShareX) integration
 - Dockerizable
 
-## Webinterface
+## [Webinterface](https://s.b0n.pl)
 
 ![Short URLs](https://user-images.githubusercontent.com/17984549/32700384-955d9336-c7c4-11e7-9fab-4141a86a375c.png)
 
 ---
 
 ![Generate ShareX Configuration](https://user-images.githubusercontent.com/17984549/32700395-cf9f057a-c7c4-11e7-9d2b-7523c8a95a20.png)
-
 
 ## Documenation
 
@@ -34,24 +33,13 @@
 - [Setting up OAuth](https://github.com/maxibanki/golang-url-shortener/wiki/Setting-up-OAuth)
 - [ShareX Usage](https://github.com/maxibanki/golang-url-shortener/wiki/ShareX)
 
-## Clients
-
-### General
-
-In general the `POST` endpoints can be called, by using one of the following techniques:
-
-- application/json
-- application/x-www-form-urlencoded
-- multipart/form-data
-
-For all the endpoints which are on `/api/v1/protected` there is the `Authorization` header required.
-
 ## Why did you built this
 
-Just only because I want to extend my current self hosted URL shorter with some features and learn about new techniques like:
+Just only because I want to extend my current self hosted URL shorter (which was really messy code) with some more features and learn about new techniques like:
 
 - Golang unit testing
 - React
 - Makefiles
 - Travis CI
 - Key / Value databases
+- Dockerfile and Docker Image Creation
