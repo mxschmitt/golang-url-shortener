@@ -11,6 +11,7 @@ buildNodeFrontend:
 embedFrontend:
 	@cd handlers/tmpls && esc -o tmpls.go -pkg tmpls -include ^*\.tmpl .
 	@cd handlers && esc -o static.go -pkg handlers -prefix ../static/build ../static/build
+	bash build/info.sh
 
 getCMDDependencies:
 	go get -v github.com/mattn/goveralls

@@ -17,6 +17,7 @@ debug
 /config.*
 /handlers/static.go
 /handlers/tmpls/tmpls.go
+/util/version.go
 /store/main.db
 /releases
 /data

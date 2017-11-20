@@ -54,7 +54,7 @@ func (h *Handler) setTemplateFromFS(name string) error {
 	if err != nil {
 		return errors.Wrap(err, "could not read token template file")
 	}
-	templ, err := template.New(name).Funcs(h.engine.FuncMap).Parse(tokenTemplate)
+	templ, err := template.New(name).Parse(tokenTemplate)
 	if err != nil {
 		return errors.Wrap(err, "could not create template from file content")
 	}
@@ -74,7 +74,12 @@ func (h *Handler) setHandlers() error {
 
 	h.engine.GET("/api/v1/info", h.handleInfo)
 
-	h.engine.NoRoute(h.handleAccess, gin.WrapH(http.FileServer(FS(false))))
+	// Handling the shorted URLs, if no one exists, it checks
+	// in the filesystem and sets headers for caching
+	h.engine.NoRoute(h.handleAccess, func(c *gin.Context) {
+		c.Header("Vary", "Accept-Encoding")
+		c.Header("Cache-Control", "public, max-age=2592000")
+	}, gin.WrapH(http.FileServer(FS(false))))
 	return nil
 }
 

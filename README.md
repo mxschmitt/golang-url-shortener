@@ -6,6 +6,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/maxibanki/golang-url-shortener/badge.svg?branch=master)](https://coveralls.io/github/maxibanki/golang-url-shortener?branch=master)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Download](https://api.bintray.com/packages/maxibanki/golang-url-shortener/travis-ci/images/download.svg?version=0.1) ](https://bintray.com/maxibanki/golang-url-shortener/travis-ci/0.1/link)
+[![Docker Pulls](https://img.shields.io/docker/pulls/maxibanki/golang_url_shortener.svg)](https://hub.docker.com/r/maxibanki/golang_url_shortener/)
 
 ## Main Features
 
@@ -13,7 +14,7 @@
 - Visitor Counting
 - Expirable Links
 - URL deletion
-- Authorization System via OAuth 2.0 from Google (more providers following)
+- Authorization System via OAuth 2.0 (Google, GitHub and Micrsoft)
 - High performance database with [bolt](https://github.com/boltdb/bolt)
 - Easy [ShareX](https://github.com/ShareX/ShareX) integration
 - Dockerizable

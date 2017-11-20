@@ -6,6 +6,8 @@ import 'prismjs/components/prism-json'
 import PrismCode from 'react-prism'
 import 'prismjs/themes/prism.css';
 
+import './ShareX.css'
+
 export default class ShareXComponent extends Component {
     state = {
         config: JSON.stringify({
