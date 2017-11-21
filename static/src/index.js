@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom';
 import { HashRouter, Route, Link } from 'react-router-dom'
 import { Menu, Container, Modal, Button, Image, Icon } from 'semantic-ui-react'
+import toastr from 'toastr'
 import 'semantic-ui-css/semantic.min.css';
+import 'toastr/build/toastr.css';
 
 import About from './About/About'
 import Home from './Home/Home'
@@ -15,7 +17,7 @@ export default class BaseComponent extends Component {
         userData: {},
         authorized: false,
         activeItem: "",
-        providers: []
+        info: null
     }
 
     onOAuthClose() {
@@ -30,7 +32,10 @@ export default class BaseComponent extends Component {
     }
 
     loadInfo = () => {
-        fetch('/api/v1/info').then(d => d.json()).then(d => this.setState({ providers: d.providers }))
+        fetch('/api/v1/info')
+            .then(d => d.json())
+            .then(info => this.setState({ info }))
+            .catch(e => toastr.error(e))
     }
 
     checkAuth = () => {
@@ -45,12 +50,14 @@ export default class BaseComponent extends Component {
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            }).then(res => res.ok ? res.json() : Promise.reject(res.json())) // Check if the request was StatusOK, otherwise reject Promise
+            })
+                .then(res => res.ok ? res.json() : Promise.reject(`incorrect response status code: ${res.status}; text: ${res.statusText}`))
                 .then(d => {
                     that.setState({ userData: d })
                     that.setState({ authorized: true })
                 })
                 .catch(e => {
+                    toastr.error(`Could not fetch info: ${e}`)
                     window.localStorage.removeItem('token');
                     that.setState({ authorized: false })
                 })
@@ -69,7 +76,7 @@ export default class BaseComponent extends Component {
     onOAuthClick = provider => {
         window.addEventListener('message', this.onOAuthCallback, false);
         var url = `${window.location.origin}/api/v1/auth/${provider}/login`;
-        if (!this._oAuthPopup) {
+        if (!this._oAuthPopup || this._oAuthPopup.closed) {
             // Open the oAuth window that is it centered in the middle of the screen
             var wwidth = 400,
                 wHeight = 500;
@@ -87,7 +94,7 @@ export default class BaseComponent extends Component {
     }
 
     render() {
-        const { open, authorized, activeItem, userData, providers } = this.state
+        const { open, authorized, activeItem, userData, info } = this.state
         if (!authorized) {
             return (
                 <Modal size='tiny' open={open} onClose={this.onOAuthClose}>
@@ -96,28 +103,28 @@ export default class BaseComponent extends Component {
                     </Modal.Header>
                     <Modal.Content>
                         <p>The following authentication services are currently available:</p>
-                        <div className='ui center aligned segment'>
-                            {providers.length === 0 && <p>There are currently no correct oAuth credentials maintained.</p>}
-                            {providers.indexOf("google") !== -1 && <div>
+                        {info && <div className='ui center aligned segment'>
+                            {info.providers.length === 0 && <p>There are currently no correct oAuth credentials maintained.</p>}
+                            {info.providers.indexOf("google") !== -1 && <div>
                                 <Button className='ui google plus button' onClick={this.onOAuthClick.bind(this, "google")}>
                                     <Icon name='google' /> Login with Google
                                 </Button>
-                                {providers.indexOf("github") !== -1 && <div className="ui divider"></div>}
+                                {info.providers.indexOf("github") !== -1 && <div className="ui divider"></div>}
                             </div>}
-                            {providers.indexOf("github") !== -1 && <div>
+                            {info.providers.indexOf("github") !== -1 && <div>
                                 <Button style={{ backgroundColor: "#333", color: "white" }} onClick={this.onOAuthClick.bind(this, "github")}>
                                     <Icon name='github' /> Login with GitHub
                                 </Button>
                             </div>}
-                            {providers.indexOf("microsoft") !== -1 && <div>
+                            {info.providers.indexOf("microsoft") !== -1 && <div>
                                 <div className="ui divider"></div>
                                 <Button style={{ backgroundColor: "#0067b8", color: "white" }} onClick={this.onOAuthClick.bind(this, "microsoft")}>
                                     <Icon name='windows' /> Login with Microsoft
                                 </Button>
                             </div>}
-                        </div>
+                        </div>}
                     </Modal.Content>
-                </Modal>
+                </Modal >
             )
         }
         return (
@@ -147,7 +154,9 @@ export default class BaseComponent extends Component {
                         </Menu.Menu>
                     </Menu>
                     <Route exact path="/" component={Home} />
-                    <Route path="/about" component={About} />
+                    <Route path="/about" render={(props) => (
+                        <About info={info} />
+                    )} />
                     <Route path="/ShareX" component={ShareX} />
                     <Route path="/Lookup" component={Lookup} />
                 </Container>

@@ -1,13 +1,17 @@
 package store
 
 import (
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha512"
+	"encoding/base64"
 	"encoding/json"
 	"math/big"
 	"time"
 	"unicode"
 
 	"github.com/boltdb/bolt"
+	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
 )
 
@@ -27,19 +31,23 @@ func (s *Store) createEntryRaw(key, value []byte) error {
 
 // createEntry creates a new entry with a randomly generated id. If on is present
 // then the given ID is used
-func (s *Store) createEntry(entry Entry, entryID string) (string, error) {
+func (s *Store) createEntry(entry Entry, entryID string) (string, string, error) {
 	var err error
 	if entryID == "" {
 		if entryID, err = generateRandomString(s.idLength); err != nil {
-			return "", errors.Wrap(err, "could not generate random string")
+			return "", "", errors.Wrap(err, "could not generate random string")
 		}
 	}
 	entry.Public.CreatedOn = time.Now()
 	rawEntry, err := json.Marshal(entry)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return entryID, s.createEntryRaw([]byte(entryID), rawEntry)
+	mac := hmac.New(sha512.New, util.GetPrivateKey())
+	if _, err := mac.Write([]byte(entryID)); err != nil {
+		return "", "", errors.Wrap(err, "could not write hmac")
+	}
+	return entryID, base64.RawURLEncoding.EncodeToString(mac.Sum(nil)), s.createEntryRaw([]byte(entryID), rawEntry)
 }
 
 // generateRandomString generates a random string with an predefined length

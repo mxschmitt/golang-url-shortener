@@ -22,7 +22,8 @@ export default class ShareXComponent extends Component {
                 Authorization: window.localStorage.getItem('token')
             },
             ResponseType: "Text",
-            URL: "$json:URL$"
+            URL: "$json:URL$",
+            DeletionURL: "$json:DeletionURL$"
         }, null, 4),
         currentStep: 0,
         availableSteps: [

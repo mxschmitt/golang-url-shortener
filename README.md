@@ -14,7 +14,7 @@
 - Visitor Counting
 - Expirable Links
 - URL deletion
-- Authorization System via OAuth 2.0 (Google, GitHub and Micrsoft)
+- Authorization System via OAuth 2.0 (Google, GitHub and Microsoft)
 - High performance database with [bolt](https://github.com/boltdb/bolt)
 - Easy [ShareX](https://github.com/ShareX/ShareX) integration
 - Dockerizable
@@ -36,7 +36,7 @@
 
 ## Why did you built this
 
-Just only because I want to extend my current self hosted URL shorter (which was really messy code) with some more features and learn about new techniques like:
+Only because I just want to extend my current self hosted URL shorter (which was really messy code) with some more features and learn about new techniques like:
 
 - Golang unit testing
 - React

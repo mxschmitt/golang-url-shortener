@@ -28,7 +28,7 @@ export default class LookupComponent extends Component {
                     this.VisitCount,
                     res.CratedOn,
                     res.LastVisit,
-                    moment(res.Expiration)
+                    res.Expiration ? moment(res.Expiration) : null
                 ]]
             }))
     }
@@ -45,7 +45,7 @@ export default class LookupComponent extends Component {
                     </Form>
                 </Segment>
                 <Card.Group itemsPerRow="2">
-                    {links.map((link, i) => <CustomCard key={i} header={new URL(link[0]).hostname} metaHeader={link[1]} description={link[0]} expireDate={link[5]} showInfoURL/>)}
+                    {links.map((link, i) => <CustomCard key={i} header={new URL(link[0]).hostname} metaHeader={link[1]} description={link[0]} expireDate={link[5]} showInfoURL />)}
                 </Card.Group>
             </div>
         )

@@ -42,7 +42,7 @@ func New(store store.Store) (*Handler, error) {
 	}
 	if !DoNotPrivateKeyChecking {
 		if err := util.CheckForPrivateKey(); err != nil {
-			return nil, errors.Wrap(err, "could not check for privat key")
+			return nil, errors.Wrap(err, "could not check for private key")
 		}
 	}
 	h.initOAuth()
@@ -73,6 +73,7 @@ func (h *Handler) setHandlers() error {
 	protected.POST("/lookup", h.handleLookup)
 
 	h.engine.GET("/api/v1/info", h.handleInfo)
+	h.engine.GET("/d/:id/:hash", h.handleDelete)
 
 	// Handling the shorted URLs, if no one exists, it checks
 	// in the filesystem and sets headers for caching

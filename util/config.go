@@ -14,7 +14,7 @@ import (
 var (
 	dataDirPath string
 	// DoNotSetConfigName is used to predefine if the name of the config should be set.
-	// Used for the unit testing
+	// Used for unit testing
 	DoNotSetConfigName = false
 )
 

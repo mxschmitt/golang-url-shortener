@@ -14,6 +14,8 @@
 .glide/
 debug
 
+*.db
+*.lock
 /config.*
 /handlers/static.go
 /handlers/tmpls/tmpls.go

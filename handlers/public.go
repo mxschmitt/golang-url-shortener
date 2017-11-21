@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"runtime"
 	"time"
 
@@ -15,9 +16,9 @@ import (
 // urlUtil is used to help in- and outgoing requests for json
 // un- and marshalling
 type urlUtil struct {
-	URL        string `binding:"required"`
-	ID         string
-	Expiration time.Time
+	URL             string `binding:"required"`
+	ID, DeletionURL string
+	Expiration      *time.Time `json:",omitempty"`
 }
 
 // handleLookup is the http handler for getting the infos
@@ -26,16 +27,15 @@ func (h *Handler) handleLookup(c *gin.Context) {
 		ID string `binding:"required"`
 	}
 	if err := c.ShouldBind(&data); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	entry, err := h.store.GetEntryByID(data.ID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	user := c.MustGet("user").(*auth.JWTClaims)
-	if entry.OAuthID != user.OAuthID || entry.OAuthProvider != user.OAuthProvider {
+	if !h.oAuthPropertiesEquals(c, entry.OAuthID, entry.OAuthProvider) {
 		c.JSON(http.StatusOK, store.Entry{
 			Public: store.EntryPublicData{
 				URL: entry.Public.URL,
@@ -48,25 +48,14 @@ func (h *Handler) handleLookup(c *gin.Context) {
 
 // handleAccess handles the access for incoming requests
 func (h *Handler) handleAccess(c *gin.Context) {
-	var id string
-	if len(c.Request.URL.Path) > 1 {
-		id = c.Request.URL.Path[1:]
-	}
-	entry, err := h.store.GetEntryByID(id)
-	if err == store.ErrIDIsEmpty || err == store.ErrNoEntryFound {
+	url, err := h.store.GetURLAndIncrease(c.Request.URL.Path[1:])
+	if err == store.ErrNoEntryFound {
 		return
 	} else if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		http.Error(c.Writer, fmt.Sprintf("could not get and crease visitor counter: %v, ", err), http.StatusInternalServerError)
 		return
 	}
-	if time.Now().After(entry.Public.Expiration) && !entry.Public.Expiration.IsZero() {
-		return
-	}
-	if err := h.store.IncreaseVisitCounter(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.Redirect(http.StatusTemporaryRedirect, entry.Public.URL)
+	c.Redirect(http.StatusTemporaryRedirect, url)
 }
 
 // handleCreate handles requests to create an entry
@@ -77,7 +66,7 @@ func (h *Handler) handleCreate(c *gin.Context) {
 		return
 	}
 	user := c.MustGet("user").(*auth.JWTClaims)
-	id, err := h.store.CreateEntry(store.Entry{
+	id, delID, err := h.store.CreateEntry(store.Entry{
 		Public: store.EntryPublicData{
 			URL:        data.URL,
 			Expiration: data.Expiration,
@@ -90,8 +79,11 @@ func (h *Handler) handleCreate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	data.URL = h.getSchemaAndHost(c) + "/" + id
-	c.JSON(http.StatusOK, data)
+	originURL := h.getURLOrigin(c)
+	c.JSON(http.StatusOK, urlUtil{
+		URL:         fmt.Sprintf("%s/%s", originURL, id),
+		DeletionURL: fmt.Sprintf("%s/d/%s/%s", originURL, id, url.QueryEscape(delID)),
+	})
 }
 
 func (h *Handler) handleInfo(c *gin.Context) {
@@ -104,8 +96,17 @@ func (h *Handler) handleInfo(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, info)
 }
+func (h *Handler) handleDelete(c *gin.Context) {
+	if err := h.store.DeleteEntry(c.Param("id"), c.Param("hash")); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+	})
+}
 
-func (h *Handler) getSchemaAndHost(c *gin.Context) string {
+func (h *Handler) getURLOrigin(c *gin.Context) string {
 	protocol := "http"
 	if c.Request.TLS != nil {
 		protocol = "https"

@@ -2,6 +2,7 @@ package store
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -54,12 +55,12 @@ func TestCreateEntry(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	defer cleanup(store)
-	_, err = store.CreateEntry(Entry{}, "")
+	_, _, err = store.CreateEntry(Entry{}, "")
 	if err != ErrNoValidURL {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	for i := 1; i <= 100; i++ {
-		_, err := store.CreateEntry(Entry{
+		_, _, err := store.CreateEntry(Entry{
 			Public: EntryPublicData{
 				URL: "https://golang.org/",
 			},
@@ -81,8 +82,8 @@ func TestGetEntryByID(t *testing.T) {
 		t.Fatalf("could not get expected '%v' error: %v", ErrNoEntryFound, err)
 	}
 	_, err = store.GetEntryByID("")
-	if err != ErrIDIsEmpty {
-		t.Fatalf("could not get expected '%v' error: %v", ErrIDIsEmpty, err)
+	if err != ErrNoEntryFound {
+		t.Fatalf("could not get expected '%v' error: %v", ErrNoEntryFound, err)
 	}
 }
 
@@ -92,7 +93,7 @@ func TestIncreaseVisitCounter(t *testing.T) {
 		t.Fatalf("could not create store: %v", err)
 	}
 	defer cleanup(store)
-	id, err := store.CreateEntry(Entry{
+	id, _, err := store.CreateEntry(Entry{
 		Public: EntryPublicData{
 			URL: "https://golang.org/",
 		},
@@ -114,9 +115,8 @@ func TestIncreaseVisitCounter(t *testing.T) {
 	if entryBeforeInc.Public.VisitCount+1 != entryAfterInc.Public.VisitCount {
 		t.Fatalf("the increasement was not successful, the visit count is not correct")
 	}
-	errIDIsEmpty := "could not get entry by ID: the given ID is empty"
-	if err = store.IncreaseVisitCounter(""); err.Error() != errIDIsEmpty {
-		t.Fatalf("could not get expected '%v'; got: %v", errIDIsEmpty, err)
+	if err = store.IncreaseVisitCounter(""); !strings.Contains(err.Error(), ErrNoEntryFound.Error()) {
+		t.Fatalf("could not get expected '%v'; got: %v", ErrNoEntryFound, err)
 	}
 }
 

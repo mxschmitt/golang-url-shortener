@@ -61,7 +61,8 @@ export default class HomeComponent extends Component {
           links: [...this.state.links, [
             r.URL,
             this.url,
-            this.state.setOptions.indexOf("expire") > -1 ? this.state.expiration : undefined
+            this.state.setOptions.indexOf("expire") > -1 ? this.state.expiration : undefined,
+            r.DeletionURL
           ]]
         }))
     }
@@ -102,7 +103,7 @@ export default class HomeComponent extends Component {
           </Form>
         </Segment>
         <Card.Group itemsPerRow="2" stackable style={{ marginTop: "1rem" }}>
-          {links.map((link, i) => <CustomCard key={i} header={new URL(link[1]).hostname} expireDate={link[2]} metaHeader={link[1]} description={link[0]} />)}
+          {links.map((link, i) => <CustomCard key={i} header={new URL(link[1]).hostname} expireDate={link[2]} metaHeader={link[1]} description={link[0]} deletionURL={link[3]}/>)}
         </Card.Group>
       </div >
     )

@@ -51,11 +51,11 @@ func (h *Handler) authMiddleware(c *gin.Context) {
 	authError := func() error {
 		wt := c.GetHeader("Authorization")
 		if wt == "" {
-			return errors.New("'Authorization' header not set")
+			return errors.New("Authorization header not set")
 		}
 		claims, err := h.parseJWT(wt)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not parse JWT")
 		}
 		c.Set("user", claims)
 		return nil
@@ -64,7 +64,7 @@ func (h *Handler) authMiddleware(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 			"error": "authentication failed",
 		})
-		logrus.Debugf("Authentication middleware failed: %v\n", authError)
+		logrus.Debugf("Authentication middleware check failed: %v\n", authError)
 		return
 	}
 	c.Next()
@@ -75,12 +75,12 @@ func (h *Handler) handleAuthCheck(c *gin.Context) {
 		Token string `binding:"required"`
 	}
 	if err := c.ShouldBind(&data); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	claims, err := h.parseJWT(data.Token)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -89,4 +89,12 @@ func (h *Handler) handleAuthCheck(c *gin.Context) {
 		"Picture":  claims.OAuthPicture,
 		"Provider": claims.OAuthProvider,
 	})
+}
+
+func (h *Handler) oAuthPropertiesEquals(c *gin.Context, oauthID, oauthProvider string) bool {
+	user := c.MustGet("user").(*auth.JWTClaims)
+	if oauthID == user.OAuthID && oauthProvider == user.OAuthProvider {
+		return true
+	}
+	return false
 }

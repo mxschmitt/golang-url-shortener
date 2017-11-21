@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Card, Icon, Button, Modal } from 'semantic-ui-react'
 import { QRCode } from 'react-qr-svg';
 import Clipboard from 'react-clipboard.js';
+import toastr from 'toastr'
 
 export default class CardComponent extends Component {
     state = {
@@ -14,6 +15,12 @@ export default class CardComponent extends Component {
                 this.setState({ expireDate: this.props.expireDate.fromNow(true) })
             }, 500)
         }
+    }
+    onDeletonLinkCopy() {
+        toastr.info('Copied the deletion URL to the Clipboard')
+    }
+    onShortedURLSuccess() {
+        toastr.info('Copied the shorted URL to the Clipboard')
     }
     render() {
         const { expireDate } = this.state
@@ -30,6 +37,7 @@ export default class CardComponent extends Component {
                 </Card.Meta>
                 <Card.Description>
                     {this.props.description}
+                    {this.props.deletionURL && <Clipboard component="i" className="trash link icon" style={{ float: "right" }} button-title="Copy the deletion URL to the clipboard" data-clipboard-text={this.props.deletionURL} onSuccess={this.onDeletonLinkCopy} />}
                 </Card.Description>
             </Card.Content>
             <Card.Content extra>
@@ -40,7 +48,7 @@ export default class CardComponent extends Component {
                             <QRCode style={{ width: '75%' }} value={this.props.description} />
                         </Modal.Content>
                     </Modal>
-                    <Clipboard component='button' className='ui button' data-clipboard-text={this.props.description} button-title='Copy the Shortened URL to the Clipboard'>
+                    <Clipboard component='button' className='ui button' data-clipboard-text={this.props.description} onSuccess={this.onShortedURLSuccess} button-title='Copy the Shortened URL to the Clipboard'>
                         <div>
                             <Icon name='clipboard' />
                             Copy to Clipboard

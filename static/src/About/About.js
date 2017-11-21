@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import { Container, Table } from 'semantic-ui-react'
+import moment from 'moment'
 
 export default class AboutComponent extends Component {
     state = {
         info: null
     }
-    componentWillMount() {
-        fetch("/api/v1/info").then(res => res.json()).then(d => this.setState({ info: d }))
+    componentWillReceiveProps = () => {
+        this.setState({ info: this.props.info })
     }
     render() {
         const { info } = this.state
@@ -31,7 +32,7 @@ export default class AboutComponent extends Component {
                         </Table.Row>
                         <Table.Row>
                             <Table.Cell>Compilation Time</Table.Cell>
-                            <Table.Cell>{info.compilationTime}</Table.Cell>
+                            <Table.Cell>{moment(info.compilationTime).fromNow()} ({info.compilationTime})</Table.Cell>
                         </Table.Row>
                         <Table.Row>
                             <Table.Cell>Commit Hash</Table.Cell>

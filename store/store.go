@@ -2,6 +2,9 @@
 package store
 
 import (
+	"crypto/hmac"
+	"crypto/sha512"
+	"encoding/base64"
 	"encoding/json"
 	"path/filepath"
 	"time"
@@ -31,9 +34,10 @@ type Entry struct {
 
 // EntryPublicData is the public part of an entry
 type EntryPublicData struct {
-	CreatedOn, LastVisit, Expiration time.Time
-	VisitCount                       int
-	URL                              string
+	CreatedOn, LastVisit time.Time
+	Expiration           *time.Time `json:",omitempty"`
+	VisitCount           int
+	URL                  string
 }
 
 // ErrNoEntryFound is returned when no entry to a id is found
@@ -45,8 +49,8 @@ var ErrNoValidURL = errors.New("the given URL is no valid URL")
 // ErrGeneratingIDFailed is returned when the 10 tries to generate an id failed
 var ErrGeneratingIDFailed = errors.New("could not generate unique id, all ten tries failed")
 
-// ErrIDIsEmpty is returned when the given ID is empty
-var ErrIDIsEmpty = errors.New("the given ID is empty")
+// ErrEntryIsExpired is returned when the entry is expired
+var ErrEntryIsExpired = errors.New("entry is expired")
 
 // New initializes the store with the db
 func New() (*Store, error) {
@@ -72,7 +76,7 @@ func New() (*Store, error) {
 // GetEntryByID returns a unmarshalled entry of the db by a given ID
 func (s *Store) GetEntryByID(id string) (*Entry, error) {
 	if id == "" {
-		return nil, ErrIDIsEmpty
+		return nil, ErrNoEntryFound
 	}
 	rawEntry, err := s.GetEntryByIDRaw(id)
 	if err != nil {
@@ -102,6 +106,22 @@ func (s *Store) IncreaseVisitCounter(id string) error {
 	})
 }
 
+// GetURLAndIncrease Increases the visitor count, checks
+// if the URL is expired and returns the origin URL
+func (s *Store) GetURLAndIncrease(id string) (string, error) {
+	entry, err := s.GetEntryByID(id)
+	if err != nil {
+		return "", err
+	}
+	if entry.Public.Expiration != nil && time.Now().After(*entry.Public.Expiration) {
+		return "", ErrEntryIsExpired
+	}
+	if err := s.IncreaseVisitCounter(id); err != nil {
+		return "", errors.Wrap(err, "could not increase visitor counter")
+	}
+	return entry.Public.URL, nil
+}
+
 // GetEntryByIDRaw returns the raw data (JSON) of a data set
 func (s *Store) GetEntryByIDRaw(id string) ([]byte, error) {
 	var raw []byte
@@ -115,22 +135,44 @@ func (s *Store) GetEntryByIDRaw(id string) ([]byte, error) {
 }
 
 // CreateEntry creates a new record and returns his short id
-func (s *Store) CreateEntry(entry Entry, givenID string) (string, error) {
+func (s *Store) CreateEntry(entry Entry, givenID string) (string, string, error) {
 	if !govalidator.IsURL(entry.Public.URL) {
-		return "", ErrNoValidURL
+		return "", "", ErrNoValidURL
 	}
 	// try it 10 times to make a short URL
 	for i := 1; i <= 10; i++ {
-		id, err := s.createEntry(entry, givenID)
+		id, delID, err := s.createEntry(entry, givenID)
 		if err != nil && givenID != "" {
-			return "", err
+			return "", "", err
 		} else if err != nil {
 			logrus.Debugf("Could not create entry: %v", err)
 			continue
 		}
-		return id, nil
+		return id, delID, nil
 	}
-	return "", ErrGeneratingIDFailed
+	return "", "", ErrGeneratingIDFailed
+}
+
+// DeleteEntry deletes an Entry fully from the DB
+func (s *Store) DeleteEntry(id, hash string) error {
+	mac := hmac.New(sha512.New, util.GetPrivateKey())
+	if _, err := mac.Write([]byte(id)); err != nil {
+		return errors.Wrap(err, "could not write hmac")
+	}
+	givenHmac, err := base64.RawURLEncoding.DecodeString(hash)
+	if err != nil {
+		return errors.Wrap(err, "could not decode base64")
+	}
+	if !hmac.Equal(mac.Sum(nil), givenHmac) {
+		return errors.New("hmac verification failed")
+	}
+	return s.db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(s.bucketName)
+		if bucket.Get([]byte(id)) == nil {
+			return errors.New("entry already deleted")
+		}
+		return bucket.Delete([]byte(id))
+	})
 }
 
 // Close closes the bolt db database
