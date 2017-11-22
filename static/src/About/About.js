@@ -6,9 +6,11 @@ export default class AboutComponent extends Component {
     state = {
         info: null
     }
-    componentWillReceiveProps = () => {
-        this.setState({ info: this.props.info })
+
+    componentDidMount() {
+       this.setState({ info: this.props.location.state.info })
     }
+
     render() {
         const { info } = this.state
         return (

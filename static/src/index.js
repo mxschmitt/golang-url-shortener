@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom';
-import { HashRouter, Route, Link } from 'react-router-dom'
+import { MemoryRouter, Route, Link } from 'react-router-dom'
 import { Menu, Container, Modal, Button, Image, Icon } from 'semantic-ui-react'
 import toastr from 'toastr'
 import 'semantic-ui-css/semantic.min.css';
@@ -13,29 +13,24 @@ import Lookup from './Lookup/Lookup'
 
 export default class BaseComponent extends Component {
     state = {
-        open: true,
+        oAuthOpen: true,
         userData: {},
         authorized: false,
         activeItem: "",
         info: null
     }
 
-    onOAuthClose() {
-        this.setState({ open: true })
-    }
-
     handleItemClick = (e, { name }) => this.setState({ activeItem: name })
 
-    componentWillMount() {
-        this.checkAuth()
-        this.loadInfo()
+    onOAuthClose() {
+        this.setState({ oAuthOpen: true })
     }
 
-    loadInfo = () => {
+    componentDidMount() {
         fetch('/api/v1/info')
             .then(d => d.json())
             .then(info => this.setState({ info }))
-            .catch(e => toastr.error(e))
+            .then(() => this.checkAuth())
     }
 
     checkAuth = () => {
@@ -53,8 +48,10 @@ export default class BaseComponent extends Component {
             })
                 .then(res => res.ok ? res.json() : Promise.reject(`incorrect response status code: ${res.status}; text: ${res.statusText}`))
                 .then(d => {
-                    that.setState({ userData: d })
-                    that.setState({ authorized: true })
+                    that.setState({
+                        userData: d,
+                        authorized: true
+                    })
                 })
                 .catch(e => {
                     toastr.error(`Could not fetch info: ${e}`)
@@ -67,12 +64,13 @@ export default class BaseComponent extends Component {
     onOAuthCallback = data => {
         if (data.isTrusted) {
             // clear the old event listener, so that the event can only emitted be once
-            window.removeEventListener('message', this.onAuthCallback);
+            window.removeEventListener('message', this.onOAuthCallback);
             window.localStorage.setItem('token', data.data);
             this.checkAuth();
             this._oAuthPopup = null;
         }
     }
+
     onOAuthClick = provider => {
         window.addEventListener('message', this.onOAuthCallback, false);
         var url = `${window.location.origin}/api/v1/auth/${provider}/login`;
@@ -94,10 +92,10 @@ export default class BaseComponent extends Component {
     }
 
     render() {
-        const { open, authorized, activeItem, userData, info } = this.state
+        const { oAuthOpen, authorized, activeItem, userData, info } = this.state
         if (!authorized) {
             return (
-                <Modal size='tiny' open={open} onClose={this.onOAuthClose}>
+                <Modal size='tiny' open={oAuthOpen} onClose={this.onOAuthClose}>
                     <Modal.Header>
                         Authentication
                     </Modal.Header>
@@ -128,7 +126,7 @@ export default class BaseComponent extends Component {
             )
         }
         return (
-            <HashRouter>
+            <MemoryRouter>
                 <Container style={{ paddingTop: "15px" }}>
                     <Menu stackable>
                         <Menu.Item as={Link} to="/" name='shorten' onClick={this.handleItemClick} >
@@ -146,7 +144,10 @@ export default class BaseComponent extends Component {
                         <Menu.Item name='lookup' active={activeItem === 'lookup'} onClick={this.handleItemClick} as={Link} to="/lookup">
                             Lookup
                         </Menu.Item>
-                        <Menu.Item name='about' active={activeItem === 'about'} onClick={this.handleItemClick} as={Link} to="/about">
+                        <Menu.Item name='about' active={activeItem === 'about'} onClick={this.handleItemClick} as={Link} to={{
+                            pathname: "/about",
+                            state: { info }
+                        }}>
                             About
                         </Menu.Item>
                         <Menu.Menu position='right'>
@@ -154,13 +155,11 @@ export default class BaseComponent extends Component {
                         </Menu.Menu>
                     </Menu>
                     <Route exact path="/" component={Home} />
-                    <Route path="/about" render={(props) => (
-                        <About info={info} />
-                    )} />
+                    <Route path="/about" component={About} />
                     <Route path="/ShareX" component={ShareX} />
                     <Route path="/Lookup" component={Lookup} />
                 </Container>
-            </HashRouter>
+            </MemoryRouter>
         )
     }
 }
