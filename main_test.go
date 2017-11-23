@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"testing"
 	"time"
 
@@ -18,4 +19,5 @@ func TestInitShortener(t *testing.T) {
 		t.Fatal("port is not in use")
 	}
 	close()
+	os.Exit(0)
 }
