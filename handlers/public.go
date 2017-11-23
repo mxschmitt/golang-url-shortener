@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -82,7 +83,7 @@ func (h *Handler) handleCreate(c *gin.Context) {
 	originURL := h.getURLOrigin(c)
 	c.JSON(http.StatusOK, urlUtil{
 		URL:         fmt.Sprintf("%s/%s", originURL, id),
-		DeletionURL: fmt.Sprintf("%s/d/%s/%s", originURL, id, url.QueryEscape(delID)),
+		DeletionURL: fmt.Sprintf("%s/d/%s/%s", originURL, id, url.QueryEscape(base64.RawURLEncoding.EncodeToString(delID))),
 	})
 }
 
@@ -97,7 +98,12 @@ func (h *Handler) handleInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, info)
 }
 func (h *Handler) handleDelete(c *gin.Context) {
-	if err := h.store.DeleteEntry(c.Param("id"), c.Param("hash")); err != nil {
+	givenHmac, err := base64.RawURLEncoding.DecodeString(c.Param("hash"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("could not decode base64: %v", err)})
+		return
+	}
+	if err := h.store.DeleteEntry(c.Param("id"), givenHmac); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

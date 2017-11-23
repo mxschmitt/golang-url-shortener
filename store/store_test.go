@@ -120,6 +120,65 @@ func TestIncreaseVisitCounter(t *testing.T) {
 	}
 }
 
+func TestDelete(t *testing.T) {
+	viper.Set("shorted_id_length", 4)
+	store, err := New()
+	if err != nil {
+		t.Fatalf("could not create store: %v", err)
+	}
+	defer cleanup(store)
+	entryID, delHMac, err := store.CreateEntry(Entry{
+		Public: EntryPublicData{
+			URL: "https://golang.org/",
+		},
+	}, "")
+	if err != nil {
+		t.Fatalf("could not create entry: %v", err)
+	}
+	if err := store.DeleteEntry(entryID, delHMac); err != nil {
+		t.Fatalf("could not delete entry: %v", err)
+	}
+	if _, err := store.GetEntryByID(entryID); err != ErrNoEntryFound {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestGetURLAndIncrease(t *testing.T) {
+	viper.Set("shorted_id_length", 4)
+	store, err := New()
+	if err != nil {
+		t.Fatalf("could not create store: %v", err)
+	}
+	defer cleanup(store)
+	const url = "https://golang.org/"
+	entryID, _, err := store.CreateEntry(Entry{
+		Public: EntryPublicData{
+			URL: url,
+		},
+	}, "")
+	if err != nil {
+		t.Fatalf("could not create entry: %v", err)
+	}
+	entryOne, err := store.GetEntryByID(entryID)
+	if err != nil {
+		t.Fatalf("could not get entry: %v", err)
+	}
+	entryURL, err := store.GetURLAndIncrease(entryID)
+	if err != nil {
+		t.Fatalf("could not get URL and increase the visitor counter: %v", err)
+	}
+	if entryURL != url {
+		t.Fatalf("url is not the expected one")
+	}
+	entryTwo, err := store.GetEntryByID(entryID)
+	if err != nil {
+		t.Fatalf("could not get entry: %v", err)
+	}
+	if entryOne.Public.VisitCount+1 != entryTwo.Public.VisitCount {
+		t.Fatalf("visitor count does not increase")
+	}
+}
+
 func cleanup(s *Store) {
 	s.Close()
 	os.Remove(testingDBName)

@@ -239,6 +239,44 @@ func testRedirect(t *testing.T, shortURL, longURL string) {
 	}
 }
 
+func TestHandleApplicationInfo(t *testing.T) {
+	resp, err := http.Get(server.URL + "/api/v1/info")
+	if err != nil {
+		t.Fatalf("could not get application info: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected status %d; got %d", http.StatusOK, resp.StatusCode)
+	}
+}
+
+func TestHandleDeletion(t *testing.T) {
+	reqBody, err := json.Marshal(gin.H{
+		"URL": testURL,
+	})
+	if err != nil {
+		t.Fatalf("could not marshal json: %v", err)
+	}
+	respBody := createEntryWithJSON(t, reqBody, "application/json; charset=utf-8", http.StatusOK)
+	var body urlUtil
+	if err := json.Unmarshal(respBody, &body); err != nil {
+		t.Fatal("could not unmarshal create response")
+	}
+	resp, err := http.Get(body.DeletionURL)
+	if err != nil {
+		t.Fatalf("could not send deletion http request")
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("expected status: %d; got: %d", resp.StatusCode, http.StatusOK)
+	}
+	resp, err = http.Get(body.URL)
+	if err != nil {
+		t.Fatalf("could not send visit request: %v", err)
+	}
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("expected status: %d; got: %d", http.StatusNotFound, resp.StatusCode)
+	}
+}
+
 func TestCloseB(t *testing.T) {
 	TestCloseBackend(t)
 }

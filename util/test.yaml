@@ -1,0 +1,5 @@
+listen_addr: ':8080'
+base_url: 'http://localhost:3000'
+data_dir: ./data
+enable_debug_mode: true
+shorted_id_length: 4

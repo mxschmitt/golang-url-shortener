@@ -1,3 +1,12 @@
 data_dir: ../data
 enable_debug_mode: true
 shorted_id_length: 4
+Google:
+  ClientID: so
+  ClientSecret: secret
+GitHub:
+  ClientID: so
+  ClientSecret: secret
+Microsoft:
+  ClientID: so
+  ClientSecret: secret

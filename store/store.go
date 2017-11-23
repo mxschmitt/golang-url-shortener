@@ -4,7 +4,6 @@ package store
 import (
 	"crypto/hmac"
 	"crypto/sha512"
-	"encoding/base64"
 	"encoding/json"
 	"path/filepath"
 	"time"
@@ -135,33 +134,29 @@ func (s *Store) GetEntryByIDRaw(id string) ([]byte, error) {
 }
 
 // CreateEntry creates a new record and returns his short id
-func (s *Store) CreateEntry(entry Entry, givenID string) (string, string, error) {
+func (s *Store) CreateEntry(entry Entry, givenID string) (string, []byte, error) {
 	if !govalidator.IsURL(entry.Public.URL) {
-		return "", "", ErrNoValidURL
+		return "", nil, ErrNoValidURL
 	}
 	// try it 10 times to make a short URL
 	for i := 1; i <= 10; i++ {
 		id, delID, err := s.createEntry(entry, givenID)
 		if err != nil && givenID != "" {
-			return "", "", err
+			return "", nil, err
 		} else if err != nil {
 			logrus.Debugf("Could not create entry: %v", err)
 			continue
 		}
 		return id, delID, nil
 	}
-	return "", "", ErrGeneratingIDFailed
+	return "", nil, ErrGeneratingIDFailed
 }
 
 // DeleteEntry deletes an Entry fully from the DB
-func (s *Store) DeleteEntry(id, hash string) error {
+func (s *Store) DeleteEntry(id string, givenHmac []byte) error {
 	mac := hmac.New(sha512.New, util.GetPrivateKey())
 	if _, err := mac.Write([]byte(id)); err != nil {
 		return errors.Wrap(err, "could not write hmac")
-	}
-	givenHmac, err := base64.RawURLEncoding.DecodeString(hash)
-	if err != nil {
-		return errors.Wrap(err, "could not decode base64")
 	}
 	if !hmac.Equal(mac.Sum(nil), givenHmac) {
 		return errors.New("hmac verification failed")
