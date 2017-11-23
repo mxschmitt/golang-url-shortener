@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import MediaQuery from 'react-responsive';
 import 'react-datepicker/dist/react-datepicker.css';
+import toastr from 'toastr'
 
 import CustomCard from '../Card/Card'
 import './Home.css'
@@ -22,11 +23,15 @@ export default class HomeComponent extends Component {
         'Authorization': window.localStorage.getItem('token'),
         'Content-Type': 'application/json'
       }
-    }).then(res => res.ok ? res.json() : Promise.reject(res.json()))
+    })
+      .then(res => res.ok ? res.json() : Promise.reject(res.json()))
       .then(() => {
         this.setState({ showCustomIDError: true })
       })
-      .catch(() => this.setState({ showCustomIDError: false }))
+      .catch(e => {
+        this.setState({ showCustomIDError: false })
+        toastr.error(`Could not fetch lookup: ${e}`)
+      })
   }
   onSettingsChange = (e, { value }) => this.setState({ setOptions: value })
 
@@ -56,7 +61,8 @@ export default class HomeComponent extends Component {
           'Authorization': window.localStorage.getItem('token'),
           'Content-Type': 'application/json'
         }
-      }).then(res => res.ok ? res.json() : Promise.reject(res.json()))
+      })
+        .then(res => res.ok ? res.json() : Promise.reject(res.json()))
         .then(r => this.setState({
           links: [...this.state.links, [
             r.URL,
@@ -65,6 +71,7 @@ export default class HomeComponent extends Component {
             r.DeletionURL
           ]]
         }))
+        .catch(e => toastr.error(`Could not fetch create: ${e}`))
     }
   }
 
@@ -103,7 +110,7 @@ export default class HomeComponent extends Component {
           </Form>
         </Segment>
         <Card.Group itemsPerRow="2" stackable style={{ marginTop: "1rem" }}>
-          {links.map((link, i) => <CustomCard key={i} header={new URL(link[1]).hostname} expireDate={link[2]} metaHeader={link[1]} description={link[0]} deletionURL={link[3]}/>)}
+          {links.map((link, i) => <CustomCard key={i} header={new URL(link[1]).hostname} expireDate={link[2]} metaHeader={link[1]} description={link[0]} deletionURL={link[3]} />)}
         </Card.Group>
       </div >
     )

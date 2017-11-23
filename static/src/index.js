@@ -31,6 +31,7 @@ export default class BaseComponent extends Component {
             .then(d => d.json())
             .then(info => this.setState({ info }))
             .then(() => this.checkAuth())
+            .catch(e => toastr.error(`Could not fetch info: ${e}`))
     }
 
     checkAuth = () => {
@@ -54,7 +55,7 @@ export default class BaseComponent extends Component {
                     })
                 })
                 .catch(e => {
-                    toastr.error(`Could not fetch info: ${e}`)
+                    toastr.error(`Could not fetch check: ${e}`)
                     window.localStorage.removeItem('token');
                     that.setState({ authorized: false })
                 })

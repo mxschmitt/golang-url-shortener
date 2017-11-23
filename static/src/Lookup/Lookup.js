@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Segment, Header, Form, Input, Card } from 'semantic-ui-react'
 import moment from 'moment';
+import toastr from 'toastr'
 
 import CustomCard from '../Card/Card'
 
@@ -20,7 +21,8 @@ export default class LookupComponent extends Component {
                 'Authorization': window.localStorage.getItem('token'),
                 'Content-Type': 'application/json'
             }
-        }).then(res => res.ok ? res.json() : Promise.reject(res.json()))
+        })
+            .then(res => res.ok ? res.json() : Promise.reject(res.json()))
             .then(res => this.setState({
                 links: [...this.state.links, [
                     res.URL,
@@ -31,6 +33,7 @@ export default class LookupComponent extends Component {
                     res.Expiration ? moment(res.Expiration) : null
                 ]]
             }))
+            .catch(e => toastr.error(`Could not fetch lookup: ${e}`))
     }
     render() {
         const { links } = this.state
