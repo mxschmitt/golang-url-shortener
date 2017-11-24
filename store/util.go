@@ -15,16 +15,20 @@ import (
 )
 
 // createEntryRaw creates a entry with the given key value pair
-func (s *Store) createEntryRaw(key, value []byte) error {
+func (s *Store) createEntryRaw(key, value, userIdentifier []byte) error {
 	return s.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(s.bucketName)
+		bucket := tx.Bucket(shortedURLsBucket)
 		if raw := bucket.Get(key); raw != nil {
 			return errors.New("entry already exists")
 		}
 		if err := bucket.Put(key, value); err != nil {
 			return errors.Wrap(err, "could not put data into bucket")
 		}
-		return nil
+		uTsURLsBucket, err := tx.CreateBucketIfNotExists(shortedIDsToUserBucket)
+		if err != nil {
+			return errors.Wrap(err, "could not create bucket")
+		}
+		return uTsURLsBucket.Put(key, userIdentifier)
 	})
 }
 
@@ -46,7 +50,7 @@ func (s *Store) createEntry(entry Entry, entryID string) (string, []byte, error)
 	if _, err := mac.Write([]byte(entryID)); err != nil {
 		return "", nil, errors.Wrap(err, "could not write hmac")
 	}
-	return entryID, mac.Sum(nil), s.createEntryRaw([]byte(entryID), rawEntry)
+	return entryID, mac.Sum(nil), s.createEntryRaw([]byte(entryID), rawEntry, []byte(entry.OAuthProvider+entry.OAuthID))
 }
 
 // generateRandomString generates a random string with an predefined length

@@ -2,6 +2,7 @@
 package store
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha512"
 	"encoding/json"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/maxibanki/golang-url-shortener/util"
+	"github.com/pborman/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -19,9 +21,8 @@ import (
 
 // Store holds internal funcs and vars about the store
 type Store struct {
-	db         *bolt.DB
-	bucketName []byte
-	idLength   int
+	db       *bolt.DB
+	idLength int
 }
 
 // Entry is the data set which is stored in the DB as JSON
@@ -31,12 +32,19 @@ type Entry struct {
 	Public                 EntryPublicData
 }
 
+// Visitor is the entry which is stored in the visitors bucket
+type Visitor struct {
+	IP, Referer                                            string
+	Timestamp                                              time.Time
+	UTMSource, UTMMedium, UTMCampaign, UTMContent, UTMTerm string `json:",omitempty"`
+}
+
 // EntryPublicData is the public part of an entry
 type EntryPublicData struct {
-	CreatedOn, LastVisit time.Time
-	Expiration           *time.Time `json:",omitempty"`
-	VisitCount           int
-	URL                  string
+	CreatedOn             time.Time
+	LastVisit, Expiration *time.Time `json:",omitempty"`
+	VisitCount            int
+	URL                   string
 }
 
 // ErrNoEntryFound is returned when no entry to a id is found
@@ -51,24 +59,27 @@ var ErrGeneratingIDFailed = errors.New("could not generate unique id, all ten tr
 // ErrEntryIsExpired is returned when the entry is expired
 var ErrEntryIsExpired = errors.New("entry is expired")
 
+var (
+	shortedURLsBucket      = []byte("shorted")
+	shortedIDsToUserBucket = []byte("shorted2IDs")
+)
+
 // New initializes the store with the db
 func New() (*Store, error) {
 	db, err := bolt.Open(filepath.Join(util.GetDataDir(), "main.db"), 0644, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open bolt DB database")
 	}
-	bucketName := []byte("shorted")
 	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists(bucketName)
+		_, err := tx.CreateBucketIfNotExists(shortedURLsBucket)
 		return err
 	})
 	if err != nil {
 		return nil, err
 	}
 	return &Store{
-		db:         db,
-		idLength:   viper.GetInt("shorted_id_length"),
-		bucketName: bucketName,
+		db:       db,
+		idLength: viper.GetInt("shorted_id_length"),
 	}, nil
 }
 
@@ -92,13 +103,14 @@ func (s *Store) IncreaseVisitCounter(id string) error {
 		return errors.Wrap(err, "could not get entry by ID")
 	}
 	entry.Public.VisitCount++
-	entry.Public.LastVisit = time.Now()
+	currentTime := time.Now()
+	entry.Public.LastVisit = &currentTime
 	raw, err := json.Marshal(entry)
 	if err != nil {
 		return err
 	}
 	return s.db.Update(func(tx *bolt.Tx) error {
-		if err := tx.Bucket(s.bucketName).Put([]byte(id), raw); err != nil {
+		if err := tx.Bucket(shortedURLsBucket).Put([]byte(id), raw); err != nil {
 			return errors.Wrap(err, "could not put updated visitor count JSON into the bucket")
 		}
 		return nil
@@ -125,7 +137,7 @@ func (s *Store) GetURLAndIncrease(id string) (string, error) {
 func (s *Store) GetEntryByIDRaw(id string) ([]byte, error) {
 	var raw []byte
 	return raw, s.db.View(func(tx *bolt.Tx) error {
-		raw = tx.Bucket(s.bucketName).Get([]byte(id))
+		raw = tx.Bucket(shortedURLsBucket).Get([]byte(id))
 		if raw == nil {
 			return ErrNoEntryFound
 		}
@@ -162,11 +174,87 @@ func (s *Store) DeleteEntry(id string, givenHmac []byte) error {
 		return errors.New("hmac verification failed")
 	}
 	return s.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(s.bucketName)
+		bucket := tx.Bucket(shortedURLsBucket)
 		if bucket.Get([]byte(id)) == nil {
 			return errors.New("entry already deleted")
 		}
-		return bucket.Delete([]byte(id))
+		if err := bucket.Delete([]byte(id)); err != nil {
+			return errors.Wrap(err, "could not delete entry")
+		}
+		if err := tx.DeleteBucket([]byte(id)); err != nil && err != bolt.ErrBucketNotFound && err != bolt.ErrBucketExists {
+			return errors.Wrap(err, "could not delte bucket")
+		}
+		uTsIDsBucket := tx.Bucket(shortedIDsToUserBucket)
+		return uTsIDsBucket.ForEach(func(k, v []byte) error {
+			if bytes.Equal(k, []byte(id)) {
+				return uTsIDsBucket.Delete(k)
+			}
+			return nil
+		})
+	})
+}
+
+// RegisterVisit registers an new incoming request in the store
+func (s *Store) RegisterVisit(id string, visitor Visitor) {
+	requestID := uuid.New()
+	logrus.WithFields(logrus.Fields{
+		"ClientIP":  visitor.IP,
+		"ID":        id,
+		"RequestID": requestID,
+	}).Info("New redirect was registered...")
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		bucket, err := tx.CreateBucketIfNotExists([]byte(id))
+		if err != nil {
+			return errors.Wrap(err, "could not create bucket")
+		}
+		data, err := json.Marshal(visitor)
+		if err != nil {
+			return errors.Wrap(err, "could not create json")
+		}
+		return bucket.Put([]byte(requestID), data)
+	})
+	if err != nil {
+		logrus.Warningf("could not register visit: %v", err)
+	}
+}
+
+// GetVisitors returns all the visits of a shorted URL
+func (s *Store) GetVisitors(id string) ([]Visitor, error) {
+	output := []Visitor{}
+	return output, s.db.Update(func(tx *bolt.Tx) error {
+		bucket, err := tx.CreateBucketIfNotExists([]byte(id))
+		if err != nil {
+			return errors.Wrap(err, "could not create bucket")
+		}
+		return bucket.ForEach(func(k, v []byte) error {
+			var value Visitor
+			if err := json.Unmarshal(v, &value); err != nil {
+				return errors.Wrap(err, "could not unmarshal json")
+			}
+			output = append(output, value)
+			return nil
+		})
+	})
+}
+
+// GetUserEntries returns all the shorted URL entries of an user
+func (s *Store) GetUserEntries(oAuthProvider, oAuthID string) (map[string]Entry, error) {
+	entries := map[string]Entry{}
+	return entries, s.db.Update(func(tx *bolt.Tx) error {
+		bucket, err := tx.CreateBucketIfNotExists(shortedIDsToUserBucket)
+		if err != nil {
+			return errors.Wrap(err, "could not create bucket")
+		}
+		return bucket.ForEach(func(k, v []byte) error {
+			if bytes.Equal(v, []byte(oAuthProvider+oAuthID)) {
+				entry, err := s.GetEntryByID(string(k))
+				if err != nil {
+					return errors.Wrap(err, "could not get entry")
+				}
+				entries[string(k)] = *entry
+			}
+			return nil
+		})
 	})
 }
 

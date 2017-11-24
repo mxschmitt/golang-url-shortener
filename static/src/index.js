@@ -10,6 +10,8 @@ import About from './About/About'
 import Home from './Home/Home'
 import ShareX from './ShareX/ShareX'
 import Lookup from './Lookup/Lookup'
+import Recent from './Recent/Recent'
+import Visitors from './Visitors/Visitors'
 
 export default class BaseComponent extends Component {
     state = {
@@ -22,7 +24,7 @@ export default class BaseComponent extends Component {
 
     handleItemClick = (e, { name }) => this.setState({ activeItem: name })
 
-    onOAuthClose() {
+    onOAuthClose = () => {
         this.setState({ oAuthOpen: true })
     }
 
@@ -159,6 +161,8 @@ export default class BaseComponent extends Component {
                     <Route path="/about" component={About} />
                     <Route path="/ShareX" component={ShareX} />
                     <Route path="/Lookup" component={Lookup} />
+                    <Route path="/recent" component={Recent} />
+                    <Route path="/visitors/:id" component={Visitors} />
                 </Container>
             </MemoryRouter>
         )
