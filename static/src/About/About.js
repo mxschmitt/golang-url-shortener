@@ -7,8 +7,8 @@ export default class AboutComponent extends Component {
         info: null
     }
 
-    componentDidMount() {
-       this.setState({ info: this.props.location.state.info })
+    componentWillMount() {
+        this.setState({ info: this.props.info })
     }
 
     render() {

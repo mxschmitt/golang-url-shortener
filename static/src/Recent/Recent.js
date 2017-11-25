@@ -8,7 +8,7 @@ export default class RecentComponent extends Component {
         recent: null
     }
 
-    componentWillMount() {
+    componentDidMount() {
         fetch('/api/v1/protected/recent', {
             method: 'POST',
             headers: {

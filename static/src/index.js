@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom';
-import { MemoryRouter, Route, Link } from 'react-router-dom'
+import { HashRouter, Route, Link } from 'react-router-dom'
 import { Menu, Container, Modal, Button, Image, Icon } from 'semantic-ui-react'
 import toastr from 'toastr'
 import 'semantic-ui-css/semantic.min.css';
@@ -28,7 +28,7 @@ export default class BaseComponent extends Component {
         this.setState({ oAuthOpen: true })
     }
 
-    componentDidMount() {
+    componentWillMount() {
         fetch('/api/v1/info')
             .then(d => d.json())
             .then(info => this.setState({ info }))
@@ -129,7 +129,7 @@ export default class BaseComponent extends Component {
             )
         }
         return (
-            <MemoryRouter>
+            <HashRouter>
                 <Container style={{ paddingTop: "15px" }}>
                     <Menu stackable>
                         <Menu.Item as={Link} to="/" name='shorten' onClick={this.handleItemClick} >
@@ -158,13 +158,13 @@ export default class BaseComponent extends Component {
                         </Menu.Menu>
                     </Menu>
                     <Route exact path="/" component={Home} />
-                    <Route path="/about" component={About} />
+                    <Route path="/about" render={() => <About info={info} />} />
                     <Route path="/ShareX" component={ShareX} />
                     <Route path="/Lookup" component={Lookup} />
                     <Route path="/recent" component={Recent} />
                     <Route path="/visitors/:id" component={Visitors} />
                 </Container>
-            </MemoryRouter>
+            </HashRouter>
         )
     }
 }
