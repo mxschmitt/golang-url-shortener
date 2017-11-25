@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Container, Table } from 'semantic-ui-react'
-import moment from 'moment'
+import Moment from 'react-moment';
 
 export default class AboutComponent extends Component {
     state = {
@@ -34,7 +34,7 @@ export default class AboutComponent extends Component {
                         </Table.Row>
                         <Table.Row>
                             <Table.Cell>Compilation Time</Table.Cell>
-                            <Table.Cell>{moment(info.compilationTime).fromNow()} ({info.compilationTime})</Table.Cell>
+                            <Table.Cell><Moment fromNow>{info.compilationTime}</Moment> - <Moment>{info.compilationTime}</Moment></Table.Cell>
                         </Table.Row>
                         <Table.Row>
                             <Table.Cell>Commit Hash</Table.Cell>

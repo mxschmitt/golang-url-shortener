@@ -3,19 +3,9 @@ import { Card, Icon, Button, Modal } from 'semantic-ui-react'
 import { QRCode } from 'react-qr-svg';
 import Clipboard from 'react-clipboard.js';
 import toastr from 'toastr'
+import Moment from 'react-moment';
 
 export default class CardComponent extends Component {
-    state = {
-        expireDate: null
-    }
-    componentWillMount() {
-        if (this.props.expireDate) {
-            this.setState({ expireDate: this.props.expireDate.fromNow(true) })
-            setInterval(() => {
-                this.setState({ expireDate: this.props.expireDate.fromNow(true) })
-            }, 500)
-        }
-    }
     onDeletonLinkCopy() {
         toastr.info('Copied the deletion URL to the Clipboard')
     }
@@ -23,11 +13,10 @@ export default class CardComponent extends Component {
         toastr.info('Copied the shorted URL to the Clipboard')
     }
     render() {
-        const { expireDate } = this.state
         return (<Card key={this.key}>
             <Card.Content>
-                {expireDate && <Card.Header style={{ float: "right", fontSize: "1.1em" }}>
-                    Expires in {expireDate}
+                {this.props.expireDate && <Card.Header style={{ float: "right", fontSize: "1.1em" }}>
+                    Expires in <Moment fromNow>{this.props.expireDate}</Moment>
                 </Card.Header>}
                 <Card.Header>
                     {this.props.header}
@@ -55,8 +44,8 @@ export default class CardComponent extends Component {
                         </div>
                     </Clipboard>
                 </div> : <div className='ui two buttons'>
-                        <Button icon='line chart' content='Show live tracking' />
                         <Button icon='clock' content='Show recent visitors' />
+                        <Button icon='line chart' content='Delete Entry' />
                     </div>}
             </Card.Content>
         </Card>)

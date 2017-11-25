@@ -67,7 +67,7 @@ export default class HomeComponent extends Component {
           links: [...this.state.links, [
             r.URL,
             this.url,
-            this.state.setOptions.indexOf("expire") > -1 ? this.state.expiration : undefined,
+            this.state.setOptions.indexOf("expire") > -1 ? this.state.expiration.toISOString() : undefined,
             r.DeletionURL
           ]]
         }))

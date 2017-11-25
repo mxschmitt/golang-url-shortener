@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Segment, Header, Form, Input, Card } from 'semantic-ui-react'
-import moment from 'moment';
 import toastr from 'toastr'
 
 import CustomCard from '../Card/Card'
@@ -30,10 +29,10 @@ export default class LookupComponent extends Component {
                     this.VisitCount,
                     res.CratedOn,
                     res.LastVisit,
-                    res.Expiration ? moment(res.Expiration) : null
+                    res.Expiration
                 ]]
             }))
-            .catch(e => toastr.error(`Could not fetch lookup: ${e}`))
+            .catch(e => e instanceof Promise ? e.then(error => toastr.error(`Could not fetch lookup: ${error.error}`)) : null)
     }
     render() {
         const { links } = this.state

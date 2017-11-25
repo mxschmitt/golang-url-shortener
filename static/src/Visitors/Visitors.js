@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Container, Table } from 'semantic-ui-react'
-import moment from 'moment'
+import Moment from 'react-moment';
 import toastr from 'toastr'
 
 export default class VisitorComponent extends Component {
@@ -61,7 +61,7 @@ export default class VisitorComponent extends Component {
         return (
             <Container >
                 {info && <p>
-                    Entry with id {id} was created at {moment(info.CreatedOn).format('LLL')} and redirects to '{info.URL}'. Currently it has {visitors.length} visits.
+                    Entry with id '{id}' was created at <Moment>{info.CreatedOn}</Moment> and redirects to '{info.URL}'. Currently it has {visitors.length} visits.
                 </p>}
                 <Table celled>
                     <Table.Header>
@@ -75,7 +75,7 @@ export default class VisitorComponent extends Component {
                     </Table.Header>
                     <Table.Body>
                         {visitors && visitors.map((visit, idx) => <Table.Row key={idx}>
-                            <Table.Cell>{moment(visit.Timestamp).format('LLL')}</Table.Cell>
+                            <Table.Cell><Moment>{visit.Timestamp}</Moment></Table.Cell>
                             <Table.Cell>{visit.IP}</Table.Cell>
                             <Table.Cell>{visit.UserAgent}</Table.Cell>
                             <Table.Cell>{visit.Referer}</Table.Cell>
