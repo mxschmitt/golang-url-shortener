@@ -61,6 +61,7 @@ func (h *Handler) handleAccess(c *gin.Context) {
 		IP:          c.ClientIP(),
 		Timestamp:   time.Now(),
 		Referer:     c.GetHeader("Referer"),
+		UserAgent:   c.GetHeader("User-Agent"),
 		UTMSource:   c.Query("utm_source"),
 		UTMMedium:   c.Query("utm_medium"),
 		UTMCampaign: c.Query("utm_campaign"),

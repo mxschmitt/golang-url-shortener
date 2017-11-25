@@ -34,7 +34,7 @@ type Entry struct {
 
 // Visitor is the entry which is stored in the visitors bucket
 type Visitor struct {
-	IP, Referer                                            string
+	IP, Referer, UserAgent                                 string
 	Timestamp                                              time.Time
 	UTMSource, UTMMedium, UTMCampaign, UTMContent, UTMTerm string `json:",omitempty"`
 }
@@ -202,6 +202,7 @@ func (s *Store) RegisterVisit(id string, visitor Visitor) {
 		"ID":        id,
 		"RequestID": requestID,
 	}).Info("New redirect was registered...")
+
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists([]byte(id))
 		if err != nil {
