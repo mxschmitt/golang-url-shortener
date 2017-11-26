@@ -1,8 +1,14 @@
-listen_addr: ':8080'              # Consists of 'IP:Port', e.g. ':8080' listens on any IP and on Port 8080
-base_url: 'http://localhost:3000' # Origin URL, required for the authentication via OAuth
-data_dir: ./data                  # Contains: the database and the private key
-enable_debug_mode: true            # Activates more detailed logging
-shorted_id_length: 4               # Length of the random generated ID which is used for new shortened URLs
+ListenAddr: ':8080' # Consists of 'IP:Port', e.g. ':8080' listens on any IP and on Port 8080
+BaseURL: 'http://localhost:3000' # Origin URL, required for the authentication via OAuth
+DataDir: ./data # Contains: the database and the private key
+EnableDebugMode: true # Activates more detailed logging
+ShortedIDLength: 10 # Length of the random generated ID which is used for new shortened URLs
 Google:
-  ClientID: replace me           # ClientID which you get from console.cloud.google.com
-  ClientSecret: replace me       # ClientSecret which get from console.cloud.google.com
+  ClientID: replace me
+  ClientSecret: replace me
+GitHub:
+  ClientID: replace me
+  ClientSecret: replace me
+Microsoft:
+  ClientID: replace me
+  ClientSecret: 'replace me'

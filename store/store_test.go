@@ -1,20 +1,17 @@
 package store
 
 import (
-	"os"
 	"strings"
 	"testing"
 
-	"github.com/spf13/viper"
-)
-
-const (
-	testingDBName = "test.db"
+	"github.com/maxibanki/golang-url-shortener/util"
 )
 
 func TestGenerateRandomString(t *testing.T) {
-	viper.SetDefault("data_dir", "./data")
-	viper.SetDefault("shorted_id_length", 4)
+	util.SetConfig(util.Configuration{
+		DataDir:         "./data",
+		ShortedIDLength: 4,
+	})
 	tt := []struct {
 		name   string
 		length int
@@ -41,6 +38,9 @@ func TestGenerateRandomString(t *testing.T) {
 
 func TestNewStore(t *testing.T) {
 	t.Run("create store with correct arguments", func(r *testing.T) {
+		if err := util.ReadInConfig(); err != nil {
+			t.Fatalf("could not read in config: %v", err)
+		}
 		store, err := New()
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -121,7 +121,6 @@ func TestIncreaseVisitCounter(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	viper.Set("shorted_id_length", 4)
 	store, err := New()
 	if err != nil {
 		t.Fatalf("could not create store: %v", err)
@@ -144,7 +143,6 @@ func TestDelete(t *testing.T) {
 }
 
 func TestGetURLAndIncrease(t *testing.T) {
-	viper.Set("shorted_id_length", 4)
 	store, err := New()
 	if err != nil {
 		t.Fatalf("could not create store: %v", err)
@@ -181,5 +179,4 @@ func TestGetURLAndIncrease(t *testing.T) {
 
 func cleanup(s *Store) {
 	s.Close()
-	os.Remove(testingDBName)
 }

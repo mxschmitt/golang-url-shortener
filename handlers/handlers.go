@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/contrib/ginrus"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	"github.com/gin-gonic/gin"
 	"github.com/maxibanki/golang-url-shortener/handlers/tmpls"
@@ -30,7 +29,7 @@ var DoNotPrivateKeyChecking = false
 
 // New initializes the http handlers
 func New(store store.Store) (*Handler, error) {
-	if !viper.GetBool("enable_debug_mode") {
+	if !util.GetConfig().EnableDebugMode {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	h := &Handler{
@@ -82,13 +81,14 @@ func (h *Handler) setHandlers() error {
 	h.engine.NoRoute(h.handleAccess, func(c *gin.Context) {
 		c.Header("Vary", "Accept-Encoding")
 		c.Header("Cache-Control", "public, max-age=2592000")
+		c.Header("ETag", util.VersionInfo["commit"])
 	}, gin.WrapH(http.FileServer(FS(false))))
 	return nil
 }
 
 // Listen starts the http server
 func (h *Handler) Listen() error {
-	return h.engine.Run(viper.GetString("listen_addr"))
+	return h.engine.Run(util.GetConfig().ListenAddr)
 }
 
 // CloseStore stops the http server and the closes the db gracefully

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/sirupsen/logrus"
 
 	"golang.org/x/oauth2/github"
@@ -17,11 +18,11 @@ type githubAdapter struct {
 }
 
 // NewGithubAdapter creates an oAuth adapter out of the credentials and the baseURL
-func NewGithubAdapter(clientID, clientSecret, baseURL string) Adapter {
+func NewGithubAdapter(clientID, clientSecret string) Adapter {
 	return &githubAdapter{&oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  baseURL + "/api/v1/auth/github/callback",
+		RedirectURL:  util.GetConfig().BaseURL + "/api/v1/auth/github/callback",
 		Scopes: []string{
 			"(no scope)",
 		},

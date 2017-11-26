@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
+	"github.com/maxibanki/golang-url-shortener/util"
 )
 
 func TestInitShortener(t *testing.T) {
@@ -15,7 +15,7 @@ func TestInitShortener(t *testing.T) {
 	}
 	time.Sleep(time.Millisecond * 200) // Give the http server a second to boot up
 	// We expect there a port is in use error
-	if _, err := net.Listen("tcp", viper.GetString("listen_addr")); err == nil {
+	if _, err := net.Listen("tcp", util.GetConfig().ListenAddr); err == nil {
 		t.Fatalf("port is not in use: %v", err)
 	}
 	close()

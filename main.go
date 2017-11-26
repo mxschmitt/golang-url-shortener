@@ -6,7 +6,6 @@ import (
 
 	"github.com/shiena/ansicolor"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	"github.com/maxibanki/golang-url-shortener/handlers"
 	"github.com/maxibanki/golang-url-shortener/store"
@@ -15,6 +14,7 @@ import (
 )
 
 func main() {
+	os.Setenv("GUS_SHORTED_ID_LENGTH", "4")
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	logrus.SetFormatter(&logrus.TextFormatter{
@@ -34,7 +34,7 @@ func initShortener() (func(), error) {
 	if err := util.ReadInConfig(); err != nil {
 		return nil, errors.Wrap(err, "could not reload config file")
 	}
-	if viper.GetBool("enable_debug_mode") {
+	if util.GetConfig().EnableDebugMode {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 	store, err := store.New()

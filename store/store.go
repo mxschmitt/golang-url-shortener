@@ -12,7 +12,6 @@ import (
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pborman/uuid"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/boltdb/bolt"
@@ -66,7 +65,7 @@ var (
 
 // New initializes the store with the db
 func New() (*Store, error) {
-	db, err := bolt.Open(filepath.Join(util.GetDataDir(), "main.db"), 0644, &bolt.Options{Timeout: 1 * time.Second})
+	db, err := bolt.Open(filepath.Join(util.GetConfig().DataDir, "main.db"), 0644, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open bolt DB database")
 	}
@@ -79,7 +78,7 @@ func New() (*Store, error) {
 	}
 	return &Store{
 		db:       db,
-		idLength: viper.GetInt("shorted_id_length"),
+		idLength: util.GetConfig().ShortedIDLength,
 	}, nil
 }
 

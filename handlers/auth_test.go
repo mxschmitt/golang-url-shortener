@@ -15,7 +15,6 @@ import (
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -36,8 +35,6 @@ var (
 
 func TestCreateBackend(t *testing.T) {
 	secret = util.GetPrivateKey()
-	viper.SetConfigName("test")
-	util.DoNotSetConfigName = true
 	if err := util.ReadInConfig(); err != nil {
 		t.Fatalf("could not reload config file: %v", err)
 	}

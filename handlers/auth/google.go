@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -14,11 +15,11 @@ type googleAdapter struct {
 }
 
 // NewGoogleAdapter creates an oAuth adapter out of the credentials and the baseURL
-func NewGoogleAdapter(clientID, clientSecret, baseURL string) Adapter {
+func NewGoogleAdapter(clientID, clientSecret string) Adapter {
 	return &googleAdapter{&oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  baseURL + "/api/v1/auth/google/callback",
+		RedirectURL:  util.GetConfig().BaseURL + "/api/v1/auth/google/callback",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 		},

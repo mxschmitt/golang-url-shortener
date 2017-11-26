@@ -7,6 +7,7 @@ import (
 
 	"golang.org/x/oauth2/microsoft"
 
+	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"
@@ -18,11 +19,11 @@ type microsoftAdapter struct {
 }
 
 // NewMicrosoftAdapter creates an oAuth adapter out of the credentials and the baseURL
-func NewMicrosoftAdapter(clientID, clientSecret, baseURL string) Adapter {
+func NewMicrosoftAdapter(clientID, clientSecret string) Adapter {
 	return &microsoftAdapter{&oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		RedirectURL:  baseURL + "/api/v1/auth/microsoft/callback",
+		RedirectURL:  util.GetConfig().BaseURL + "/api/v1/auth/microsoft/callback",
 		Scopes: []string{
 			"wl.basic",
 		},

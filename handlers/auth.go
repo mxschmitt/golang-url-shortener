@@ -6,7 +6,6 @@ import (
 	"github.com/maxibanki/golang-url-shortener/handlers/auth"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/contrib/sessions"
@@ -18,16 +17,19 @@ func (h *Handler) initOAuth() {
 	h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
 
 	h.providers = []string{}
-	if viper.GetString("Google.ClientSecret") != "" {
-		auth.WithAdapterWrapper(auth.NewGoogleAdapter(viper.GetString("Google.ClientID"), viper.GetString("Google.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/google"))
+	google := util.GetConfig().Google
+	if google.Enabled() {
+		auth.WithAdapterWrapper(auth.NewGoogleAdapter(google.ClientID, google.ClientSecret), h.engine.Group("/api/v1/auth/google"))
 		h.providers = append(h.providers, "google")
 	}
-	if viper.GetString("GitHub.ClientSecret") != "" {
-		auth.WithAdapterWrapper(auth.NewGithubAdapter(viper.GetString("GitHub.ClientID"), viper.GetString("GitHub.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/github"))
+	github := util.GetConfig().GitHub
+	if github.Enabled() {
+		auth.WithAdapterWrapper(auth.NewGithubAdapter(github.ClientID, github.ClientSecret), h.engine.Group("/api/v1/auth/github"))
 		h.providers = append(h.providers, "github")
 	}
-	if viper.GetString("Microsoft.ClientSecret") != "" {
-		auth.WithAdapterWrapper(auth.NewMicrosoftAdapter(viper.GetString("Microsoft.ClientID"), viper.GetString("Microsoft.ClientSecret"), viper.GetString("base_url")), h.engine.Group("/api/v1/auth/microsoft"))
+	microsoft := util.GetConfig().Microsoft
+	if microsoft.Enabled() {
+		auth.WithAdapterWrapper(auth.NewMicrosoftAdapter(microsoft.ClientID, microsoft.ClientSecret), h.engine.Group("/api/v1/auth/microsoft"))
 		h.providers = append(h.providers, "microsoft")
 	}
 
