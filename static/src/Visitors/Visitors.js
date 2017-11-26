@@ -9,7 +9,7 @@ export default class VisitorComponent extends Component {
         info: null
     }
 
-    componentDidMount() {
+    componentWillMount() {
         this.setState({ id: this.props.match.params.id })
         fetch("/api/v1/protected/lookup", {
             method: "POST",
@@ -26,21 +26,24 @@ export default class VisitorComponent extends Component {
             .catch(e => {
                 toastr.error(`Could not fetch lookup: ${e}`)
             })
-        this.loop = setInterval(() => {
-            fetch('/api/v1/protected/visitors', {
-                method: 'POST',
-                body: JSON.stringify({
-                    ID: this.props.match.params.id
-                }),
-                headers: {
-                    'Authorization': window.localStorage.getItem('token'),
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(res => res.ok ? res.json() : Promise.reject(res.json()))
-                .then(visitors => this.setState({ visitors }))
-                .catch(e => e.done(res => toastr.error(`Could not fetch visitors: ${res}`)))
-        }, 1000)
+        this.reloadVisitors()
+        this.loop = setInterval(this.reloadVisitors, 1000)
+    }
+
+    reloadVisitors = () => {
+        fetch('/api/v1/protected/visitors', {
+            method: 'POST',
+            body: JSON.stringify({
+                ID: this.props.match.params.id
+            }),
+            headers: {
+                'Authorization': window.localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => res.ok ? res.json() : Promise.reject(res.json()))
+            .then(visitors => this.setState({ visitors }))
+            .catch(e => e.done(res => toastr.error(`Could not fetch visitors: ${res}`)))
     }
 
     componentWillUnmount() {

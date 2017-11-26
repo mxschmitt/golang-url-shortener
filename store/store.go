@@ -28,6 +28,7 @@ type Store struct {
 type Entry struct {
 	OAuthProvider, OAuthID string
 	RemoteAddr             string `json:",omitempty"`
+	DeletionURL            string `json:",omitempty"`
 	Public                 EntryPublicData
 }
 

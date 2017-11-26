@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"crypto/hmac"
+	"crypto/sha512"
 	"encoding/base64"
 	"fmt"
 	"net/http"
@@ -137,6 +139,14 @@ func (h *Handler) handleRecent(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	for k, entry := range entries {
+		mac := hmac.New(sha512.New, util.GetPrivateKey())
+		if _, err := mac.Write([]byte(k)); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		entry.DeletionURL = fmt.Sprintf("%s/d/%s/%s", h.getURLOrigin(c), k, url.QueryEscape(base64.RawURLEncoding.EncodeToString(mac.Sum(nil))))
+		entries[k] = entry
+	}
 	c.JSON(http.StatusOK, entries)
 }
 
@@ -157,7 +167,7 @@ func (h *Handler) handleDelete(c *gin.Context) {
 
 func (h *Handler) getURLOrigin(c *gin.Context) string {
 	protocol := "http"
-	if c.Request.TLS != nil {
+	if c.Request.TLS != nil || util.GetConfig().UseSSL {
 		protocol = "https"
 	}
 	return fmt.Sprintf("%s://%s", protocol, c.Request.Host)
