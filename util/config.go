@@ -65,12 +65,16 @@ func ReadInConfig() error {
 }
 
 func (c *Configuration) ApplyEnvironmentConfig() error {
-	return c.setDefaultValue(reflect.ValueOf(c), reflect.TypeOf(*c), reflect.StructField{}, "GUS")
+	return c.setDefaultValue(reflect.ValueOf(c), reflect.TypeOf(*c), -1, "GUS")
 }
 
-func (c *Configuration) setDefaultValue(v reflect.Value, t reflect.Type, f reflect.StructField, prefix string) error {
+func (c *Configuration) setDefaultValue(v reflect.Value, t reflect.Type, counter int, prefix string) error {
 	if v.Kind() != reflect.Ptr {
 		return errors.New("Not a pointer value")
+	}
+	f := reflect.StructField{}
+	if counter != -1 {
+		f = t.Field(counter)
 	}
 	v = reflect.Indirect(v)
 	fieldEnv, exists := f.Tag.Lookup("env")
@@ -96,9 +100,8 @@ func (c *Configuration) setDefaultValue(v reflect.Value, t reflect.Type, f refle
 		}
 	}
 	if v.Kind() == reflect.Struct {
-		// Iterate over the struct fields
 		for i := 0; i < v.NumField(); i++ {
-			if err := c.setDefaultValue(v.Field(i).Addr(), t, t.Field(i), prefix+fieldEnv+"_"); err != nil {
+			if err := c.setDefaultValue(v.Field(i).Addr(), v.Type(), i, prefix+fieldEnv+"_"); err != nil {
 				return err
 			}
 		}
