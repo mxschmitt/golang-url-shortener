@@ -19,7 +19,7 @@
 - Easy [ShareX](https://github.com/ShareX/ShareX) integration
 - Dockerizable
 
-## [Webinterface](https://s.b0n.pl)
+## [Webinterface](https://so.sh0rt.cat)
 
 ![Short URLs](https://user-images.githubusercontent.com/17984549/32700384-955d9336-c7c4-11e7-9fab-4141a86a375c.png)
 

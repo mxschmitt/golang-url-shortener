@@ -61,7 +61,7 @@ var ErrEntryIsExpired = errors.New("entry is expired")
 
 var (
 	shortedURLsBucket      = []byte("shorted")
-	shortedIDsToUserBucket = []byte("shorted2IDs")
+	shortedIDsToUserBucket = []byte("shorted2Users")
 )
 
 // New initializes the store with the db
