@@ -55,7 +55,7 @@ func TestCreateEntry(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	defer cleanup(store)
-	_, _, err = store.CreateEntry(Entry{}, "")
+	_, _, err = store.CreateEntry(Entry{}, "", "")
 	if err != ErrNoValidURL {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -64,7 +64,7 @@ func TestCreateEntry(t *testing.T) {
 			Public: EntryPublicData{
 				URL: "https://golang.org/",
 			},
-		}, "")
+		}, "", "")
 		if err != nil && err != ErrGeneratingIDFailed {
 			t.Fatalf("unexpected error during creating entry: %v", err)
 		}
@@ -97,7 +97,7 @@ func TestIncreaseVisitCounter(t *testing.T) {
 		Public: EntryPublicData{
 			URL: "https://golang.org/",
 		},
-	}, "")
+	}, "", "")
 	if err != nil {
 		t.Fatalf("could not create entry: %v", err)
 	}
@@ -130,7 +130,7 @@ func TestDelete(t *testing.T) {
 		Public: EntryPublicData{
 			URL: "https://golang.org/",
 		},
-	}, "")
+	}, "", "")
 	if err != nil {
 		t.Fatalf("could not create entry: %v", err)
 	}
@@ -153,7 +153,7 @@ func TestGetURLAndIncrease(t *testing.T) {
 		Public: EntryPublicData{
 			URL: url,
 		},
-	}, "")
+	}, "", "")
 	if err != nil {
 		t.Fatalf("could not create entry: %v", err)
 	}
@@ -161,11 +161,11 @@ func TestGetURLAndIncrease(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not get entry: %v", err)
 	}
-	entryURL, err := store.GetURLAndIncrease(entryID)
+	entry, err := store.GetEntryAndIncrease(entryID)
 	if err != nil {
 		t.Fatalf("could not get URL and increase the visitor counter: %v", err)
 	}
-	if entryURL != url {
+	if entry.Public.URL != url {
 		t.Fatalf("url is not the expected one")
 	}
 	entryTwo, err := store.GetEntryByID(entryID)
