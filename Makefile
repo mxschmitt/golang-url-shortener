@@ -9,7 +9,7 @@ buildNodeFrontend:
 	@cd static && rm build/static/**/*.map
 
 embedFrontend:
-	@cd handlers/tmpls && esc -o tmpls.go -pkg tmpls -include ^*\.tmpl .
+	@cd handlers/tmpls && esc -o tmpls.go -pkg tmpls -include ^*\.html .
 	@cd handlers && esc -o static.go -pkg handlers -prefix ../static/build ../static/build
 	bash build/info.sh
 

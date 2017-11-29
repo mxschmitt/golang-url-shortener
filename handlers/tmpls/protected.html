@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Authorize please</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.css" />
+    <style type="text/css">
+        body {
+            background-color: #DADADA;
+        }
+
+        body>.grid {
+            height: 100%;
+        }
+
+        .image {
+            margin-top: -100px;
+        }
+
+        .column {
+            max-width: 450px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui middle aligned center aligned grid">
+        <div class="column">
+            <h2 class="ui image header">
+                <i class="massive lock icon"></i>
+                <div class="content">
+                    Visit the URL with the ID {{ .ID }}
+                </div>
+            </h2>
+            <form class="ui large form" method="POST">
+                <div class="ui stacked segment">
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="key icon"></i>
+                            <input type="password" name="password" placeholder="Password" required>
+                        </div>
+                    </div>
+                    <button class="ui fluid large button" type="submit">Login</button>
+                </div>
+            </form>
+            {{ if .Error }}
+            <div class="ui negative message">
+                <i class="close icon"></i>
+                <div class="header">
+                    Authorization error occured
+                </div>
+                <p>{{ .Error }}</p>
+            </div>
+            {{ end }}
+            <div class="ui message">
+                New to us and want to create an own shortened URL?
+                <a href="/">Sign Up</a>
+            </div>
+        </div>
+    </div>
+    <script>
+    </script>
+</body>
+
+</html>

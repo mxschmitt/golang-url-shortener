@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-	os.Setenv("GUS_SHORTED_ID_LENGTH", "4")
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	logrus.SetFormatter(&logrus.TextFormatter{

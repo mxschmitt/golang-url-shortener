@@ -11,6 +11,7 @@ import './Home.css'
 
 export default class HomeComponent extends Component {
   handleURLChange = (e, { value }) => this.url = value
+  handlePasswordChange = (e, { value }) => this.password = value
   handleCustomExpirationChange = expire => this.setState({ expiration: expire })
   handleCustomIDChange = (e, { value }) => {
     this.customID = value
@@ -30,7 +31,6 @@ export default class HomeComponent extends Component {
       })
       .catch(e => {
         this.setState({ showCustomIDError: false })
-        toastr.error(`Could not fetch lookup: ${e}`)
       })
   }
   onSettingsChange = (e, { value }) => this.setState({ setOptions: value })
@@ -39,11 +39,12 @@ export default class HomeComponent extends Component {
     links: [],
     options: [
       { text: 'Custom URL', value: 'custom' },
-      { text: 'Expiration', value: 'expire' }
+      { text: 'Expiration', value: 'expire' },
+      { text: 'Password', value: 'protected' }
     ],
     setOptions: [],
     showCustomIDError: false,
-    expiration: moment()
+    expiration: null
   }
   componentDidMount() {
     this.urlInput.focus()
@@ -55,7 +56,8 @@ export default class HomeComponent extends Component {
         body: JSON.stringify({
           URL: this.url,
           ID: this.customID,
-          Expiration: this.state.setOptions.indexOf("expire") > -1 ? this.state.expiration.toISOString() : undefined
+          Expiration: this.state.setOptions.includes("expire") && this.state.expiration ? this.state.expiration.toISOString() : undefined,
+          Password: this.state.setOptions.includes("protected") && this.password ? this.password : undefined
         }),
         headers: {
           'Authorization': window.localStorage.getItem('token'),
@@ -67,11 +69,11 @@ export default class HomeComponent extends Component {
           links: [...this.state.links, [
             r.URL,
             this.url,
-            this.state.setOptions.indexOf("expire") > -1 ? this.state.expiration.toISOString() : undefined,
+            this.state.setOptions.includes("expire") && this.state.expiration ? this.state.expiration.toISOString() : undefined,
             r.DeletionURL
           ]]
         }))
-        .catch(e => toastr.error(`Could not fetch create: ${e}`))
+        .catch(e => e instanceof Promise ? e.then(error => toastr.error(`Could not fetch lookup: ${error.error}`)) : toastr.error(`Could not fetch create: ${e}`))
     }
   }
 
@@ -96,16 +98,25 @@ export default class HomeComponent extends Component {
                 <Select options={options} placeholder='Settings' onChange={this.onSettingsChange} multiple fluid />
               </Form.Field>
             </MediaQuery>
-            <Form.Group widths='equal'>
-              {setOptions.indexOf("custom") > -1 && <Form.Field error={showCustomIDError}>
+            <Form.Group className="FieldsMarginButtomFix">
+              {setOptions.includes("custom") && <Form.Field error={showCustomIDError} width={16}>
                 <Input label={window.location.origin + "/"} onChange={this.handleCustomIDChange} placeholder='my-shortened-url' />
               </Form.Field>}
-              {setOptions.indexOf("expire") > -1 && <Form.Field>
+            </Form.Group>
+            <Form.Group widths="equal">
+              {setOptions.includes("expire") && <Form.Field>
                 <DatePicker showTimeSelect
                   timeFormat="HH:mm"
                   timeIntervals={15}
-                  dateFormat="LLL" onChange={this.handleCustomExpirationChange} selected={expiration} customInput={<Input label="Expiration" />} minDate={moment()} />
+                  placeholderText="Click to select a date"
+                  dateFormat="LLL"
+                  onChange={this.handleCustomExpirationChange}
+                  selected={expiration}
+                  customInput={<Input label="Expiration" />}
+                  minDate={moment()} />
               </Form.Field>}
+              {setOptions.includes("protected") && <Form.Field>
+                <Input type="password" label='Password' onChange={this.handlePasswordChange} autoComplete="off" /></Form.Field>}
             </Form.Group>
           </Form>
         </Segment>

@@ -99,7 +99,7 @@ func TestCheckToken(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not post to the backend: %v", err)
 	}
-	resp, err := http.Post(server.URL+"/api/v1/check", "application/json", bytes.NewBuffer(body))
+	resp, err := http.Post(server.URL+"/api/v1/auth/check", "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		t.Fatalf("could not execute get request: %v", err)
 	}

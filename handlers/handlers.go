@@ -62,8 +62,11 @@ func (h *Handler) setTemplateFromFS(name string) error {
 }
 
 func (h *Handler) setHandlers() error {
-	if err := h.setTemplateFromFS("token.tmpl"); err != nil {
-		return errors.Wrap(err, "could not set template from FS")
+	templates := []string{"token.html", "protected.html"}
+	for _, template := range templates {
+		if err := h.setTemplateFromFS(template); err != nil {
+			return errors.Wrapf(err, "could not set template %s from FS", template)
+		}
 	}
 	h.engine.Use(ginrus.Ginrus(logrus.StandardLogger(), time.RFC3339, false))
 	protected := h.engine.Group("/api/v1/protected")

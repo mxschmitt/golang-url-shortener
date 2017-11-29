@@ -88,7 +88,7 @@ func (a *AdapterWrapper) HandleCallback(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.HTML(http.StatusOK, "token.tmpl", gin.H{
+	c.HTML(http.StatusOK, "token.html", gin.H{
 		"token": token,
 	})
 }

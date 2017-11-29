@@ -14,14 +14,15 @@ import (
 	"github.com/maxibanki/golang-url-shortener/handlers/auth"
 	"github.com/maxibanki/golang-url-shortener/store"
 	"github.com/maxibanki/golang-url-shortener/util"
+	"golang.org/x/crypto/bcrypt"
 )
 
-// urlUtil is used to help in- and outgoing requests for json
+// requestHelper is used to help in- and outgoing requests for json
 // un- and marshalling
-type urlUtil struct {
-	URL             string `binding:"required"`
-	ID, DeletionURL string
-	Expiration      *time.Time
+type requestHelper struct {
+	URL                       string `binding:"required"`
+	ID, DeletionURL, Password string
+	Expiration                *time.Time
 }
 
 // handleLookup is the http handler for getting the infos
@@ -52,7 +53,7 @@ func (h *Handler) handleLookup(c *gin.Context) {
 // handleAccess handles the access for incoming requests
 func (h *Handler) handleAccess(c *gin.Context) {
 	id := c.Request.URL.Path[1:]
-	url, err := h.store.GetURLAndIncrease(id)
+	entry, err := h.store.GetEntryAndIncrease(id)
 	if err == store.ErrNoEntryFound {
 		return
 	} else if err != nil {
@@ -70,7 +71,31 @@ func (h *Handler) handleAccess(c *gin.Context) {
 		UTMContent:  c.Query("utm_content"),
 		UTMTerm:     c.Query("utm_term"),
 	})
-	c.Redirect(http.StatusTemporaryRedirect, url)
+	// No password set
+	if len(entry.Password) == 0 {
+		c.Redirect(http.StatusTemporaryRedirect, entry.Public.URL)
+	} else {
+		templateError := ""
+		if c.Request.Method == "POST" {
+			pw, exists := c.GetPostForm("password")
+			if exists {
+				if err := bcrypt.CompareHashAndPassword(entry.Password, []byte(pw)); err != nil {
+					templateError = fmt.Sprintf("could not validate password: %v", err)
+				}
+			} else {
+				templateError = "No password set"
+			}
+			if templateError == "" {
+				c.Redirect(http.StatusTemporaryRedirect, entry.Public.URL)
+				c.Abort()
+				return
+			}
+		}
+		c.HTML(http.StatusOK, "protected.html", gin.H{
+			"ID":    id,
+			"Error": templateError,
+		})
+	}
 	// There is a need to Abort in the current middleware to prevent
 	// that the status code will be overridden by the default NoRoute handler
 	c.Abort()
@@ -78,7 +103,7 @@ func (h *Handler) handleAccess(c *gin.Context) {
 
 // handleCreate handles requests to create an entry
 func (h *Handler) handleCreate(c *gin.Context) {
-	var data urlUtil
+	var data requestHelper
 	if err := c.ShouldBind(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -92,13 +117,13 @@ func (h *Handler) handleCreate(c *gin.Context) {
 		RemoteAddr:    c.ClientIP(),
 		OAuthProvider: user.OAuthProvider,
 		OAuthID:       user.OAuthID,
-	}, data.ID)
+	}, data.ID, data.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	originURL := h.getURLOrigin(c)
-	c.JSON(http.StatusOK, urlUtil{
+	c.JSON(http.StatusOK, requestHelper{
 		URL:         fmt.Sprintf("%s/%s", originURL, id),
 		DeletionURL: fmt.Sprintf("%s/d/%s/%s", originURL, id, url.QueryEscape(base64.RawURLEncoding.EncodeToString(delID))),
 	})

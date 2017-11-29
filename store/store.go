@@ -12,6 +12,7 @@ import (
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pborman/uuid"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/boltdb/bolt"
@@ -29,6 +30,7 @@ type Entry struct {
 	OAuthProvider, OAuthID string
 	RemoteAddr             string `json:",omitempty"`
 	DeletionURL            string `json:",omitempty"`
+	Password               []byte `json:",omitempty"`
 	Public                 EntryPublicData
 }
 
@@ -117,20 +119,20 @@ func (s *Store) IncreaseVisitCounter(id string) error {
 	})
 }
 
-// GetURLAndIncrease Increases the visitor count, checks
+// GetEntryAndIncrease Increases the visitor count, checks
 // if the URL is expired and returns the origin URL
-func (s *Store) GetURLAndIncrease(id string) (string, error) {
+func (s *Store) GetEntryAndIncrease(id string) (*Entry, error) {
 	entry, err := s.GetEntryByID(id)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if entry.Public.Expiration != nil && time.Now().After(*entry.Public.Expiration) {
-		return "", ErrEntryIsExpired
+		return nil, ErrEntryIsExpired
 	}
 	if err := s.IncreaseVisitCounter(id); err != nil {
-		return "", errors.Wrap(err, "could not increase visitor counter")
+		return nil, errors.Wrap(err, "could not increase visitor counter")
 	}
-	return entry.Public.URL, nil
+	return entry, nil
 }
 
 // GetEntryByIDRaw returns the raw data (JSON) of a data set
@@ -146,9 +148,16 @@ func (s *Store) GetEntryByIDRaw(id string) ([]byte, error) {
 }
 
 // CreateEntry creates a new record and returns his short id
-func (s *Store) CreateEntry(entry Entry, givenID string) (string, []byte, error) {
+func (s *Store) CreateEntry(entry Entry, givenID, password string) (string, []byte, error) {
 	if !govalidator.IsURL(entry.Public.URL) {
 		return "", nil, ErrNoValidURL
+	}
+	if password != "" {
+		var err error
+		entry.Password, err = bcrypt.GenerateFromPassword([]byte(password), 10)
+		if err != nil {
+			return "", nil, errors.Wrap(err, "could not generate bcrypt from password")
+		}
 	}
 	// try it 10 times to make a short URL
 	for i := 1; i <= 10; i++ {

@@ -40,7 +40,7 @@ export default class BaseComponent extends Component {
         const that = this,
             token = window.localStorage.getItem('token');
         if (token) {
-            fetch('/api/v1/check', {
+            fetch('/api/v1/auth/check', {
                 method: 'POST',
                 body: JSON.stringify({
                     Token: token
@@ -106,18 +106,18 @@ export default class BaseComponent extends Component {
                         <p>The following authentication services are currently available:</p>
                         {info && <div className='ui center aligned segment'>
                             {info.providers.length === 0 && <p>There are currently no correct oAuth credentials maintained.</p>}
-                            {info.providers.indexOf("google") !== -1 && <div>
+                            {info.providers.includes("google") && <div>
                                 <Button className='ui google plus button' onClick={this.onOAuthClick.bind(this, "google")}>
                                     <Icon name='google' /> Login with Google
                                 </Button>
-                                {info.providers.indexOf("github") !== -1 && <div className="ui divider"></div>}
+                                {info.providers.includes("github") && <div className="ui divider"></div>}
                             </div>}
-                            {info.providers.indexOf("github") !== -1 && <div>
+                            {info.providers.includes("github") && <div>
                                 <Button style={{ backgroundColor: "#333", color: "white" }} onClick={this.onOAuthClick.bind(this, "github")}>
                                     <Icon name='github' /> Login with GitHub
                                 </Button>
                             </div>}
-                            {info.providers.indexOf("microsoft") !== -1 && <div>
+                            {info.providers.includes("microsoft") && <div>
                                 <div className="ui divider"></div>
                                 <Button style={{ backgroundColor: "#0067b8", color: "white" }} onClick={this.onOAuthClick.bind(this, "microsoft")}>
                                     <Icon name='windows' /> Login with Microsoft

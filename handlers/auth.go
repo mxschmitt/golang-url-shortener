@@ -33,7 +33,7 @@ func (h *Handler) initOAuth() {
 		h.providers = append(h.providers, "microsoft")
 	}
 
-	h.engine.POST("/api/v1/check", h.handleAuthCheck)
+	h.engine.POST("/api/v1/auth/check", h.handleAuthCheck)
 }
 
 func (h *Handler) parseJWT(wt string) (*auth.JWTClaims, error) {
