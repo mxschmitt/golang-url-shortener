@@ -53,7 +53,7 @@ func (a *googleAdapter) GetUserData(state, code string) (*user, error) {
 	return &user{
 		ID:      gUser.Sub,
 		Name:    gUser.Name,
-		Picture: gUser.Picture,
+		Picture: gUser.Picture + "?sz=64",
 	}, nil
 }
 

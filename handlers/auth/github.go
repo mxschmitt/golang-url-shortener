@@ -56,7 +56,7 @@ func (a *githubAdapter) GetUserData(state, code string) (*user, error) {
 	return &user{
 		ID:      string(gUser.ID),
 		Name:    gUser.Name,
-		Picture: gUser.AvatarURL,
+		Picture: gUser.AvatarURL + "&s=64",
 	}, nil
 }
 
