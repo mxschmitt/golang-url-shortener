@@ -48,25 +48,31 @@ func New(store store.Store) (*Handler, error) {
 	return h, nil
 }
 
-func (h *Handler) setTemplateFromFS(name string) error {
-	tokenTemplate, err := tmpls.FSString(false, "/"+name)
-	if err != nil {
-		return errors.Wrap(err, "could not read token template file")
+func (h *Handler) addTemplatesFromFS(files []string) error {
+	var t *template.Template
+	for _, file := range files {
+		fileContent, err := tmpls.FSString(false, "/"+file)
+		if err != nil {
+			return errors.Wrap(err, "could not read template file")
+		}
+		if t == nil {
+			t, err = template.New(file).Parse(fileContent)
+			if err != nil {
+				return errors.Wrap(err, "could not create template from file content")
+			}
+			continue
+		}
+		if _, err := t.New(file).Parse(fileContent); err != nil {
+			return errors.Wrap(err, "could not parse template")
+		}
 	}
-	templ, err := template.New(name).Parse(tokenTemplate)
-	if err != nil {
-		return errors.Wrap(err, "could not create template from file content")
-	}
-	h.engine.SetHTMLTemplate(templ)
+	h.engine.SetHTMLTemplate(t)
 	return nil
 }
 
 func (h *Handler) setHandlers() error {
-	templates := []string{"token.html", "protected.html"}
-	for _, template := range templates {
-		if err := h.setTemplateFromFS(template); err != nil {
-			return errors.Wrapf(err, "could not set template %s from FS", template)
-		}
+	if err := h.addTemplatesFromFS([]string{"token.html", "protected.html"}); err != nil {
+		return errors.Wrap(err, "could not add templates from FS")
 	}
 	h.engine.Use(ginrus.Ginrus(logrus.StandardLogger(), time.RFC3339, false))
 	protected := h.engine.Group("/api/v1/protected")
