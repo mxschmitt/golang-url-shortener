@@ -60,33 +60,27 @@ func (h *Handler) handleAccess(c *gin.Context) {
 		http.Error(c.Writer, fmt.Sprintf("could not get and crease visitor counter: %v, ", err), http.StatusInternalServerError)
 		return
 	}
-	go h.store.RegisterVisit(id, store.Visitor{
-		IP:          c.ClientIP(),
-		Timestamp:   time.Now(),
-		Referer:     c.GetHeader("Referer"),
-		UserAgent:   c.GetHeader("User-Agent"),
-		UTMSource:   c.Query("utm_source"),
-		UTMMedium:   c.Query("utm_medium"),
-		UTMCampaign: c.Query("utm_campaign"),
-		UTMContent:  c.Query("utm_content"),
-		UTMTerm:     c.Query("utm_term"),
-	})
 	// No password set
 	if len(entry.Password) == 0 {
 		c.Redirect(http.StatusTemporaryRedirect, entry.Public.URL)
+		go h.registerVisitor(id, c)
+		c.Abort()
 	} else {
 		templateError := ""
 		if c.Request.Method == "POST" {
-			pw, exists := c.GetPostForm("password")
-			if exists {
-				if err := bcrypt.CompareHashAndPassword(entry.Password, []byte(pw)); err != nil {
-					templateError = fmt.Sprintf("could not validate password: %v", err)
+			templateError = func() string {
+				pw, exists := c.GetPostForm("password")
+				if exists {
+					if err := bcrypt.CompareHashAndPassword(entry.Password, []byte(pw)); err != nil {
+						return fmt.Sprintf("could not validate password: %v", err)
+					}
+					return ""
 				}
-			} else {
-				templateError = "No password set"
-			}
+				return "No password set"
+			}()
 			if templateError == "" {
 				c.Redirect(http.StatusTemporaryRedirect, entry.Public.URL)
+				go h.registerVisitor(id, c)
 				c.Abort()
 				return
 			}
@@ -96,9 +90,6 @@ func (h *Handler) handleAccess(c *gin.Context) {
 			"Error": templateError,
 		})
 	}
-	// There is a need to Abort in the current middleware to prevent
-	// that the status code will be overridden by the default NoRoute handler
-	c.Abort()
 }
 
 // handleCreate handles requests to create an entry
@@ -196,4 +187,18 @@ func (h *Handler) getURLOrigin(c *gin.Context) string {
 		protocol = "https"
 	}
 	return fmt.Sprintf("%s://%s", protocol, c.Request.Host)
+}
+
+func (h *Handler) registerVisitor(id string, c *gin.Context) {
+	h.store.RegisterVisit(id, store.Visitor{
+		IP:          c.ClientIP(),
+		Timestamp:   time.Now(),
+		Referer:     c.GetHeader("Referer"),
+		UserAgent:   c.GetHeader("User-Agent"),
+		UTMSource:   c.Query("utm_source"),
+		UTMMedium:   c.Query("utm_medium"),
+		UTMCampaign: c.Query("utm_campaign"),
+		UTMContent:  c.Query("utm_content"),
+		UTMTerm:     c.Query("utm_term"),
+	})
 }
