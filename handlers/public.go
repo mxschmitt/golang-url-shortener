@@ -79,7 +79,7 @@ func (h *Handler) handleAccess(c *gin.Context) {
 				return "No password set"
 			}()
 			if templateError == "" {
-				c.Redirect(http.StatusTemporaryRedirect, entry.Public.URL)
+				c.Redirect(http.StatusSeeOther, entry.Public.URL)
 				go h.registerVisitor(id, c)
 				c.Abort()
 				return
