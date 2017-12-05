@@ -25,12 +25,12 @@ export default class CardComponent extends Component {
                     {this.props.metaHeader}
                 </Card.Meta>
                 <Card.Description>
-                    {this.props.description}
+                    {this.props.description} 
                     {this.props.deletionURL && <Clipboard component="i" className="trash link icon" style={{ float: "right" }} button-title="Copy the deletion URL to the clipboard" data-clipboard-text={this.props.deletionURL} onSuccess={this.onDeletonLinkCopy} />}
                 </Card.Description>
             </Card.Content>
             <Card.Content extra>
-                {!this.props.showInfoURL ? <div className='ui two buttons'>
+                {!this.props.customExtraContent ? <div className='ui two buttons'>
                     <Modal closeIcon trigger={<Button icon='qrcode' content='Show QR-Code' />}>
                         <Modal.Header className='ui center aligned'>{this.props.description}</Modal.Header>
                         <Modal.Content style={{ textAlign: 'center' }}>
@@ -43,10 +43,7 @@ export default class CardComponent extends Component {
                             Copy to Clipboard
                         </div>
                     </Clipboard>
-                </div> : <div className='ui two buttons'>
-                        <Button icon='clock' content='Show recent visitors' />
-                        <Button icon='line chart' content='Delete Entry' />
-                    </div>}
+                </div> : this.props.customExtraContent}
             </Card.Content>
         </Card>)
     }

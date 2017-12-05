@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Segment, Header, Form, Input, Card } from 'semantic-ui-react'
+import { Segment, Header, Form, Input, Card, Button } from 'semantic-ui-react'
 import toastr from 'toastr'
 
 import CustomCard from '../Card/Card'
@@ -40,14 +40,17 @@ export default class LookupComponent extends Component {
             <div>
                 <Segment raised>
                     <Header size='huge'>URL Lookup</Header>
-                    <Form onSubmit={this.handleURLSubmit} autoComplete="off">
+                    <Form onSubmit={this.handleURLSubmit}>
                         <Form.Field>
-                            <Input required size='big' ref={input => this.urlInput = input} action={{ icon: 'arrow right', labelPosition: 'right', content: 'Lookup' }} type='url' onChange={this.handleURLChange} name='url' placeholder={window.location.origin + "/..."} />
+                            <Input required size='big' ref={input => this.urlInput = input} action={{ icon: 'arrow right', labelPosition: 'right', content: 'Lookup' }} type='url' onChange={this.handleURLChange} name='url' placeholder={window.location.origin + "/..."} autoComplete="off"/>
                         </Form.Field>
                     </Form>
                 </Segment>
                 <Card.Group itemsPerRow="2">
-                    {links.map((link, i) => <CustomCard key={i} header={new URL(link[0]).hostname} metaHeader={link[1]} description={link[0]} expireDate={link[5]} showInfoURL />)}
+                    {links.map((link, i) => <CustomCard key={i} header={new URL(link[0]).hostname} metaHeader={link[1]} description={link[0]} expireDate={link[5]} customExtraContent={<div className='ui two buttons'>
+                        <Button icon='clock' content='Show recent visitors' />
+                        <Button icon='line chart' content='Delete Entry' />
+                    </div>} />)}
                 </Card.Group>
             </div>
         )

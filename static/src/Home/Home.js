@@ -116,7 +116,7 @@ export default class HomeComponent extends Component {
                   minDate={moment()} />
               </Form.Field>}
               {setOptions.includes("protected") && <Form.Field>
-                <Input type="password" label='Password' onChange={this.handlePasswordChange} autoComplete="off" /></Form.Field>}
+                <Input type="password" label='Password' onChange={this.handlePasswordChange} /></Form.Field>}
             </Form.Group>
           </Form>
         </Segment>

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Container, Table, Button, Icon } from 'semantic-ui-react'
 import toastr from 'toastr'
 import Moment from 'react-moment';
-
+import util from '../util/util'
 export default class RecentComponent extends Component {
     state = {
         recent: null
@@ -28,11 +28,8 @@ export default class RecentComponent extends Component {
         this.props.history.push(`/visitors/${id}`)
     }
 
-    onEntryDeletion(visit) {
-        fetch(visit.DeletionURL)
-            .then(res => res.ok ? res.json() : Promise.reject(res.json()))
-            .then(() => this.loadRecentURLs())
-            .catch(e => e instanceof Promise ? e.then(error => toastr.error(`Could not delete: ${error.error}`)) : null)
+    onEntryDeletion(entry) {
+        util.deleteEntry(entry.DeletionURL)
     }
 
     render() {
@@ -53,7 +50,7 @@ export default class RecentComponent extends Component {
                         {recent && Object.keys(recent).map(key => <Table.Row key={key} title="Click to view visitor statistics">
                             <Table.Cell onClick={this.onRowClick.bind(this, key)}>{recent[key].Public.URL}</Table.Cell>
                             <Table.Cell onClick={this.onRowClick.bind(this, key)}><Moment>{recent[key].Public.CreatedOn}</Moment></Table.Cell>
-                            <Table.Cell onClick={this.onRowClick.bind(this, key)}>{`${window.location.origin}/${key}`}</Table.Cell>
+                            <Table.Cell>{`${window.location.origin}/${key}`}</Table.Cell>
                             <Table.Cell onClick={this.onRowClick.bind(this, key)}>{recent[key].Public.VisitCount}</Table.Cell>
                             <Table.Cell><Button animated='vertical' onClick={this.onEntryDeletion.bind(this, recent[key])}>
                                 <Button.Content hidden>Delete</Button.Content>
