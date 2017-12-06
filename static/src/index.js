@@ -13,9 +13,10 @@ import Lookup from './Lookup/Lookup'
 import Recent from './Recent/Recent'
 import Visitors from './Visitors/Visitors'
 
+import util from './util/util'
 export default class BaseComponent extends Component {
     state = {
-        oAuthOpen: true,
+        oAuthPopupOpened: true,
         userData: {},
         authorized: false,
         activeItem: "",
@@ -25,7 +26,7 @@ export default class BaseComponent extends Component {
     handleItemClick = (e, { name }) => this.setState({ activeItem: name })
 
     onOAuthClose = () => {
-        this.setState({ oAuthOpen: true })
+        this.setState({ oAuthPopupOpened: true })
     }
 
     componentWillMount() {
@@ -33,12 +34,11 @@ export default class BaseComponent extends Component {
             .then(d => d.json())
             .then(info => this.setState({ info }))
             .then(() => this.checkAuth())
-            .catch(e => toastr.error(`Could not fetch info: ${e}`))
+            .catch(e => util._reportError(e, "info"))
     }
 
     checkAuth = () => {
-        const that = this,
-            token = window.localStorage.getItem('token');
+        const token = window.localStorage.getItem('token');
         if (token) {
             fetch('/api/v1/auth/check', {
                 method: 'POST',
@@ -50,16 +50,14 @@ export default class BaseComponent extends Component {
                 }
             })
                 .then(res => res.ok ? res.json() : Promise.reject(`incorrect response status code: ${res.status}; text: ${res.statusText}`))
-                .then(d => {
-                    that.setState({
-                        userData: d,
-                        authorized: true
-                    })
-                })
+                .then(d => this.setState({
+                    userData: d,
+                    authorized: true
+                }))
                 .catch(e => {
                     toastr.error(`Could not fetch check: ${e}`)
                     window.localStorage.removeItem('token');
-                    that.setState({ authorized: false })
+                    this.setState({ authorized: false })
                 })
         }
     }
@@ -81,9 +79,7 @@ export default class BaseComponent extends Component {
             // Open the oAuth window that is it centered in the middle of the screen
             var wwidth = 400,
                 wHeight = 500;
-            var wLeft = (window.screen.width / 2) - (wwidth / 2);
-            var wTop = (window.screen.height / 2) - (wHeight / 2);
-            this._oAuthPopup = window.open(url, '', `width=${wwidth}, height=${wHeight}, top=${wTop}, left=${wLeft}`)
+            this._oAuthPopup = window.open(url, '', `width=${wwidth}, height=${wHeight}, top=${(window.screen.height / 2) - (wHeight / 2)}, left=${(window.screen.width / 2) - (wwidth / 2)}`)
         } else {
             this._oAuthPopup.location = url;
         }
@@ -95,10 +91,10 @@ export default class BaseComponent extends Component {
     }
 
     render() {
-        const { oAuthOpen, authorized, activeItem, userData, info } = this.state
+        const { oAuthPopupOpened, authorized, activeItem, userData, info } = this.state
         if (!authorized) {
             return (
-                <Modal size='tiny' open={oAuthOpen} onClose={this.onOAuthClose}>
+                <Modal size='tiny' open={oAuthPopupOpened} onClose={this.onOAuthClose}>
                     <Modal.Header>
                         Authentication
                     </Modal.Header>

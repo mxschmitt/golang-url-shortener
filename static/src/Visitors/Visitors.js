@@ -1,53 +1,28 @@
 import React, { Component } from 'react'
 import { Container, Table } from 'semantic-ui-react'
 import Moment from 'react-moment';
-import toastr from 'toastr'
 
+import util from '../util/util'
 export default class VisitorComponent extends Component {
     state = {
-        visitors: [],
-        info: null
+        id: "",
+        entry: null,
+        visitors: []
     }
 
     componentWillMount() {
         this.setState({ id: this.props.match.params.id })
-        fetch("/api/v1/protected/lookup", {
-            method: "POST",
-            body: JSON.stringify({
-                ID: this.props.match.params.id
-            }),
-            headers: {
-                'Authorization': window.localStorage.getItem('token'),
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(res => res.ok ? res.json() : Promise.reject(res.json()))
-            .then(info => this.setState({ info }))
-            .catch(e => {
-                toastr.error(`Could not fetch lookup: ${e}`)
-            })
+        util.lookupEntry(this.props.match.params.id, entry => this.setState({ entry }))
         this.reloadVisitors()
-        this.loop = setInterval(this.reloadVisitors, 1000)
-    }
-
-    reloadVisitors = () => {
-        fetch('/api/v1/protected/visitors', {
-            method: 'POST',
-            body: JSON.stringify({
-                ID: this.props.match.params.id
-            }),
-            headers: {
-                'Authorization': window.localStorage.getItem('token'),
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(res => res.ok ? res.json() : Promise.reject(res.json()))
-            .then(visitors => this.setState({ visitors }))
-            .catch(e => e.done(res => toastr.error(`Could not fetch visitors: ${res}`)))
+        this.reloadInterval = setInterval(this.reloadVisitors, 1000)
     }
 
     componentWillUnmount() {
-        clearInterval(this.loop)
+        clearInterval(this.reloadInterval)
+    }
+
+    reloadVisitors = () => {
+        util.getVisitors(this.props.match.params.id, visitors => this.setState({ visitors }))
     }
 
     // getUTMSource is a function which generates the output for the utm[...] table column
@@ -60,11 +35,11 @@ export default class VisitorComponent extends Component {
     }
 
     render() {
-        const { visitors, id, info } = this.state
+        const { visitors, id, entry } = this.state
         return (
             <Container >
-                {info && <p>
-                    Entry with id '{id}' was created at <Moment>{info.CreatedOn}</Moment> and redirects to '{info.URL}'. Currently it has {visitors.length} visits.
+                {entry && <p>
+                    Entry with id '{id}' was created at <Moment>{entry.CreatedOn}</Moment> and redirects to '{entry.URL}'. Currently it has {visitors.length} visits.
                 </p>}
                 <Table celled>
                     <Table.Header>

@@ -4,8 +4,8 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import MediaQuery from 'react-responsive';
 import 'react-datepicker/dist/react-datepicker.css';
-import toastr from 'toastr'
 
+import util from '../util/util'
 import CustomCard from '../Card/Card'
 import './Home.css'
 
@@ -15,34 +15,13 @@ export default class HomeComponent extends Component {
   handleCustomExpirationChange = expire => this.setState({ expiration: expire })
   handleCustomIDChange = (e, { value }) => {
     this.customID = value
-    fetch("/api/v1/protected/lookup", {
-      method: "POST",
-      body: JSON.stringify({
-        ID: value
-      }),
-      headers: {
-        'Authorization': window.localStorage.getItem('token'),
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(res => res.ok ? res.json() : Promise.reject(res.json()))
-      .then(() => {
-        this.setState({ showCustomIDError: true })
-      })
-      .catch(e => {
-        this.setState({ showCustomIDError: false })
-      })
+    util.lookupEntry(value, () => this.setState({ showCustomIDError: true }), () => this.setState({ showCustomIDError: false }))
   }
-  onSettingsChange = (e, { value }) => this.setState({ setOptions: value })
+  onSettingsChange = (e, { value }) => this.setState({ usedSettings: value })
 
   state = {
     links: [],
-    options: [
-      { text: 'Custom URL', value: 'custom' },
-      { text: 'Expiration', value: 'expire' },
-      { text: 'Password', value: 'protected' }
-    ],
-    setOptions: [],
+    usedSettings: [],
     showCustomIDError: false,
     expiration: null
   }
@@ -51,34 +30,29 @@ export default class HomeComponent extends Component {
   }
   handleURLSubmit = () => {
     if (!this.state.showCustomIDError) {
-      fetch('/api/v1/protected/create', {
-        method: 'POST',
-        body: JSON.stringify({
-          URL: this.url,
-          ID: this.customID,
-          Expiration: this.state.setOptions.includes("expire") && this.state.expiration ? this.state.expiration.toISOString() : undefined,
-          Password: this.state.setOptions.includes("protected") && this.password ? this.password : undefined
-        }),
-        headers: {
-          'Authorization': window.localStorage.getItem('token'),
-          'Content-Type': 'application/json'
-        }
-      })
-        .then(res => res.ok ? res.json() : Promise.reject(res.json()))
-        .then(r => this.setState({
-          links: [...this.state.links, [
-            r.URL,
-            this.url,
-            this.state.setOptions.includes("expire") && this.state.expiration ? this.state.expiration.toISOString() : undefined,
-            r.DeletionURL
-          ]]
-        }))
-        .catch(e => e instanceof Promise ? e.then(error => toastr.error(`Could not fetch lookup: ${error.error}`)) : toastr.error(`Could not fetch create: ${e}`))
+      util.createEntry({
+        URL: this.url,
+        ID: this.customID,
+        Expiration: this.state.usedSettings.includes("expire") && this.state.expiration ? this.state.expiration.toISOString() : undefined,
+        Password: this.state.usedSettings.includes("protected") && this.password ? this.password : undefined
+      }, r => this.setState({
+        links: [...this.state.links, {
+          shortenedURL: r.URL,
+          originalURL: this.url,
+          expiration: this.state.usedSettings.includes("expire") && this.state.expiration ? this.state.expiration.toISOString() : undefined,
+          deletionURL: r.DeletionURL
+        }]
+      }))
     }
   }
 
   render() {
-    const { links, options, setOptions, showCustomIDError, expiration } = this.state
+    const options = [
+      { text: 'Custom URL', value: 'custom' },
+      { text: 'Expiration', value: 'expire' },
+      { text: 'Password', value: 'protected' }
+    ]
+    const { links, usedSettings, showCustomIDError, expiration } = this.state
     return (
       <div>
         <Segment raised>
@@ -99,12 +73,12 @@ export default class HomeComponent extends Component {
               </Form.Field>
             </MediaQuery>
             <Form.Group className="FieldsMarginButtomFix">
-              {setOptions.includes("custom") && <Form.Field error={showCustomIDError} width={16}>
+              {usedSettings.includes("custom") && <Form.Field error={showCustomIDError} width={16}>
                 <Input label={window.location.origin + "/"} onChange={this.handleCustomIDChange} placeholder='my-shortened-url' />
               </Form.Field>}
             </Form.Group>
             <Form.Group widths="equal">
-              {setOptions.includes("expire") && <Form.Field>
+              {usedSettings.includes("expire") && <Form.Field>
                 <DatePicker showTimeSelect
                   timeFormat="HH:mm"
                   timeIntervals={15}
@@ -115,13 +89,13 @@ export default class HomeComponent extends Component {
                   customInput={<Input label="Expiration" />}
                   minDate={moment()} />
               </Form.Field>}
-              {setOptions.includes("protected") && <Form.Field>
+              {usedSettings.includes("protected") && <Form.Field>
                 <Input type="password" label='Password' onChange={this.handlePasswordChange} /></Form.Field>}
             </Form.Group>
           </Form>
         </Segment>
         <Card.Group itemsPerRow="2" stackable style={{ marginTop: "1rem" }}>
-          {links.map((link, i) => <CustomCard key={i} header={new URL(link[1]).hostname} expireDate={link[2]} metaHeader={link[1]} description={link[0]} deletionURL={link[3]} />)}
+          {links.map((link, i) => <CustomCard key={i} header={new URL(link.originalURL).hostname} expireDate={link.expiration} metaHeader={link.originalURL} description={link.shortenedURL} deletionURL={link.deletionURL} />)}
         </Card.Group>
       </div >
     )

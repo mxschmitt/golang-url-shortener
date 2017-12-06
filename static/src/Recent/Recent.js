@@ -1,27 +1,18 @@
 import React, { Component } from 'react'
 import { Container, Table, Button, Icon } from 'semantic-ui-react'
-import toastr from 'toastr'
 import Moment from 'react-moment';
 import util from '../util/util'
 export default class RecentComponent extends Component {
     state = {
-        recent: null
+        recent: {}
     }
 
     componentDidMount() {
         this.loadRecentURLs()
     }
 
-    loadRecentURLs() {
-        fetch('/api/v1/protected/recent', {
-            method: 'POST',
-            headers: {
-                'Authorization': window.localStorage.getItem('token'),
-            }
-        })
-            .then(res => res.ok ? res.json() : Promise.reject(res.json()))
-            .then(recent => this.setState({ recent: recent }))
-            .catch(e => e instanceof Promise ? e.then(error => toastr.error(`Could load recent URLs: ${error.error}`)) : null)
+    loadRecentURLs = () => {
+        util.getRecentURLs(recent => this.setState({ recent }))
     }
 
     onRowClick(id) {
@@ -29,7 +20,7 @@ export default class RecentComponent extends Component {
     }
 
     onEntryDeletion(entry) {
-        util.deleteEntry(entry.DeletionURL)
+        util.deleteEntry(entry.DeletionURL, this.loadRecentURLs)
     }
 
     render() {
@@ -47,7 +38,7 @@ export default class RecentComponent extends Component {
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                        {recent && Object.keys(recent).map(key => <Table.Row key={key} title="Click to view visitor statistics">
+                        {Object.keys(recent).map(key => <Table.Row key={key} title="Click to view visitor statistics">
                             <Table.Cell onClick={this.onRowClick.bind(this, key)}>{recent[key].Public.URL}</Table.Cell>
                             <Table.Cell onClick={this.onRowClick.bind(this, key)}><Moment>{recent[key].Public.CreatedOn}</Moment></Table.Cell>
                             <Table.Cell>{`${window.location.origin}/${key}`}</Table.Cell>
