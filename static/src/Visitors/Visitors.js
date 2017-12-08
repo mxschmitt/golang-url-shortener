@@ -64,4 +64,4 @@ export default class VisitorComponent extends Component {
             </Container>
         )
     }
-};
+}

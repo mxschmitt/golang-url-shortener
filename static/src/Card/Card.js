@@ -47,4 +47,4 @@ export default class CardComponent extends Component {
             </Card.Content>
         </Card>)
     }
-};
+}

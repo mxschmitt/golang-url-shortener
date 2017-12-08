@@ -72,7 +72,7 @@ export default class HomeComponent extends Component {
                 <Select options={options} placeholder='Settings' onChange={this.onSettingsChange} multiple fluid />
               </Form.Field>
             </MediaQuery>
-            <Form.Group className="FieldsMarginButtomFix">
+            <Form.Group style={{ marginBottom: "1rem" }}>
               {usedSettings.includes("custom") && <Form.Field error={showCustomIDError} width={16}>
                 <Input label={window.location.origin + "/"} onChange={this.handleCustomIDChange} placeholder='my-shortened-url' />
               </Form.Field>}
@@ -100,4 +100,4 @@ export default class HomeComponent extends Component {
       </div >
     )
   }
-};
+}

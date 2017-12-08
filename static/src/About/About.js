@@ -65,4 +65,4 @@ export default class AboutComponent extends Component {
             </Container>
         )
     }
-};
+}

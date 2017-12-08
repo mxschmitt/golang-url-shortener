@@ -43,4 +43,4 @@ export default class LookupComponent extends Component {
             </div>
         )
     }
-};
+}

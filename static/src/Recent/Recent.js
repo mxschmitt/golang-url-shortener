@@ -55,4 +55,4 @@ export default class RecentComponent extends Component {
             </Container>
         )
     }
-};
+}

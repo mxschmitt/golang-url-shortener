@@ -54,4 +54,4 @@ export default class UtilHelper {
             .then(res => cbSucc ? cbSucc(res) : null)
             .catch(e => this._reportError(e, "recent"))
     }
-};
+}
