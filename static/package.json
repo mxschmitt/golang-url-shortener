@@ -26,7 +26,7 @@
     "react-router-dom": "4.2.2",
     "react-scripts": "1.0.17",
     "semantic-ui-css": "2.2.12",
-    "semantic-ui-react": "0.77.0",
+    "semantic-ui-react": "0.77.1",
     "toastr": "2.1.4"
   },
   "scripts": {
