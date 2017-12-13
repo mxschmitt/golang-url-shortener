@@ -7,6 +7,7 @@ import (
 	"crypto/sha512"
 	"encoding/json"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/maxibanki/golang-url-shortener/util"
@@ -149,6 +150,7 @@ func (s *Store) GetEntryByIDRaw(id string) ([]byte, error) {
 
 // CreateEntry creates a new record and returns his short id
 func (s *Store) CreateEntry(entry Entry, givenID, password string) (string, []byte, error) {
+	entry.Public.URL = strings.Replace(entry.Public.URL, " ", "%20", -1)
 	if !govalidator.IsURL(entry.Public.URL) {
 		return "", nil, ErrNoValidURL
 	}
