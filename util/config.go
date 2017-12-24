@@ -13,6 +13,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Configuration are the available config values
 type Configuration struct {
 	ListenAddr      string    `yaml:"ListenAddr" env:"LISTEN_ADDR"`
 	BaseURL         string    `yaml:"BaseURL" env:"BASE_URL"`
@@ -30,16 +31,15 @@ type oAuthConf struct {
 	ClientSecret string `yaml:"ClientSecret" env:"CLIENT_SECRET"`
 }
 
-var (
-	config = Configuration{
-		ListenAddr:      ":8080",
-		BaseURL:         "http://localhost:3000",
-		DataDir:         "data",
-		EnableDebugMode: false,
-		UseSSL:          false,
-		ShortedIDLength: 4,
-	}
-)
+// config contains the default values
+var config = Configuration{
+	ListenAddr:      ":8080",
+	BaseURL:         "http://localhost:3000",
+	DataDir:         "data",
+	EnableDebugMode: false,
+	UseSSL:          false,
+	ShortedIDLength: 4,
+}
 
 // ReadInConfig loads the Configuration and other needed folders for further usage
 func ReadInConfig() error {
@@ -53,7 +53,7 @@ func ReadInConfig() error {
 	} else {
 		logrus.Info("No configuration file found, using defaults with environment variable overrides.")
 	}
-	if err := config.ApplyEnvironmentConfig(); err != nil {
+	if err := config.applyEnvironmentConfig(); err != nil {
 		return errors.Wrap(err, "could not apply environment configuration")
 	}
 	config.DataDir, err = filepath.Abs(config.DataDir)
@@ -68,7 +68,7 @@ func ReadInConfig() error {
 	return nil
 }
 
-func (c *Configuration) ApplyEnvironmentConfig() error {
+func (c *Configuration) applyEnvironmentConfig() error {
 	return c.setDefaultValue(reflect.ValueOf(c), reflect.TypeOf(*c), -1, "GUS")
 }
 
@@ -117,10 +117,12 @@ func (o oAuthConf) Enabled() bool {
 	return o.ClientSecret != ""
 }
 
+// GetConfig returns the configuration from the memory
 func GetConfig() Configuration {
 	return config
 }
 
+// SetConfig sets the configuration into the memory
 func SetConfig(c Configuration) {
 	config = c
 }

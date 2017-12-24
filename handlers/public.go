@@ -58,9 +58,9 @@ func (h *Handler) handleAccess(c *gin.Context) {
 	if err != nil {
 		if strings.Contains(err.Error(), shared.ErrNoEntryFound.Error()) {
 			return
-			http.Error(c.Writer, fmt.Sprintf("could not get and crease visitor counter: %v, ", err), http.StatusInternalServerError)
-			return
 		}
+		http.Error(c.Writer, fmt.Sprintf("could not get and crease visitor counter: %v, ", err), http.StatusInternalServerError)
+		return
 	}
 	// No password set
 	if len(entry.Password) == 0 {
