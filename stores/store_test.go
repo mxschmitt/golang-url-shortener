@@ -1,9 +1,10 @@
-package store
+package stores
 
 import (
 	"strings"
 	"testing"
 
+	"github.com/maxibanki/golang-url-shortener/stores/shared"
 	"github.com/maxibanki/golang-url-shortener/util"
 )
 
@@ -55,13 +56,13 @@ func TestCreateEntry(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	defer cleanup(store)
-	_, _, err = store.CreateEntry(Entry{}, "", "")
+	_, _, err = store.CreateEntry(shared.Entry{}, "", "")
 	if err != ErrNoValidURL {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	for i := 1; i <= 100; i++ {
-		_, _, err := store.CreateEntry(Entry{
-			Public: EntryPublicData{
+		_, _, err := store.CreateEntry(shared.Entry{
+			Public: shared.EntryPublicData{
 				URL: "https://golang.org/",
 			},
 		}, "", "")
@@ -78,45 +79,12 @@ func TestGetEntryByID(t *testing.T) {
 	}
 	defer cleanup(store)
 	_, err = store.GetEntryByID("something that not exists")
-	if err != ErrNoEntryFound {
-		t.Fatalf("could not get expected '%v' error: %v", ErrNoEntryFound, err)
+	if !strings.Contains(err.Error(), shared.ErrNoEntryFound.Error()) {
+		t.Fatalf("could not get expected '%v' error: %v", shared.ErrNoEntryFound, err)
 	}
 	_, err = store.GetEntryByID("")
-	if err != ErrNoEntryFound {
-		t.Fatalf("could not get expected '%v' error: %v", ErrNoEntryFound, err)
-	}
-}
-
-func TestIncreaseVisitCounter(t *testing.T) {
-	store, err := New()
-	if err != nil {
-		t.Fatalf("could not create store: %v", err)
-	}
-	defer cleanup(store)
-	id, _, err := store.CreateEntry(Entry{
-		Public: EntryPublicData{
-			URL: "https://golang.org/",
-		},
-	}, "", "")
-	if err != nil {
-		t.Fatalf("could not create entry: %v", err)
-	}
-	entryBeforeInc, err := store.GetEntryByID(id)
-	if err != nil {
-		t.Fatalf("could not get entry by id: %v", err)
-	}
-	if err = store.IncreaseVisitCounter(id); err != nil {
-		t.Fatalf("could not increase visit counter %v", err)
-	}
-	entryAfterInc, err := store.GetEntryByID(id)
-	if err != nil {
-		t.Fatalf("could not get entry by id: %v", err)
-	}
-	if entryBeforeInc.Public.VisitCount+1 != entryAfterInc.Public.VisitCount {
-		t.Fatalf("the increasement was not successful, the visit count is not correct")
-	}
-	if err = store.IncreaseVisitCounter(""); !strings.Contains(err.Error(), ErrNoEntryFound.Error()) {
-		t.Fatalf("could not get expected '%v'; got: %v", ErrNoEntryFound, err)
+	if !strings.Contains(err.Error(), shared.ErrNoEntryFound.Error()) {
+		t.Fatalf("could not get expected '%v' error: %v", shared.ErrNoEntryFound, err)
 	}
 }
 
@@ -126,8 +94,8 @@ func TestDelete(t *testing.T) {
 		t.Fatalf("could not create store: %v", err)
 	}
 	defer cleanup(store)
-	entryID, delHMac, err := store.CreateEntry(Entry{
-		Public: EntryPublicData{
+	entryID, delHMac, err := store.CreateEntry(shared.Entry{
+		Public: shared.EntryPublicData{
 			URL: "https://golang.org/",
 		},
 	}, "", "")
@@ -137,7 +105,7 @@ func TestDelete(t *testing.T) {
 	if err := store.DeleteEntry(entryID, delHMac); err != nil {
 		t.Fatalf("could not delete entry: %v", err)
 	}
-	if _, err := store.GetEntryByID(entryID); err != ErrNoEntryFound {
+	if _, err := store.GetEntryByID(entryID); !strings.Contains(err.Error(), shared.ErrNoEntryFound.Error()) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -149,8 +117,8 @@ func TestGetURLAndIncrease(t *testing.T) {
 	}
 	defer cleanup(store)
 	const url = "https://golang.org/"
-	entryID, _, err := store.CreateEntry(Entry{
-		Public: EntryPublicData{
+	entryID, _, err := store.CreateEntry(shared.Entry{
+		Public: shared.EntryPublicData{
 			URL: url,
 		},
 	}, "", "")

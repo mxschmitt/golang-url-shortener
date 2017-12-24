@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -10,7 +11,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/maxibanki/golang-url-shortener/store"
+	"github.com/maxibanki/golang-url-shortener/stores"
+	"github.com/maxibanki/golang-url-shortener/stores/shared"
 )
 
 const testURL = "https://www.google.de/"
@@ -50,7 +52,7 @@ func TestCreateEntry(t *testing.T) {
 			},
 			statusCode:     http.StatusBadRequest,
 			contentType:    "application/json; charset=utf-8",
-			response:       gin.H{"error": store.ErrNoValidURL.Error()},
+			response:       gin.H{"error": stores.ErrNoValidURL.Error()},
 			ignoreResponse: true,
 		},
 	}
@@ -121,7 +123,7 @@ func TestHandleInfo(t *testing.T) {
 		if resp.StatusCode != http.StatusOK {
 			t.Errorf("expected status %d; got %d", http.StatusOK, resp.StatusCode)
 		}
-		var entry store.EntryPublicData
+		var entry shared.EntryPublicData
 		if err = json.NewDecoder(resp.Body).Decode(&entry); err != nil {
 			t.Fatalf("could not unmarshal data: %v", err)
 		}
@@ -272,6 +274,7 @@ func TestHandleDeletion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not send visit request: %v", err)
 	}
+	fmt.Println(body.URL)
 	if resp.StatusCode != http.StatusNotFound {
 		t.Fatalf("expected status: %d; got: %d", http.StatusNotFound, resp.StatusCode)
 	}

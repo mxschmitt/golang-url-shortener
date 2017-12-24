@@ -12,7 +12,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/maxibanki/golang-url-shortener/handlers/auth"
-	"github.com/maxibanki/golang-url-shortener/store"
+	"github.com/maxibanki/golang-url-shortener/stores"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
 )
@@ -38,7 +38,7 @@ func TestCreateBackend(t *testing.T) {
 	if err := util.ReadInConfig(); err != nil {
 		t.Fatalf("could not reload config file: %v", err)
 	}
-	store, err := store.New()
+	store, err := stores.New()
 	if err != nil {
 		t.Fatalf("could not create store: %v", err)
 	}

@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/maxibanki/golang-url-shortener/handlers/tmpls"
-	"github.com/maxibanki/golang-url-shortener/store"
+	"github.com/maxibanki/golang-url-shortener/stores"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
 )
@@ -19,7 +19,7 @@ import (
 // Handler holds the funcs and attributes for the
 // http communication
 type Handler struct {
-	store     store.Store
+	store     stores.Store
 	engine    *gin.Engine
 	providers []string
 }
@@ -28,7 +28,7 @@ type Handler struct {
 var DoNotPrivateKeyChecking = false
 
 // New initializes the http handlers
-func New(store store.Store) (*Handler, error) {
+func New(store stores.Store) (*Handler, error) {
 	if !util.GetConfig().EnableDebugMode {
 		gin.SetMode(gin.ReleaseMode)
 	}

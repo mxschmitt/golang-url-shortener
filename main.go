@@ -4,13 +4,12 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/shiena/ansicolor"
-	"github.com/sirupsen/logrus"
-
 	"github.com/maxibanki/golang-url-shortener/handlers"
-	"github.com/maxibanki/golang-url-shortener/store"
+	"github.com/maxibanki/golang-url-shortener/stores"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"github.com/pkg/errors"
+	"github.com/shiena/ansicolor"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -36,7 +35,7 @@ func initShortener() (func(), error) {
 	if util.GetConfig().EnableDebugMode {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
-	store, err := store.New()
+	store, err := stores.New()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create store")
 	}

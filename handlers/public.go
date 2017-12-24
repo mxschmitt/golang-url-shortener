@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"net/url"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/maxibanki/golang-url-shortener/handlers/auth"
-	"github.com/maxibanki/golang-url-shortener/store"
+	"github.com/maxibanki/golang-url-shortener/stores/shared"
 	"github.com/maxibanki/golang-url-shortener/util"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -40,8 +41,8 @@ func (h *Handler) handleLookup(c *gin.Context) {
 		return
 	}
 	if !h.oAuthPropertiesEquals(c, entry.OAuthID, entry.OAuthProvider) {
-		c.JSON(http.StatusOK, store.Entry{
-			Public: store.EntryPublicData{
+		c.JSON(http.StatusOK, shared.Entry{
+			Public: shared.EntryPublicData{
 				URL: entry.Public.URL,
 			},
 		})
@@ -54,11 +55,12 @@ func (h *Handler) handleLookup(c *gin.Context) {
 func (h *Handler) handleAccess(c *gin.Context) {
 	id := c.Request.URL.Path[1:]
 	entry, err := h.store.GetEntryAndIncrease(id)
-	if err == store.ErrNoEntryFound {
-		return
-	} else if err != nil {
-		http.Error(c.Writer, fmt.Sprintf("could not get and crease visitor counter: %v, ", err), http.StatusInternalServerError)
-		return
+	if err != nil {
+		if strings.Contains(err.Error(), shared.ErrNoEntryFound.Error()) {
+			return
+			http.Error(c.Writer, fmt.Sprintf("could not get and crease visitor counter: %v, ", err), http.StatusInternalServerError)
+			return
+		}
 	}
 	// No password set
 	if len(entry.Password) == 0 {
@@ -100,8 +102,8 @@ func (h *Handler) handleCreate(c *gin.Context) {
 		return
 	}
 	user := c.MustGet("user").(*auth.JWTClaims)
-	id, delID, err := h.store.CreateEntry(store.Entry{
-		Public: store.EntryPublicData{
+	id, delID, err := h.store.CreateEntry(shared.Entry{
+		Public: shared.EntryPublicData{
 			URL:        data.URL,
 			Expiration: data.Expiration,
 		},
@@ -190,7 +192,7 @@ func (h *Handler) getURLOrigin(c *gin.Context) string {
 }
 
 func (h *Handler) registerVisitor(id string, c *gin.Context) {
-	h.store.RegisterVisit(id, store.Visitor{
+	h.store.RegisterVisit(id, shared.Visitor{
 		IP:          c.ClientIP(),
 		Timestamp:   time.Now(),
 		Referer:     c.GetHeader("Referer"),

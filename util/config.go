@@ -51,7 +51,7 @@ func ReadInConfig() error {
 	} else if !os.IsNotExist(err) {
 		return errors.Wrap(err, "could not read config file")
 	} else {
-		logrus.Info("No configuration file found, using defaults and environment variable overrides.")
+		logrus.Info("No configuration file found, using defaults with environment variable overrides.")
 	}
 	if err := config.ApplyEnvironmentConfig(); err != nil {
 		return errors.Wrap(err, "could not apply environment configuration")
