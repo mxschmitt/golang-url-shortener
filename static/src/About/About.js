@@ -50,7 +50,7 @@ export default class AboutComponent extends Component {
                         </Table.Row>
                         <Table.Row>
                             <Table.Cell>Node.js Version</Table.Cell>
-                            <Table.Cell>{info.nodeJS.replace("v", "")}</Table.Cell>
+                            <Table.Cell>{info.nodeJS}</Table.Cell>
                         </Table.Row>
                         <Table.Row>
                             <Table.Cell>Yarn Version</Table.Cell>

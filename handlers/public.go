@@ -143,7 +143,7 @@ func (h *Handler) handleInfo(c *gin.Context) {
 	out := struct {
 		util.Info
 		Providers []string `json:"providers"`
-		Go        string
+		Go        string   `json:"go"`
 	}{
 		util.VersionInfo,
 		h.providers,

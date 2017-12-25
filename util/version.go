@@ -1,5 +1,7 @@
 package util
 
+import "strings"
+
 // VersionInfo are the information which will be added at build time
 // and shown in the frontend under the about tab
 var VersionInfo Info
@@ -20,7 +22,7 @@ var (
 )
 
 func init() {
-	VersionInfo.NodeJS = ldFlagNodeJS
+	VersionInfo.NodeJS = strings.Replace(ldFlagNodeJS, "v", "", 1)
 	VersionInfo.Commit = ldFlagCommit
 	VersionInfo.Yarn = ldFlagYarn
 	VersionInfo.CompilationTime = ldFlagCompilationTime
