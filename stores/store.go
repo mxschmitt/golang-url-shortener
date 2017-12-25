@@ -69,6 +69,7 @@ func (s *Store) GetEntryAndIncrease(id string) (*shared.Entry, error) {
 	if err := s.storage.IncreaseVisitCounter(id); err != nil {
 		return nil, errors.Wrap(err, "could not increase visitor counter")
 	}
+	entry.Public.VisitCount++
 	return entry, nil
 }
 
@@ -87,14 +88,14 @@ func (s *Store) CreateEntry(entry shared.Entry, givenID, password string) (strin
 	}
 	// try it 10 times to make a short URL
 	for i := 1; i <= 10; i++ {
-		id, delID, err := s.createEntry(entry, givenID)
+		id, passwordHash, err := s.createEntry(entry, givenID)
 		if err != nil && givenID != "" {
 			return "", nil, err
 		} else if err != nil {
 			logrus.Debugf("Could not create entry: %v", err)
 			continue
 		}
-		return id, delID, nil
+		return id, passwordHash, nil
 	}
 	return "", nil, ErrGeneratingIDFailed
 }
