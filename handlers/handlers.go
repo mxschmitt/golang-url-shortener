@@ -90,7 +90,7 @@ func (h *Handler) setHandlers() error {
 	h.engine.NoRoute(h.handleAccess, func(c *gin.Context) {
 		c.Header("Vary", "Accept-Encoding")
 		c.Header("Cache-Control", "public, max-age=2592000")
-		c.Header("ETag", util.VersionInfo["commit"])
+		c.Header("ETag", util.VersionInfo.Commit)
 	}, gin.WrapH(http.FileServer(FS(false))))
 	return nil
 }

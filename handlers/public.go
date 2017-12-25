@@ -140,14 +140,16 @@ func (h *Handler) handleGetVisitors(c *gin.Context) {
 }
 
 func (h *Handler) handleInfo(c *gin.Context) {
-	info := gin.H{
-		"providers": h.providers,
-		"go":        runtime.Version(),
+	out := struct {
+		util.Info
+		Providers []string `json:"providers"`
+		Go        string
+	}{
+		util.VersionInfo,
+		h.providers,
+		strings.Replace(runtime.Version(), "go", "", 1),
 	}
-	for k, v := range util.VersionInfo {
-		info[k] = v
-	}
-	c.JSON(http.StatusOK, info)
+	c.JSON(http.StatusOK, out)
 }
 
 func (h *Handler) handleRecent(c *gin.Context) {

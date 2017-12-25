@@ -11,7 +11,6 @@ buildNodeFrontend:
 embedFrontend:
 	cd handlers/tmpls && esc -o tmpls.go -pkg tmpls -include ^*\.html .
 	cd handlers && esc -o static.go -pkg handlers -prefix ../static/build ../static/build
-	bash build/info.sh
 
 getCMDDependencies:
 	go get -v github.com/mattn/goveralls
@@ -31,6 +30,6 @@ buildProject:
 buildDockerImage:
 	rm -rf docker_releases 
 	mkdir docker_releases
-	CGO_ENABLED=0 gox -output="docker_releases/{{.Dir}}_{{.OS}}_{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 linux/arm"
+	CGO_ENABLED=0 gox -output="docker_releases/{{.Dir}}_{{.OS}}_{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 linux/arm" -ldflags="-X util.ldFlagNodeJS=`node --version` -X util.ldFlagCommit=`git rev-parse HEAD` -X util.ldFlagYarn=`yarn --version` -X util.ldFlagCompilationTime=`date --iso-8601=seconds`"
 	docker build -t maxibanki/golang_url_shortener:arm -f Dockerfile.arm .
 	docker build -t maxibanki/golang_url_shortener -f Dockerfile.amd64 .

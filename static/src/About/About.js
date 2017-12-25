@@ -42,7 +42,7 @@ export default class AboutComponent extends Component {
                         </Table.Row>
                         <Table.Row>
                             <Table.Cell>Go Version</Table.Cell>
-                            <Table.Cell>{info.go.replace("go", "")}</Table.Cell>
+                            <Table.Cell>{info.go}</Table.Cell>
                         </Table.Row>
                         <Table.Row>
                             <Table.Cell>React Version</Table.Cell>
