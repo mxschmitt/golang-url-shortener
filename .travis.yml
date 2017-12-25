@@ -1,6 +1,7 @@
 language: go
 go:
   - stable
+cache: yarn
 services:
   - docker
 install:

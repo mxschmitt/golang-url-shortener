@@ -67,7 +67,7 @@ func TestStore(t *testing.T) {
 		DataDir:         testData.DataDir,
 		ShortedIDLength: 4,
 	})
-	if err := os.MkdirAll(testData.DataDir, 0644); err != nil {
+	if err := os.MkdirAll(testData.DataDir, 0755); err != nil {
 		t.Errorf("could not create data dir: %v", err)
 	}
 	store, err := New()
