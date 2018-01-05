@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2017 Max Schmitt
+Copyright (c) 2018 Max Schmitt
 
 All rights reserved.
 
