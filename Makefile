@@ -23,7 +23,7 @@ getGoDependencies:
 buildProject:
 	rm -rf releases 
 	mkdir releases
-	gox -output="releases/{{.Dir}}_{{.OS}}_{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 linux/arm windows/amd64 windows/386"
+	gox -output="releases/{{.Dir}}_{{.OS}}_{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 linux/arm windows/amd64 windows/386" -ldflags="-X github.com/maxibanki/golang-url-shortener/util.ldFlagNodeJS=`node --version` -X github.com/maxibanki/golang-url-shortener/util.ldFlagCommit=`git rev-parse HEAD` -X github.com/maxibanki/golang-url-shortener/util.ldFlagYarn=`yarn --version` -X github.com/maxibanki/golang-url-shortener/util.ldFlagCompilationTime=`date --iso-8601=seconds`"
 	find releases -maxdepth 1 -mindepth 1 -type d -exec cp build/config.yaml {} \;
 	find releases -maxdepth 1 -mindepth 1 -type d -exec tar -cvjf {}.tar.bz2 {} \;
 
