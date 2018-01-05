@@ -79,7 +79,7 @@ export default class BaseComponent extends Component {
             // Open the oAuth window that is it centered in the middle of the screen
             var wwidth = 400,
                 wHeight = 500;
-            this._oAuthPopup = window.open(url, '', `width=${wwidth}, height=${wHeight}, top=${(window.screen.height / 2) - (wHeight / 2)}, left=${(window.screen.width / 2) - (wwidth / 2)}`)
+            this._oAuthPopup = window.open(url, 'Authenticate with OAuth 2.0', `width=${wwidth}, height=${wHeight}, top=${(window.screen.height / 2) - (wHeight / 2)}, left=${(window.screen.width / 2) - (wwidth / 2)}`)
         } else {
             this._oAuthPopup.location = url;
         }

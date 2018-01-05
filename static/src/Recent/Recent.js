@@ -19,9 +19,8 @@ export default class RecentComponent extends Component {
         util.getRecentURLs(recent => {
             let parsed = [];
             for (let key in recent) {
-                let shorted = recent[key]
-                shorted.ID = key;
-                parsed.push(shorted);
+                recent[key].ID = key;
+                parsed.push(recent[key]);
             }
             this.setState({ recent: parsed })
         })
