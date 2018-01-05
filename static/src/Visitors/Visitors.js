@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
-import { Container, Table } from 'semantic-ui-react'
+import { Container } from 'semantic-ui-react'
 import Moment from 'react-moment';
+import ReactTable from 'react-table'
+import 'react-table/react-table.css'
 
 import util from '../util/util'
 export default class VisitorComponent extends Component {
@@ -36,31 +38,31 @@ export default class VisitorComponent extends Component {
 
     render() {
         const { visitors, id, entry } = this.state
+
+        const columns = [{
+            Header: 'Timestamp',
+            accessor: 'Timestamp',
+            Cell: props => <Moment>{props.value}</Moment>
+        }, {
+            Header: 'IP',
+            accessor: "IP"
+        }, {
+            Header: 'User Agent',
+            accessor: "UserAgent"
+        }, {
+            Header: 'Referer',
+            accessor: "Referer"
+        }, {
+            Header: 'UTM (source, medium, campaign, content, term)',
+            Cell: props => this.getUTMSource(props.original)
+        }]
+
         return (
             <Container >
                 {entry && <p>
                     Entry with id '{id}' was created at <Moment>{entry.CreatedOn}</Moment> and redirects to '{entry.URL}'. Currently it has {visitors.length} visits.
                 </p>}
-                <Table celled>
-                    <Table.Header>
-                        <Table.Row>
-                            <Table.HeaderCell>Timestamp</Table.HeaderCell>
-                            <Table.HeaderCell>IP</Table.HeaderCell>
-                            <Table.HeaderCell>User Agent</Table.HeaderCell>
-                            <Table.HeaderCell>Referer</Table.HeaderCell>
-                            <Table.HeaderCell>UTM (source, medium, campaign, content, term)</Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        {visitors && visitors.map((visit, idx) => <Table.Row key={idx}>
-                            <Table.Cell><Moment>{visit.Timestamp}</Moment></Table.Cell>
-                            <Table.Cell>{visit.IP}</Table.Cell>
-                            <Table.Cell>{visit.UserAgent}</Table.Cell>
-                            <Table.Cell>{visit.Referer}</Table.Cell>
-                            <Table.Cell>{this.getUTMSource(visit)}</Table.Cell>
-                        </Table.Row>)}
-                    </Table.Body>
-                </Table>
+                <ReactTable data={visitors} columns={columns} />
             </Container>
         )
     }
