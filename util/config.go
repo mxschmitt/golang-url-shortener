@@ -4,9 +4,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"reflect"
-	"strconv"
 
+	envstruct "github.com/maxibanki/golang-env-struct"
 	"github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"
@@ -53,7 +52,7 @@ func ReadInConfig() error {
 	} else {
 		logrus.Info("No configuration file found, using defaults with environment variable overrides.")
 	}
-	if err := config.applyEnvironmentConfig(); err != nil {
+	if err := envstruct.ApplyEnvVars(&config, "GUS"); err != nil {
 		return errors.Wrap(err, "could not apply environment configuration")
 	}
 	config.DataDir, err = filepath.Abs(config.DataDir)
@@ -63,51 +62,6 @@ func ReadInConfig() error {
 	if _, err = os.Stat(config.DataDir); os.IsNotExist(err) {
 		if err = os.MkdirAll(config.DataDir, 0755); err != nil {
 			return errors.Wrap(err, "could not create config directory")
-		}
-	}
-	return nil
-}
-
-func (c *Configuration) applyEnvironmentConfig() error {
-	return c.setDefaultValue(reflect.ValueOf(c), reflect.TypeOf(*c), -1, "GUS")
-}
-
-func (c *Configuration) setDefaultValue(v reflect.Value, t reflect.Type, counter int, prefix string) error {
-	if v.Kind() != reflect.Ptr {
-		return errors.New("Not a pointer value")
-	}
-	f := reflect.StructField{}
-	if counter != -1 {
-		f = t.Field(counter)
-	}
-	v = reflect.Indirect(v)
-	fieldEnv, exists := f.Tag.Lookup("env")
-	env := os.Getenv(prefix + fieldEnv)
-	if exists && env != "" {
-		switch v.Kind() {
-		case reflect.Int:
-			envI, err := strconv.Atoi(env)
-			if err != nil {
-				logrus.Warningf("could not parse to int: %v", err)
-				break
-			}
-			v.SetInt(int64(envI))
-		case reflect.String:
-			v.SetString(env)
-		case reflect.Bool:
-			envB, err := strconv.ParseBool(env)
-			if err != nil {
-				logrus.Warningf("could not parse to bool: %v", err)
-				break
-			}
-			v.SetBool(envB)
-		}
-	}
-	if v.Kind() == reflect.Struct {
-		for i := 0; i < v.NumField(); i++ {
-			if err := c.setDefaultValue(v.Field(i).Addr(), v.Type(), i, prefix+fieldEnv+"_"); err != nil {
-				return err
-			}
 		}
 	}
 	return nil
