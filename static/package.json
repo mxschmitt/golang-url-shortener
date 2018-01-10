@@ -26,7 +26,7 @@
     "react-scripts": "1.0.17",
     "react-table": "6.7.6",
     "semantic-ui-css": "2.2.12",
-    "semantic-ui-react": "0.77.1",
+    "semantic-ui-react": "0.77.2",
     "toastr": "2.1.4"
   },
   "scripts": {
