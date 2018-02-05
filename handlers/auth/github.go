@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/maxibanki/golang-url-shortener/util"
+	"github.com/mxschmitt/golang-url-shortener/util"
 	"github.com/sirupsen/logrus"
 
 	"golang.org/x/oauth2/github"

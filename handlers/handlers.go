@@ -10,9 +10,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
-	"github.com/maxibanki/golang-url-shortener/handlers/tmpls"
-	"github.com/maxibanki/golang-url-shortener/stores"
-	"github.com/maxibanki/golang-url-shortener/util"
+	"github.com/mxschmitt/golang-url-shortener/handlers/tmpls"
+	"github.com/mxschmitt/golang-url-shortener/stores"
+	"github.com/mxschmitt/golang-url-shortener/util"
 	"github.com/pkg/errors"
 )
 

@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/maxibanki/golang-url-shortener/handlers/auth"
-	"github.com/maxibanki/golang-url-shortener/util"
+	"github.com/mxschmitt/golang-url-shortener/handlers/auth"
+	"github.com/mxschmitt/golang-url-shortener/util"
 	"github.com/sirupsen/logrus"
 
 	jwt "github.com/dgrijalva/jwt-go"

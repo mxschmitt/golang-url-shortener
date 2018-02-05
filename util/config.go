@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	envstruct "github.com/maxibanki/golang-env-struct"
+	envstruct "github.com/mxschmitt/golang-env-struct"
 	"github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"

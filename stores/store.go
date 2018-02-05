@@ -12,9 +12,9 @@ import (
 	"unicode"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/maxibanki/golang-url-shortener/stores/boltdb"
-	"github.com/maxibanki/golang-url-shortener/stores/shared"
-	"github.com/maxibanki/golang-url-shortener/util"
+	"github.com/mxschmitt/golang-url-shortener/stores/boltdb"
+	"github.com/mxschmitt/golang-url-shortener/stores/shared"
+	"github.com/mxschmitt/golang-url-shortener/util"
 	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"

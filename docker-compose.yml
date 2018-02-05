@@ -1,5 +1,5 @@
 golang_url_shortener:
-  image: maxibanki/golang_url_shortener
+  image: mxschmitt/golang_url_shortener
   ports:
     - 8080:8080
   volumes:
