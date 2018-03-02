@@ -11,7 +11,7 @@
     }
   },
   "dependencies": {
-    "moment": "2.20.1",
+    "moment": "2.21.0",
     "prismjs": "1.11.0",
     "react": "16.2.0",
     "react-clipboard.js": "1.1.3",
