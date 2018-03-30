@@ -1,5 +1,5 @@
 golang_url_shortener:
-  image: mxschmitt/golang_url_shortener
+  image: mxschmitt/golang_url_shortener:latest@sha256:503d17ea6a8e86104127bb107ea921414ea64648f895bb28ef57048fa85a5731
   ports:
     - 8080:8080
   volumes:
