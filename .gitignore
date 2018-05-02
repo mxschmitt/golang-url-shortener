@@ -24,3 +24,4 @@ debug.test
 /store/main.db
 /releases
 /data
+docker_releases/

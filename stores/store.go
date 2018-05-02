@@ -13,6 +13,7 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/mxschmitt/golang-url-shortener/stores/boltdb"
+	"github.com/mxschmitt/golang-url-shortener/stores/redis"
 	"github.com/mxschmitt/golang-url-shortener/stores/shared"
 	"github.com/mxschmitt/golang-url-shortener/util"
 	"github.com/pborman/uuid"
@@ -38,9 +39,18 @@ var ErrEntryIsExpired = errors.New("entry is expired")
 
 // New initializes the store with the db
 func New() (*Store, error) {
-	s, err := boltdb.New(filepath.Join(util.GetConfig().DataDir, "main.db"))
+	var err error
+	var s shared.Storage
+	switch backend := util.GetConfig().Backend; backend {
+	case "redis":
+		s, err = redis.New(util.GetConfig().RedisHost, util.GetConfig().RedisPassword)
+	case "boltdb":
+		s, err = boltdb.New(filepath.Join(util.GetConfig().DataDir, "main.db"))
+	default:
+		return nil, errors.New(backend + " is not a recognized backend")
+	}
 	if err != nil {
-		return nil, errors.Wrap(err, "could not create bolt db store")
+		return nil, errors.Wrap(err, "could not initialize the data backend")
 	}
 	return &Store{
 		storage:  s,
@@ -61,6 +71,7 @@ func (s *Store) GetEntryByID(id string) (*shared.Entry, error) {
 func (s *Store) GetEntryAndIncrease(id string) (*shared.Entry, error) {
 	entry, err := s.GetEntryByID(id)
 	if err != nil {
+		errors.Wrap(err, "could not fetch entry "+id)
 		return nil, err
 	}
 	if entry.Public.Expiration != nil && time.Now().After(*entry.Public.Expiration) {

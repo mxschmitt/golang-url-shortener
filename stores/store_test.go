@@ -65,6 +65,7 @@ func TestGenerateRandomString(t *testing.T) {
 func TestStore(t *testing.T) {
 	util.SetConfig(util.Configuration{
 		DataDir:         testData.DataDir,
+		Backend:         "boltdb",
 		ShortedIDLength: 4,
 	})
 	if err := os.MkdirAll(testData.DataDir, 0755); err != nil {

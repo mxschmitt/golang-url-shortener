@@ -1,4 +1,5 @@
 listen_addr: ':8080'
+backend: 'boltdb'
 base_url: 'http://localhost:3000'
 data_dir: ./data
 enable_debug_mode: true

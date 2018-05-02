@@ -17,6 +17,9 @@ type Configuration struct {
 	ListenAddr      string    `yaml:"ListenAddr" env:"LISTEN_ADDR"`
 	BaseURL         string    `yaml:"BaseURL" env:"BASE_URL"`
 	DataDir         string    `yaml:"DataDir" env:"DATA_DIR"`
+	Backend         string    `yaml:"Backend" env:"BACKEND"`
+	RedisHost       string    `yaml:"RedisHost" env:"REDIS_HOST"`
+	RedisPassword   string    `yaml:"RedisPassword" env:"REDIS_PASSWORD"`
 	UseSSL          bool      `yaml:"EnableSSL" env:"USE_SSL"`
 	EnableDebugMode bool      `yaml:"EnableDebugMode" env:"ENABLE_DEBUG_MODE"`
 	ShortedIDLength int       `yaml:"ShortedIDLength" env:"SHORTED_ID_LENGTH"`
@@ -35,6 +38,7 @@ var config = Configuration{
 	ListenAddr:      ":8080",
 	BaseURL:         "http://localhost:3000",
 	DataDir:         "data",
+	Backend:         "boltdb",
 	EnableDebugMode: false,
 	UseSSL:          false,
 	ShortedIDLength: 4,
