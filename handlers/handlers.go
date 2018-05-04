@@ -39,12 +39,16 @@ func New(store stores.Store) (*Handler, error) {
 	if err := h.setHandlers(); err != nil {
 		return nil, errors.Wrap(err, "could not set handlers")
 	}
-	if !DoNotPrivateKeyChecking {
-		if err := util.CheckForPrivateKey(); err != nil {
-			return nil, errors.Wrap(err, "could not check for private key")
+	if util.GetConfig().AuthBackend == "oauth" {
+		if !DoNotPrivateKeyChecking {
+			if err := util.CheckForPrivateKey(); err != nil {
+				return nil, errors.Wrap(err, "could not check for private key")
+			}
 		}
+		h.initOAuth()
+	} else if util.GetConfig().AuthBackend == "proxy" {
+		h.initProxyAuth()
 	}
-	h.initOAuth()
 	return h, nil
 }
 
@@ -76,7 +80,15 @@ func (h *Handler) setHandlers() error {
 	}
 	h.engine.Use(ginrus.Ginrus(logrus.StandardLogger(), time.RFC3339, false))
 	protected := h.engine.Group("/api/v1/protected")
-	protected.Use(h.authMiddleware)
+	if util.GetConfig().AuthBackend == "oauth" {
+		logrus.Info("Using OAuth auth backend")
+		protected.Use(h.oAuthMiddleware)
+	} else if util.GetConfig().AuthBackend == "proxy" {
+		logrus.Info("Using proxy auth backend")
+		protected.Use(h.proxyAuthMiddleware)
+	} else {
+		logrus.Fatalf("Auth backend method '%s' is not recognized", util.GetConfig().AuthBackend)
+	}
 	protected.POST("/create", h.handleCreate)
 	protected.POST("/lookup", h.handleLookup)
 	protected.GET("/recent", h.handleRecent)

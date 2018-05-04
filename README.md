@@ -14,7 +14,9 @@
 - Visitor Counting
 - Expirable Links
 - URL deletion
-- Authorization System via OAuth 2.0 (Google, GitHub and Microsoft)
+- Multiple authorization strategies:
+    - Local authorization via OAuth 2.0 (Google, GitHub and Microsoft)
+    - Proxy authorization for running behind e.g. [Google IAP](https://cloud.google.com/iap/)
 - Easy [ShareX](https://github.com/ShareX/ShareX) integration
 - Dockerizable
 - Multiple supported storage backends

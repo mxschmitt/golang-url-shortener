@@ -6,12 +6,17 @@ RedisPassword: replace me # if using the redis backend, a conneciton password.
 DataDir: ./data # Contains: the database and the private key
 EnableDebugMode: true # Activates more detailed logging
 ShortedIDLength: 10 # Length of the random generated ID which is used for new shortened URLs
-Google:
+AuthBackend: oauth # Can be 'oauth' or 'proxy'
+Google:  # only relevant when using the oauth authbackend
   ClientID: replace me
   ClientSecret: replace me
-GitHub:
+GitHub:  # only relevant when using the oauth authbackend
   ClientID: replace me
   ClientSecret: replace me
-Microsoft:
+Microsoft:  # only relevant when using the oauth authbackend
   ClientID: replace me
   ClientSecret: 'replace me'
+Proxy:  # only relevant when using the proxy authbackend
+  RequireUserHeader: false # If true, will reject connections that do not have the UserHeader set
+  UserHeader: "X-Goog-Authenticated-User-ID" # pull the unique user ID from this header
+  DisplayNameHeader: "X-Goog-Authenticated-User-Email" # pull the display naem from this header
