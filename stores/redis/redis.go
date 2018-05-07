@@ -285,10 +285,10 @@ func (r *Store) GetUserEntries(userIdentifier string) (map[string]shared.Entry, 
 }
 
 // RegisterVisitor adds a shared.Visitor to the list of visits for a path.
-func (r *Store) RegisterVisitor(id, visitId string, visitor shared.Visitor) error {
+func (r *Store) RegisterVisitor(id, visitID string, visitor shared.Visitor) error {
 	data, err := json.Marshal(visitor)
 	if err != nil {
-		msg := fmt.Sprintf("Could not marshal JSON for entry %s, visitId %s", id, visitId)
+		msg := fmt.Sprintf("Could not marshal JSON for entry %s, visitID %s", id, visitID)
 		logrus.Error(msg)
 		return errors.Wrap(err, msg)
 	}
@@ -303,7 +303,7 @@ func (r *Store) RegisterVisitor(id, visitId string, visitor shared.Visitor) erro
 	return err
 }
 
-// Return the full list of visitors for a path.
+// GetVisitors returns the full list of visitors for a path.
 func (r *Store) GetVisitors(id string) ([]shared.Visitor, error) {
 	var visitors []shared.Visitor
 	key := entryVisitsPrefix + id
