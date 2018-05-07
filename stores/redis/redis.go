@@ -23,8 +23,8 @@ type Store struct {
 	c *redis.Client
 }
 
+// New initializes connection to the redis instance.
 func New(hostaddr, password string) (*Store, error) {
-	// Initialize connection to the redis instance.
 	c := redis.NewClient(&redis.Options{
 		Addr:     hostaddr,
 		Password: password,
@@ -39,7 +39,7 @@ func New(hostaddr, password string) (*Store, error) {
 	return ret, nil
 }
 
-// Check for the existence of a key in redis.
+// keyExists checks for the existence of a key in redis.
 func (r *Store) keyExists(key string) (exists bool, err error) {
 	logrus.Debugf("Checking for existence of key: %s", key)
 	result := r.c.Exists(key)
@@ -56,7 +56,7 @@ func (r *Store) keyExists(key string) (exists bool, err error) {
 	return false, nil
 }
 
-// Set the value of a key in redis.
+// setValue sets the value of a key in redis.
 func (r *Store) setValue(key string, raw []byte) error {
 	logrus.Debugf("Setting value for key '%s: '%s''", key, raw)
 	status := r.c.Set(key, raw, 0) // n.b. expiration 0 means never expire
@@ -68,7 +68,7 @@ func (r *Store) setValue(key string, raw []byte) error {
 	return nil
 }
 
-// Wrapper around setValue that returns an error if the key already exists.
+// createValue is a wrapper around setValue that returns an error if the key already exists.
 func (r *Store) createValue(key string, raw []byte) error {
 	logrus.Debugf("Creating key '%s'", key)
 	exists, err := r.keyExists(key)
@@ -85,7 +85,7 @@ func (r *Store) createValue(key string, raw []byte) error {
 	return r.setValue(key, raw)
 }
 
-// Delete a key in redis.
+// delValue deletes a key in redis.
 func (r *Store) delValue(key string) error {
 	logrus.Debugf("Deleting key '%s'", key)
 
@@ -109,7 +109,7 @@ func (r *Store) delValue(key string) error {
 	return err
 }
 
-// Create an entry (path->url mapping) and all associated stored data.
+// CreateEntry creates an entry (path->url mapping) and all associated stored data.
 func (r *Store) CreateEntry(entry shared.Entry, id, userIdentifier string) error {
 	// add the entry (path->url mapping)
 	logrus.Debugf("Creating entry '%s' for user '%s'", id, userIdentifier)
@@ -151,7 +151,7 @@ func (r *Store) CreateEntry(entry shared.Entry, id, userIdentifier string) error
 	return nil
 }
 
-// Delete an entry and all associated stored data.
+// DeleteEntry deletes an entry and all associated stored data.
 func (r *Store) DeleteEntry(id string) error {
 	// delete the id-to-url mapping
 	entryKey := entryPathPrefix + id
@@ -200,8 +200,9 @@ func (r *Store) DeleteEntry(id string) error {
 	return err
 }
 
-// Look up an entry by its path.  Return pointer to a shared.Entry
-// instance, with the visit count and last visit time set properly.
+// GetEntryByID looks up an entry by its path and returns a pointer to a
+// shared.Entry instance, with the visit count and last visit time set
+// properly.
 func (r *Store) GetEntryByID(id string) (*shared.Entry, error) {
 	entryKey := entryPathPrefix + id
 	logrus.Debugf("Fetching key: '%s'", entryKey)
@@ -257,8 +258,8 @@ func (r *Store) GetEntryByID(id string) (*shared.Entry, error) {
 	return entry, nil
 }
 
-// Return all entries that are owned by a given user, in the form
-// of a map of path->shared.Entry
+// GetUserEntries returns all entries that are owned by a given user, in the
+// form of a map of path->shared.Entry
 func (r *Store) GetUserEntries(userIdentifier string) (map[string]shared.Entry, error) {
 	logrus.Debugf("Getting all entries for user %s", userIdentifier)
 	entries := map[string]shared.Entry{}
@@ -283,7 +284,7 @@ func (r *Store) GetUserEntries(userIdentifier string) (map[string]shared.Entry, 
 	return entries, nil
 }
 
-// Add a shared.Visitor to the list of visits for a path.
+// RegisterVisitor adds a shared.Visitor to the list of visits for a path.
 func (r *Store) RegisterVisitor(id, visitId string, visitor shared.Visitor) error {
 	data, err := json.Marshal(visitor)
 	if err != nil {
@@ -326,7 +327,7 @@ func (r *Store) GetVisitors(id string) ([]shared.Visitor, error) {
 	return visitors, nil
 }
 
-// NO-OP: this function returns nil for all values.
+// IncreaseVisitCounter is a no-op and returns nil for all values.
 //
 // This function is unnecessary for the redis backend: we already
 // have a redis LIST of visitors, and we can derive the visit count
@@ -338,7 +339,7 @@ func (r *Store) IncreaseVisitCounter(id string) error {
 	return nil
 }
 
-// Close the connection to redis.
+// Close closes the connection to redis.
 func (r *Store) Close() error {
 	err := r.c.Close()
 	if err != nil {
