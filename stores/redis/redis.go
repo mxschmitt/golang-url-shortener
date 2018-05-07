@@ -18,12 +18,13 @@ var (
 	entryVisitsPrefix   = string("entryVisits:") // prefix for entry-to-[]visit mappings (redis LIST)
 )
 
-// RedisStore implements the stores.Storage interface
-type RedisStore struct {
+// Store implements the stores.Storage interface
+type Store struct {
 	c *redis.Client
 }
 
-func New(hostaddr, password string) (*RedisStore, error) {
+func New(hostaddr, password string) (*Store, error) {
+	// Initialize connection to the redis instance.
 	c := redis.NewClient(&redis.Options{
 		Addr:     hostaddr,
 		Password: password,
@@ -34,11 +35,12 @@ func New(hostaddr, password string) (*RedisStore, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not connect to redis db0")
 	}
-	ret := &RedisStore{c: c}
+	ret := &Store{c: c}
 	return ret, nil
 }
 
-func (r *RedisStore) keyExists(key string) (exists bool, err error) {
+// Check for the existence of a key in redis.
+func (r *Store) keyExists(key string) (exists bool, err error) {
 	var result *redis.IntCmd
 	logrus.Debugf("Checking for existence of key: %s", key)
 	result = r.c.Exists(key)
@@ -55,7 +57,8 @@ func (r *RedisStore) keyExists(key string) (exists bool, err error) {
 	return false, nil
 }
 
-func (r *RedisStore) setValue(key string, raw []byte) error {
+// Set the value of a key in redis.
+func (r *Store) setValue(key string, raw []byte) error {
 	var status *redis.StatusCmd
 	logrus.Debugf("Setting value for key '%s: '%s''", key, raw)
 	status = r.c.Set(key, raw, 0) // n.b. expiration 0 means never expire
@@ -67,8 +70,8 @@ func (r *RedisStore) setValue(key string, raw []byte) error {
 	return nil
 }
 
-func (r *RedisStore) createValue(key string, raw []byte) error {
-	// a wrapper around setValue that returns an error if the key already exists
+// Wrapper around setValue that returns an error if the key already exists.
+func (r *Store) createValue(key string, raw []byte) error {
 	logrus.Debugf("Creating key '%s'", key)
 	exists, err := r.keyExists(key)
 	if err != nil {
@@ -84,7 +87,8 @@ func (r *RedisStore) createValue(key string, raw []byte) error {
 	return r.setValue(key, raw)
 }
 
-func (r *RedisStore) delValue(key string) error {
+// Delete a key in redis.
+func (r *Store) delValue(key string) error {
 	var status *redis.IntCmd
 	logrus.Debugf("Deleting key '%s'", key)
 
@@ -108,8 +112,9 @@ func (r *RedisStore) delValue(key string) error {
 	return err
 }
 
-func (r *RedisStore) CreateEntry(entry shared.Entry, id, userIdentifier string) error {
-	// add an entry (path->url mapping)
+// Create an entry (path->url mapping) and all associated stored data.
+func (r *Store) CreateEntry(entry shared.Entry, id, userIdentifier string) error {
+	// add the entry (path->url mapping)
 	logrus.Debugf("Creating entry '%s' for user '%s'", id, userIdentifier)
 	raw, err := json.Marshal(entry)
 	if err != nil {
@@ -126,7 +131,7 @@ func (r *RedisStore) CreateEntry(entry shared.Entry, id, userIdentifier string) 
 		return errors.Wrap(err, msg)
 	}
 
-	// add path->user mapping
+	// add the path->user mapping
 	userKey := entryUserPrefix + id
 	logrus.Debugf("Adding key '%s': %s", userKey, raw)
 	err = r.createValue(userKey, []byte(userIdentifier))
@@ -149,7 +154,8 @@ func (r *RedisStore) CreateEntry(entry shared.Entry, id, userIdentifier string) 
 	return nil
 }
 
-func (r *RedisStore) DeleteEntry(id string) error {
+// Delete an entry and all associated stored data.
+func (r *Store) DeleteEntry(id string) error {
 	// delete the id-to-url mapping
 	entryKey := entryPathPrefix + id
 	err := r.delValue(entryKey)
@@ -197,7 +203,9 @@ func (r *RedisStore) DeleteEntry(id string) error {
 	return err
 }
 
-func (r *RedisStore) GetEntryByID(id string) (*shared.Entry, error) {
+// Look up an entry by its path.  Return pointer to a shared.Entry
+// instance, with the visit count and last visit time set properly.
+func (r *Store) GetEntryByID(id string) (*shared.Entry, error) {
 	var entry *shared.Entry
 	var visitor *shared.Visitor
 	var lastVisit time.Time
@@ -256,7 +264,9 @@ func (r *RedisStore) GetEntryByID(id string) (*shared.Entry, error) {
 	return entry, nil
 }
 
-func (r *RedisStore) GetUserEntries(userIdentifier string) (map[string]shared.Entry, error) {
+// Return all entries that are owned by a given user, in the form
+// of a map of path->shared.Entry
+func (r *Store) GetUserEntries(userIdentifier string) (map[string]shared.Entry, error) {
 	entries := map[string]shared.Entry{}
 
 	logrus.Debugf("Getting all entries for user %s", userIdentifier)
@@ -282,7 +292,8 @@ func (r *RedisStore) GetUserEntries(userIdentifier string) (map[string]shared.En
 	return entries, nil
 }
 
-func (r *RedisStore) RegisterVisitor(id, visitId string, visitor shared.Visitor) error {
+// Add a shared.Visitor to the list of visits for a path.
+func (r *Store) RegisterVisitor(id, visitId string, visitor shared.Visitor) error {
 	data, err := json.Marshal(visitor)
 	if err != nil {
 		msg := fmt.Sprintf("Could not marshal JSON for entry %s, visitId %s", id, visitId)
@@ -300,7 +311,8 @@ func (r *RedisStore) RegisterVisitor(id, visitId string, visitor shared.Visitor)
 	return err
 }
 
-func (r *RedisStore) GetVisitors(id string) ([]shared.Visitor, error) {
+// Return the full list of visitors for a path.
+func (r *Store) GetVisitors(id string) ([]shared.Visitor, error) {
 	var visitors []shared.Visitor
 	key := entryVisitsPrefix + id
 	// TODO: for non-trivial numbers of keys, this could start
@@ -323,17 +335,20 @@ func (r *RedisStore) GetVisitors(id string) ([]shared.Visitor, error) {
 	return visitors, nil
 }
 
-func (r *RedisStore) IncreaseVisitCounter(id string) error {
-	// This function is unnecessary for the redis backend: we already
-	// have a redis LIST of visitors, and we can derive the visit count
-	// by calling redis.client.LLen(list) (which is a constant-time op)
-	// during GetEntryByID().  If we want the timestamp of the most recent
-	// visit we can pull the most recent visit off with redis.client.LIndex(0)
-	// (also constant-time) and reading the timetamp field.
+// NO-OP: this function returns nil for all values.
+//
+// This function is unnecessary for the redis backend: we already
+// have a redis LIST of visitors, and we can derive the visit count
+// by calling redis.client.LLen(list) (which is a constant-time op)
+// during GetEntryByID().  If we want the timestamp of the most recent
+// visit we can pull the most recent visit off with redis.client.LIndex(0)
+// (also constant-time) and reading the timetamp field.
+func (r *Store) IncreaseVisitCounter(id string) error {
 	return nil
 }
 
-func (r *RedisStore) Close() error {
+// Close the connection to redis.
+func (r *Store) Close() error {
 	err := r.c.Close()
 	if err != nil {
 		msg := "Cloud not close the redis connection"
