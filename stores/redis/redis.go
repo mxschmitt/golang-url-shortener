@@ -12,10 +12,10 @@ import (
 )
 
 var (
-	entryPathPrefix     = string("entry:")       // prefix for path-to-url mappings
-	entryUserPrefix     = string("user:")        // prefix for path-to-user mappings
-	userToEntriesPrefix = string("userEntries:") // prefix for user-to-[]entries mappings (redis SET)
-	entryVisitsPrefix   = string("entryVisits:") // prefix for entry-to-[]visit mappings (redis LIST)
+	entryPathPrefix     = "entry:"       // prefix for path-to-url mappings
+	entryUserPrefix     = "user:"        // prefix for path-to-user mappings
+	userToEntriesPrefix = "userEntries:" // prefix for user-to-[]entries mappings (redis SET)
+	entryVisitsPrefix   = "entryVisits:" // prefix for entry-to-[]visit mappings (redis LIST)
 )
 
 // Store implements the stores.Storage interface
@@ -41,9 +41,8 @@ func New(hostaddr, password string) (*Store, error) {
 
 // Check for the existence of a key in redis.
 func (r *Store) keyExists(key string) (exists bool, err error) {
-	var result *redis.IntCmd
 	logrus.Debugf("Checking for existence of key: %s", key)
-	result = r.c.Exists(key)
+	result := r.c.Exists(key)
 	if result.Err() != nil {
 		msg := fmt.Sprintf("Error looking up key '%s': '%v', got val: '%d'", key, result.Err(), result.Val())
 		logrus.Error(msg)
@@ -59,9 +58,8 @@ func (r *Store) keyExists(key string) (exists bool, err error) {
 
 // Set the value of a key in redis.
 func (r *Store) setValue(key string, raw []byte) error {
-	var status *redis.StatusCmd
 	logrus.Debugf("Setting value for key '%s: '%s''", key, raw)
-	status = r.c.Set(key, raw, 0) // n.b. expiration 0 means never expire
+	status := r.c.Set(key, raw, 0) // n.b. expiration 0 means never expire
 	if status.Err() != nil {
 		msg := fmt.Sprintf("Got an unexpected error adding key '%s': %s", key, status.Err())
 		logrus.Error(msg)
@@ -89,7 +87,6 @@ func (r *Store) createValue(key string, raw []byte) error {
 
 // Delete a key in redis.
 func (r *Store) delValue(key string) error {
-	var status *redis.IntCmd
 	logrus.Debugf("Deleting key '%s'", key)
 
 	exists, err := r.keyExists(key)
@@ -103,7 +100,7 @@ func (r *Store) delValue(key string) error {
 		return err
 	}
 
-	status = r.c.Del(key)
+	status := r.c.Del(key)
 	if status.Err() != nil {
 		msg := fmt.Sprintf("Got an unexpected error deleting key '%s': %s", key, status.Err())
 		logrus.Error(msg)
@@ -206,16 +203,10 @@ func (r *Store) DeleteEntry(id string) error {
 // Look up an entry by its path.  Return pointer to a shared.Entry
 // instance, with the visit count and last visit time set properly.
 func (r *Store) GetEntryByID(id string) (*shared.Entry, error) {
-	var entry *shared.Entry
-	var visitor *shared.Visitor
-	var lastVisit time.Time
-	var raw []byte
-	var err error
-
 	entryKey := entryPathPrefix + id
 	logrus.Debugf("Fetching key: '%s'", entryKey)
 	result := r.c.Get(entryKey)
-	raw, err = result.Bytes()
+	raw, err := result.Bytes()
 	if err != nil {
 		msg := fmt.Sprintf("Error looking up key '%s': %s'", entryKey, err)
 		logrus.Warn(msg)
@@ -224,6 +215,7 @@ func (r *Store) GetEntryByID(id string) (*shared.Entry, error) {
 	}
 	logrus.Debugf("Got entry for key '%s': '%s'", entryKey, raw)
 
+	var entry *shared.Entry
 	err = json.Unmarshal(raw, &entry)
 	if err != nil {
 		msg := fmt.Sprintf("Error unmarshalling JSON for entry '%s': %v  (json str: '%s')", id, err, raw)
@@ -246,7 +238,8 @@ func (r *Store) GetEntryByID(id string) (*shared.Entry, error) {
 	}
 
 	// grab the timestamp out of the last visitor on the list
-	lastVisit = time.Time(time.Unix(0, 0)) // default to start-of-epoch if we can't figure it out
+	var visitor *shared.Visitor
+	lastVisit := time.Time(time.Unix(0, 0)) // default to start-of-epoch if we can't figure it out
 	raw, err = r.c.LIndex(entryVisitsKey, 0).Bytes()
 	if err != nil {
 		logrus.Warnf("Could not fetch visitor list for entry '%s': %v", id, err)
@@ -267,10 +260,8 @@ func (r *Store) GetEntryByID(id string) (*shared.Entry, error) {
 // Return all entries that are owned by a given user, in the form
 // of a map of path->shared.Entry
 func (r *Store) GetUserEntries(userIdentifier string) (map[string]shared.Entry, error) {
-	entries := map[string]shared.Entry{}
-
 	logrus.Debugf("Getting all entries for user %s", userIdentifier)
-
+	entries := map[string]shared.Entry{}
 	key := userToEntriesPrefix + userIdentifier
 	result := r.c.SMembers(key)
 	if result.Err() != nil {
