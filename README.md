@@ -15,9 +15,11 @@
 - Expirable Links
 - URL deletion
 - Authorization System via OAuth 2.0 (Google, GitHub and Microsoft)
-- High performance database with [bolt](https://github.com/boltdb/bolt)
 - Easy [ShareX](https://github.com/ShareX/ShareX) integration
 - Dockerizable
+- Multiple supported storage backends
+    - High performance local database with [bolt](https://github.com/boltdb/bolt)
+    - Persistent non-local storage with [redis](https://redis.io/)
 
 ## [Webinterface](https://so.sh0rt.cat)
 

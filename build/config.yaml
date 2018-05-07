@@ -1,5 +1,8 @@
 ListenAddr: ':8080' # Consists of 'IP:Port', e.g. ':8080' listens on any IP and on Port 8080
 BaseURL: 'http://localhost:3000' # Origin URL, required for the authentication via OAuth
+Backend: boltdb # Can be 'boltdb' or 'redis'
+RedisHost: localhost:6379 # If using the redis backend, a host:port combination
+RedisPassword: replace me # if using the redis backend, a conneciton password.
 DataDir: ./data # Contains: the database and the private key
 EnableDebugMode: true # Activates more detailed logging
 ShortedIDLength: 10 # Length of the random generated ID which is used for new shortened URLs
