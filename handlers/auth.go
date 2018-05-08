@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/mxschmitt/golang-url-shortener/handlers/auth"
@@ -36,6 +37,14 @@ func (h *Handler) initOAuth() {
 	h.engine.POST("/api/v1/auth/check", h.handleAuthCheck)
 }
 
+// initProxyAuth intializes data structures for proxy authentication mode
+func (h *Handler) initProxyAuth() {
+	h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
+	h.providers = []string{}
+	h.providers = append(h.providers, "proxy")
+	h.engine.POST("/api/v1/auth/check", h.handleAuthCheck)
+}
+
 func (h *Handler) parseJWT(wt string) (*auth.JWTClaims, error) {
 	token, err := jwt.ParseWithClaims(wt, &auth.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return util.GetPrivateKey(), nil
@@ -49,7 +58,8 @@ func (h *Handler) parseJWT(wt string) (*auth.JWTClaims, error) {
 	return token.Claims.(*auth.JWTClaims), nil
 }
 
-func (h *Handler) authMiddleware(c *gin.Context) {
+// oAuthMiddleware implements an auth layer that validates a JWT token
+func (h *Handler) oAuthMiddleware(c *gin.Context) {
 	authError := func() error {
 		wt := c.GetHeader("Authorization")
 		if wt == "" {
@@ -72,25 +82,94 @@ func (h *Handler) authMiddleware(c *gin.Context) {
 	c.Next()
 }
 
+// proxyAuthMiddleware implements an auth layer that trusts (and
+// optionally requires) header data from an identity-aware proxy
+func (h *Handler) proxyAuthMiddleware(c *gin.Context) {
+	authError := func() error {
+		claims, err := h.fakeClaimsForProxy(c)
+		if err != nil {
+			return err
+		}
+		c.Set("user", claims)
+		return nil
+	}()
+	if authError != nil {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"error": "authentication failed",
+		})
+		logrus.Errorf("Authentication middleware check failed: %v\n", authError)
+		return
+	}
+	c.Next()
+}
+
+// fakeClaimsForProxy returns a pointer to a auth.JWTClaims struct containing
+// data pulled from headers inserted by an identity-aware proxy.
+func (h *Handler) fakeClaimsForProxy(c *gin.Context) (*auth.JWTClaims, error) {
+	uid := c.GetHeader(util.GetConfig().Proxy.UserHeader)
+	logrus.Debugf("Got proxy uid '%s' from header '%s'", uid, util.GetConfig().Proxy.UserHeader)
+	if uid == "" {
+		logrus.Debugf("No proxy uid found!")
+		if util.GetConfig().Proxy.RequireUserHeader {
+			msg := fmt.Sprintf("Required authorization header not set: %s", util.GetConfig().Proxy.UserHeader)
+			logrus.Error(msg)
+			return nil, errors.New(msg)
+		}
+		logrus.Debugf("Setting uid to 'anonymous'")
+		uid = "anonymous"
+	}
+	// optionally pick a display name out of the headers as well; if we
+	// can't find it, just use the uid.
+	displayName := c.GetHeader(util.GetConfig().Proxy.DisplayNameHeader)
+	logrus.Debugf("Got proxy display name '%s' from header '%s'", displayName, util.GetConfig().Proxy.DisplayNameHeader)
+	if displayName == "" {
+		logrus.Debugf("Setting displayname to '%s'", uid)
+		displayName = uid
+	}
+	// it's not actually oauth but the naming convention is too
+	// deeply embedded in the code for it to be worth changing.
+	claims := &auth.JWTClaims{
+		OAuthID:       uid,
+		OAuthName:     displayName,
+		OAuthPicture:  "/images/proxy_user.png",
+		OAuthProvider: "proxy",
+	}
+	return claims, nil
+}
+
 func (h *Handler) handleAuthCheck(c *gin.Context) {
 	var data struct {
 		Token string `binding:"required"`
 	}
-	if err := c.ShouldBind(&data); err != nil {
+	var claims *auth.JWTClaims
+	var err error
+
+	if err = c.ShouldBind(&data); err != nil {
+		logrus.Errorf("Did not bind correctly: %v", err)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	claims, err := h.parseJWT(data.Token)
+	if util.GetConfig().AuthBackend == "proxy" {
+		// for proxy auth, we trust that the proxy has taken care of things
+		// for us and we are only testing that the middleware successfully
+		// pulled the necessary headers from the request.
+		claims, err = h.fakeClaimsForProxy(c)
+	} else {
+		claims, err = h.parseJWT(data.Token)
+	}
 	if err != nil {
+		logrus.Errorf("Could not parse auth data: %v", err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
+	sessionData := gin.H{
 		"ID":       claims.OAuthID,
 		"Name":     claims.OAuthName,
 		"Picture":  claims.OAuthPicture,
 		"Provider": claims.OAuthProvider,
-	})
+	}
+	logrus.Debugf("Found session data: %v", sessionData)
+	c.JSON(http.StatusOK, sessionData)
 }
 
 func (h *Handler) oAuthPropertiesEquals(c *gin.Context, oauthID, oauthProvider string) bool {

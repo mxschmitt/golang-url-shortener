@@ -14,23 +14,31 @@ import (
 
 // Configuration are the available config values
 type Configuration struct {
-	ListenAddr      string    `yaml:"ListenAddr" env:"LISTEN_ADDR"`
-	BaseURL         string    `yaml:"BaseURL" env:"BASE_URL"`
-	DataDir         string    `yaml:"DataDir" env:"DATA_DIR"`
-	Backend         string    `yaml:"Backend" env:"BACKEND"`
-	RedisHost       string    `yaml:"RedisHost" env:"REDIS_HOST"`
-	RedisPassword   string    `yaml:"RedisPassword" env:"REDIS_PASSWORD"`
-	UseSSL          bool      `yaml:"EnableSSL" env:"USE_SSL"`
-	EnableDebugMode bool      `yaml:"EnableDebugMode" env:"ENABLE_DEBUG_MODE"`
-	ShortedIDLength int       `yaml:"ShortedIDLength" env:"SHORTED_ID_LENGTH"`
-	Google          oAuthConf `yaml:"Google" env:"GOOGLE"`
-	GitHub          oAuthConf `yaml:"GitHub" env:"GITHUB"`
-	Microsoft       oAuthConf `yaml:"Microsoft" env:"MICROSOFT"`
+	ListenAddr      string        `yaml:"ListenAddr" env:"LISTEN_ADDR"`
+	BaseURL         string        `yaml:"BaseURL" env:"BASE_URL"`
+	DataDir         string        `yaml:"DataDir" env:"DATA_DIR"`
+	Backend         string        `yaml:"Backend" env:"BACKEND"`
+	RedisHost       string        `yaml:"RedisHost" env:"REDIS_HOST"`
+	RedisPassword   string        `yaml:"RedisPassword" env:"REDIS_PASSWORD"`
+	AuthBackend     string        `yaml:"AuthBackend" env:"AUTH_BACKEND"`
+	UseSSL          bool          `yaml:"EnableSSL" env:"USE_SSL"`
+	EnableDebugMode bool          `yaml:"EnableDebugMode" env:"ENABLE_DEBUG_MODE"`
+	ShortedIDLength int           `yaml:"ShortedIDLength" env:"SHORTED_ID_LENGTH"`
+	Google          oAuthConf     `yaml:"Google" env:"GOOGLE"`
+	GitHub          oAuthConf     `yaml:"GitHub" env:"GITHUB"`
+	Microsoft       oAuthConf     `yaml:"Microsoft" env:"MICROSOFT"`
+	Proxy           proxyAuthConf `yaml:"Proxy" env:"PROXY"`
 }
 
 type oAuthConf struct {
 	ClientID     string `yaml:"ClientID" env:"CLIENT_ID"`
 	ClientSecret string `yaml:"ClientSecret" env:"CLIENT_SECRET"`
+}
+
+type proxyAuthConf struct {
+	RequireUserHeader bool   `yaml:"RequireUserHeader" env:"REQUIRE_USER_HEADER"`
+	UserHeader        string `yaml:"UserHeader" env:"USER_HEADER"`
+	DisplayNameHeader string `yaml:"DisplayNameHeader" env:"DISPLAY_NAME_HEADER"`
 }
 
 // config contains the default values
@@ -42,6 +50,7 @@ var config = Configuration{
 	EnableDebugMode: false,
 	UseSSL:          false,
 	ShortedIDLength: 4,
+	AuthBackend:     "oauth",
 }
 
 // ReadInConfig loads the Configuration and other needed folders for further usage

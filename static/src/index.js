@@ -16,20 +16,20 @@ import Visitors from './Visitors/Visitors'
 import util from './util/util'
 export default class BaseComponent extends Component {
     state = {
-        oAuthPopupOpened: true,
+        authPopupOpened: true,
         userData: {},
         authorized: false,
         activeItem: "",
-        info: null
+        info: {}
     }
 
     handleItemClick = (e, { name }) => this.setState({ activeItem: name })
 
     onOAuthClose = () => {
-        this.setState({ oAuthPopupOpened: true })
+        this.setState({ authPopupOpened: true })
     }
 
-    componentWillMount() {
+    componentDidMount() {
         fetch('/api/v1/info')
             .then(d => d.json())
             .then(info => this.setState({ info }))
@@ -85,16 +85,34 @@ export default class BaseComponent extends Component {
         }
     }
 
+    onProxyAuthOpen = () => {
+      // the token contents don't matter for proxy auth, but
+      // checkAuth() needs it to be set to something
+      window.localStorage.setItem('token', {"lorem": "ipsum"});
+      this.checkAuth();
+      this.setState({ authPopupOpened: false })
+    }
+
     handleLogout = () => {
         window.localStorage.removeItem("token")
         this.setState({ authorized: false })
     }
 
     render() {
-        const { oAuthPopupOpened, authorized, activeItem, userData, info } = this.state
+        const { authPopupOpened, authorized, activeItem, userData, info } = this.state
         if (!authorized) {
+          if (Array.isArray(info.providers) && info.providers.includes("proxy")) {
+            // window.localStorage.setItem('token', {"lorem": "ipsum"});
+            // this.checkAuth();
             return (
-                <Modal size='tiny' open={oAuthPopupOpened} onClose={this.onOAuthClose}>
+              <Modal size='tiny' open={authPopupOpened} onMount={this.onProxyAuthOpen}>
+                <Modal.Header>Authentication</Modal.Header>
+                <Modal.Content><p>If you are seeing this, you have not successfully authenticated to the proxy.</p></Modal.Content>
+              </Modal>
+            )
+          } else if (Array.isArray(info.providers)) {
+            return (
+                <Modal size='tiny' open={authPopupOpened} onClose={this.onOAuthClose}>
                     <Modal.Header>
                         Authentication
                     </Modal.Header>
@@ -123,6 +141,7 @@ export default class BaseComponent extends Component {
                     </Modal.Content>
                 </Modal >
             )
+          }
         }
         return (
             <HashRouter>
@@ -149,9 +168,11 @@ export default class BaseComponent extends Component {
                         }}>
                             About
                         </Menu.Item>
-                        <Menu.Menu position='right'>
-                            <Menu.Item onClick={this.handleLogout}>Logout</Menu.Item>
-                        </Menu.Menu>
+                          <Menu.Menu position='right'>
+                            {userData.Name && <Menu.Item>{userData.Name}</Menu.Item>}
+                            {Array.isArray(info.providers) && !info.providers.includes("proxy") &&
+                              <Menu.Item onClick={this.handleLogout}>Logout</Menu.Item>}
+                          </Menu.Menu>
                     </Menu>
                     <Route exact path="/" component={Home} />
                     <Route path="/about" render={() => <About info={info} />} />
