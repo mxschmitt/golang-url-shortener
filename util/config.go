@@ -23,6 +23,7 @@ type Configuration struct {
 	AuthBackend     string        `yaml:"AuthBackend" env:"AUTH_BACKEND"`
 	UseSSL          bool          `yaml:"EnableSSL" env:"USE_SSL"`
 	EnableDebugMode bool          `yaml:"EnableDebugMode" env:"ENABLE_DEBUG_MODE"`
+	EnableColorLogs bool          `yaml:"EnableColorLogs" env:"ENABLE_COLOR_LOGS"`
 	ShortedIDLength int           `yaml:"ShortedIDLength" env:"SHORTED_ID_LENGTH"`
 	Google          oAuthConf     `yaml:"Google" env:"GOOGLE"`
 	GitHub          oAuthConf     `yaml:"GitHub" env:"GITHUB"`
@@ -48,6 +49,7 @@ var config = Configuration{
 	DataDir:         "data",
 	Backend:         "boltdb",
 	EnableDebugMode: false,
+	EnableColorLogs: true,
 	UseSSL:          false,
 	ShortedIDLength: 4,
 	AuthBackend:     "oauth",

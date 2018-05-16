@@ -14,11 +14,19 @@ import (
 
 func main() {
 	stop := make(chan os.Signal, 1)
+	if err := initConfig(); err != nil {
+		logrus.Fatal(err)
+	}
 	signal.Notify(stop, os.Interrupt)
 	logrus.SetFormatter(&logrus.TextFormatter{
-		ForceColors: true,
+		ForceColors:   util.GetConfig().EnableColorLogs,
+		DisableColors: !util.GetConfig().EnableColorLogs,
 	})
-	logrus.SetOutput(ansicolor.NewAnsiColorWriter(os.Stdout))
+	if util.GetConfig().EnableColorLogs == true {
+		logrus.SetOutput(ansicolor.NewAnsiColorWriter(os.Stdout))
+	} else {
+		logrus.SetOutput(os.Stdout)
+	}
 	close, err := initShortener()
 	if err != nil {
 		logrus.Fatalf("could not init shortener: %v", err)
@@ -28,10 +36,14 @@ func main() {
 	close()
 }
 
-func initShortener() (func(), error) {
+func initConfig() error {
 	if err := util.ReadInConfig(); err != nil {
-		return nil, errors.Wrap(err, "could not reload config file")
+		return errors.Wrap(err, "could not load config")
 	}
+	return nil
+}
+
+func initShortener() (func(), error) {
 	if util.GetConfig().EnableDebugMode {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
