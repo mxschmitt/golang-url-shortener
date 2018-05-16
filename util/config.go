@@ -70,6 +70,7 @@ func ReadInConfig() error {
 	if err := envstruct.ApplyEnvVars(&config, "GUS"); err != nil {
 		return errors.Wrap(err, "could not apply environment configuration")
 	}
+	logrus.Info("Loaded configuration: %v", config)
 	config.DataDir, err = filepath.Abs(config.DataDir)
 	if err != nil {
 		return errors.Wrap(err, "could not get relative data dir path")
