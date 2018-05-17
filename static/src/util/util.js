@@ -2,7 +2,7 @@ import toastr from 'toastr'
 
 export default class UtilHelper {
     static deleteEntry(url, cb) {
-        fetch(url)
+        fetch(url, {credentials: "include"})
             .then(res => res.ok ? res.json() : Promise.reject(res.json()))
             .then(cb())
             .catch(e => this._reportError(e, "delete entry"))
@@ -10,6 +10,7 @@ export default class UtilHelper {
     static _constructFetch(url, body, cbSucc, cbErr) {
         fetch(url, {
             method: "POST",
+            credentials: "include",
             body: JSON.stringify(body),
             headers: {
                 'Authorization': window.localStorage.getItem('token'),
@@ -45,6 +46,7 @@ export default class UtilHelper {
     }
     static getRecentURLs(cbSucc) {
         fetch('/api/v1/protected/recent', {
+            credentials: "include",
             headers: {
                 'Authorization': window.localStorage.getItem('token'),
                 'Content-Type': 'application/json'

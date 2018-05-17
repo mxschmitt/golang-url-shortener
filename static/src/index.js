@@ -30,7 +30,7 @@ export default class BaseComponent extends Component {
     }
 
     componentDidMount() {
-        fetch('/api/v1/info')
+        fetch('/api/v1/info', {credentials: 'include'})
             .then(d => d.json())
             .then(info => this.setState({ info }))
             .then(() => this.checkAuth())
@@ -42,6 +42,7 @@ export default class BaseComponent extends Component {
         if (token) {
             fetch('/api/v1/auth/check', {
                 method: 'POST',
+                credentials: 'include',
                 body: JSON.stringify({
                     Token: token
                 }),
