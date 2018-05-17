@@ -43,7 +43,7 @@ type proxyAuthConf struct {
 }
 
 // config contains the default values
-var config = Configuration{
+var Config = Configuration{
 	ListenAddr:      ":8080",
 	BaseURL:         "http://localhost:3000",
 	DataDir:         "data",
@@ -59,7 +59,7 @@ var config = Configuration{
 func ReadInConfig() error {
 	file, err := ioutil.ReadFile("config.yaml")
 	if err == nil {
-		if err := yaml.Unmarshal(file, &config); err != nil {
+		if err := yaml.Unmarshal(file, &Config); err != nil {
 			return errors.Wrap(err, "could not unmarshal yaml file")
 		}
 	} else if !os.IsNotExist(err) {
@@ -67,16 +67,16 @@ func ReadInConfig() error {
 	} else {
 		logrus.Info("No configuration file found, using defaults with environment variable overrides.")
 	}
-	if err := envstruct.ApplyEnvVars(&config, "GUS"); err != nil {
+	if err := envstruct.ApplyEnvVars(&Config, "GUS"); err != nil {
 		return errors.Wrap(err, "could not apply environment configuration")
 	}
-	logrus.Info("Loaded configuration: %v", config)
-	config.DataDir, err = filepath.Abs(config.DataDir)
+	logrus.Info("Loaded configuration: %v", Config)
+	Config.DataDir, err = filepath.Abs(Config.DataDir)
 	if err != nil {
 		return errors.Wrap(err, "could not get relative data dir path")
 	}
-	if _, err = os.Stat(config.DataDir); os.IsNotExist(err) {
-		if err = os.MkdirAll(config.DataDir, 0755); err != nil {
+	if _, err = os.Stat(Config.DataDir); os.IsNotExist(err) {
+		if err = os.MkdirAll(Config.DataDir, 0755); err != nil {
 			return errors.Wrap(err, "could not create config directory")
 		}
 	}
@@ -89,10 +89,10 @@ func (o oAuthConf) Enabled() bool {
 
 // GetConfig returns the configuration from the memory
 func GetConfig() Configuration {
-	return config
+	return Config
 }
 
 // SetConfig sets the configuration into the memory
 func SetConfig(c Configuration) {
-	config = c
+	Config = c
 }
