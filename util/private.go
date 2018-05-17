@@ -14,7 +14,7 @@ var privateKey []byte
 // CheckForPrivateKey checks if already an private key exists, if not it will
 // be randomly generated and saved as a private.dat file in the data directory
 func CheckForPrivateKey() error {
-	privateDatPath := filepath.Join(config.DataDir, "private.dat")
+	privateDatPath := filepath.Join(Config.DataDir, "private.dat")
 	privateDatContent, err := ioutil.ReadFile(privateDatPath)
 	if err == nil {
 		privateKey = privateDatContent

@@ -14,7 +14,7 @@ func TestCheckforPrivateKey(t *testing.T) {
 	if GetPrivateKey() == nil {
 		t.Fatalf("private key is nil")
 	}
-	if err := os.RemoveAll(config.DataDir); err != nil {
+	if err := os.RemoveAll(Config.DataDir); err != nil {
 		t.Fatalf("could not remove data dir: %v", err)
 	}
 }
