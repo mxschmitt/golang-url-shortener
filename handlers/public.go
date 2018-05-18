@@ -187,7 +187,7 @@ func (h *Handler) handleDelete(c *gin.Context) {
 
 func (h *Handler) getURLOrigin(c *gin.Context) string {
 	protocol := "http"
-	if c.Request.TLS != nil || util.GetConfig().UseSSL {
+	if c.Request.TLS != nil || c.GetHeader("X-Forwarded-Proto") == "https" || util.GetConfig().UseSSL {
 		protocol = "https"
 	}
 	return fmt.Sprintf("%s://%s", protocol, c.Request.Host)
