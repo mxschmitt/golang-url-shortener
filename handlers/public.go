@@ -139,6 +139,16 @@ func (h *Handler) handleGetVisitors(c *gin.Context) {
 	c.JSON(http.StatusOK, dataSets)
 }
 
+// handleHealthcheck returns success for healthcheckers without polluting logs
+func (h *Handler) handleHealthcheck(c *gin.Context) {
+	out := struct {
+		Status string `json:"status"`
+	}{
+		"OK",
+	}
+	c.JSON(http.StatusOK, out)
+}
+
 func (h *Handler) handleInfo(c *gin.Context) {
 	out := struct {
 		util.Info
