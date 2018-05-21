@@ -134,11 +134,15 @@ func (h *Handler) setHandlers() error {
 	if err := h.addTemplatesFromFS([]string{"token.html", "protected.html"}); err != nil {
 		return errors.Wrap(err, "could not add templates from FS")
 	}
-	if !util.GetConfig().EnableDebugMode {
-		// if we are not in debug mode, do not log healthchecks
-		h.engine.Use(Ginrus(logrus.StandardLogger(), time.RFC3339, false, "/ok"))
-	} else {
-		h.engine.Use(Ginrus(logrus.StandardLogger(), time.RFC3339, false))
+	// only do web access logs if enabled
+	if util.GetConfig().EnableAccessLogs {
+		if util.GetConfig().EnableDebugMode {
+			// in debug mode, log everything including healthchecks
+			h.engine.Use(Ginrus(logrus.StandardLogger(), time.RFC3339, false))
+		} else {
+			// if we are not in debug mode, do not log healthchecks
+			h.engine.Use(Ginrus(logrus.StandardLogger(), time.RFC3339, false, "/ok"))
+		}
 	}
 	protected := h.engine.Group("/api/v1/protected")
 	if util.GetConfig().AuthBackend == "oauth" {

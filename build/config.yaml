@@ -5,6 +5,7 @@ RedisHost: localhost:6379 # If using the redis backend, a host:port combination
 RedisPassword: replace me # if using the redis backend, a conneciton password.
 DataDir: ./data # Contains: the database and the private key
 EnableDebugMode: true # Activates more detailed logging
+EnableAccessLogs: true # Enable GIN access logs (default is true; set to false to disable access logging)
 EnableColorLogs: true # Enables/disables ANSI color sequences in log output; default is true
 ShortedIDLength: 10 # Length of the random generated ID which is used for new shortened URLs
 AuthBackend: oauth # Can be 'oauth' or 'proxy'

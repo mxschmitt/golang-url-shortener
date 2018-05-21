@@ -14,21 +14,22 @@ import (
 
 // Configuration are the available config values
 type Configuration struct {
-	ListenAddr      string        `yaml:"ListenAddr" env:"LISTEN_ADDR"`
-	BaseURL         string        `yaml:"BaseURL" env:"BASE_URL"`
-	DataDir         string        `yaml:"DataDir" env:"DATA_DIR"`
-	Backend         string        `yaml:"Backend" env:"BACKEND"`
-	RedisHost       string        `yaml:"RedisHost" env:"REDIS_HOST"`
-	RedisPassword   string        `yaml:"RedisPassword" env:"REDIS_PASSWORD"`
-	AuthBackend     string        `yaml:"AuthBackend" env:"AUTH_BACKEND"`
-	UseSSL          bool          `yaml:"EnableSSL" env:"USE_SSL"`
-	EnableDebugMode bool          `yaml:"EnableDebugMode" env:"ENABLE_DEBUG_MODE"`
-	EnableColorLogs bool          `yaml:"EnableColorLogs" env:"ENABLE_COLOR_LOGS"`
-	ShortedIDLength int           `yaml:"ShortedIDLength" env:"SHORTED_ID_LENGTH"`
-	Google          oAuthConf     `yaml:"Google" env:"GOOGLE"`
-	GitHub          oAuthConf     `yaml:"GitHub" env:"GITHUB"`
-	Microsoft       oAuthConf     `yaml:"Microsoft" env:"MICROSOFT"`
-	Proxy           proxyAuthConf `yaml:"Proxy" env:"PROXY"`
+	ListenAddr       string        `yaml:"ListenAddr" env:"LISTEN_ADDR"`
+	BaseURL          string        `yaml:"BaseURL" env:"BASE_URL"`
+	DataDir          string        `yaml:"DataDir" env:"DATA_DIR"`
+	Backend          string        `yaml:"Backend" env:"BACKEND"`
+	RedisHost        string        `yaml:"RedisHost" env:"REDIS_HOST"`
+	RedisPassword    string        `yaml:"RedisPassword" env:"REDIS_PASSWORD"`
+	AuthBackend      string        `yaml:"AuthBackend" env:"AUTH_BACKEND"`
+	UseSSL           bool          `yaml:"EnableSSL" env:"USE_SSL"`
+	EnableDebugMode  bool          `yaml:"EnableDebugMode" env:"ENABLE_DEBUG_MODE"`
+	EnableAccessLogs bool          `yaml:"EnableAccessLogs" env:"ENABLE_ACCESS_LOGS"`
+	EnableColorLogs  bool          `yaml:"EnableColorLogs" env:"ENABLE_COLOR_LOGS"`
+	ShortedIDLength  int           `yaml:"ShortedIDLength" env:"SHORTED_ID_LENGTH"`
+	Google           oAuthConf     `yaml:"Google" env:"GOOGLE"`
+	GitHub           oAuthConf     `yaml:"GitHub" env:"GITHUB"`
+	Microsoft        oAuthConf     `yaml:"Microsoft" env:"MICROSOFT"`
+	Proxy            proxyAuthConf `yaml:"Proxy" env:"PROXY"`
 }
 
 type oAuthConf struct {
@@ -44,15 +45,16 @@ type proxyAuthConf struct {
 
 // config contains the default values
 var Config = Configuration{
-	ListenAddr:      ":8080",
-	BaseURL:         "http://localhost:3000",
-	DataDir:         "data",
-	Backend:         "boltdb",
-	EnableDebugMode: false,
-	EnableColorLogs: true,
-	UseSSL:          false,
-	ShortedIDLength: 4,
-	AuthBackend:     "oauth",
+	ListenAddr:       ":8080",
+	BaseURL:          "http://localhost:3000",
+	DataDir:          "data",
+	Backend:          "boltdb",
+	EnableDebugMode:  false,
+	EnableAccessLogs: true,
+	EnableColorLogs:  true,
+	UseSSL:           false,
+	ShortedIDLength:  4,
+	AuthBackend:      "oauth",
 }
 
 // ReadInConfig loads the Configuration and other needed folders for further usage
