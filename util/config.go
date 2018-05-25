@@ -65,8 +65,6 @@ var Config = Configuration{
 	AuthBackend:      "oauth",
 	Redis: redisConf{
 		Host:         "127.0.0.1:6379",
-		Password:     "",
-		DB:           0,
 		MaxRetries:   3,
 		ReadTimeout:  "3s",
 		WriteTimeout: "3s",
