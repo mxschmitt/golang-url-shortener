@@ -9,9 +9,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mxschmitt/golang-url-shortener/handlers/tmpls"
-	"github.com/mxschmitt/golang-url-shortener/stores"
-	"github.com/mxschmitt/golang-url-shortener/util"
+	"github.com/mxschmitt/golang-url-shortener/internal/handlers/tmpls"
+	"github.com/mxschmitt/golang-url-shortener/internal/stores"
+	"github.com/mxschmitt/golang-url-shortener/internal/util"
 	"github.com/pkg/errors"
 )
 
@@ -145,13 +145,14 @@ func (h *Handler) setHandlers() error {
 		}
 	}
 	protected := h.engine.Group("/api/v1/protected")
-	if util.GetConfig().AuthBackend == "oauth" {
-		logrus.Info("Using OAuth auth backend")
+	switch util.GetConfig().AuthBackend {
+	case "oauth":
+		logrus.Info("Using OAuth auth backend: oauth")
 		protected.Use(h.oAuthMiddleware)
-	} else if util.GetConfig().AuthBackend == "proxy" {
-		logrus.Info("Using proxy auth backend")
+	case "proxy":
+		logrus.Info("Using OAuth auth backend: proxy")
 		protected.Use(h.proxyAuthMiddleware)
-	} else {
+	default:
 		logrus.Fatalf("Auth backend method '%s' is not recognized", util.GetConfig().AuthBackend)
 	}
 	protected.POST("/create", h.handleCreate)
