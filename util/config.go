@@ -18,8 +18,6 @@ type Configuration struct {
 	BaseURL          string        `yaml:"BaseURL" env:"BASE_URL"`
 	DataDir          string        `yaml:"DataDir" env:"DATA_DIR"`
 	Backend          string        `yaml:"Backend" env:"BACKEND"`
-	RedisHost        string        `yaml:"RedisHost" env:"REDIS_HOST"`
-	RedisPassword    string        `yaml:"RedisPassword" env:"REDIS_PASSWORD"`
 	AuthBackend      string        `yaml:"AuthBackend" env:"AUTH_BACKEND"`
 	UseSSL           bool          `yaml:"EnableSSL" env:"USE_SSL"`
 	EnableDebugMode  bool          `yaml:"EnableDebugMode" env:"ENABLE_DEBUG_MODE"`
@@ -30,6 +28,16 @@ type Configuration struct {
 	GitHub           oAuthConf     `yaml:"GitHub" env:"GITHUB"`
 	Microsoft        oAuthConf     `yaml:"Microsoft" env:"MICROSOFT"`
 	Proxy            proxyAuthConf `yaml:"Proxy" env:"PROXY"`
+	Redis            redisConf     `yaml:"Redis" env:"REDIS"`
+}
+
+type redisConf struct {
+	Host         string `yaml:"Host" env:"REDIS_HOST"`
+	Password     string `yaml:"Password" env:"REDIS_PASSWORD"`
+	Db           int    `yaml:"Db", env:"REDIS_DB"`
+	MaxRetries   int    `yaml:"MaxRetries", env:"REDIS_MAX_RETRIES"`
+	ReadTimeout  string `yaml:"ReadTimeout", env:"REDIS_READ_TIMEOUT"`
+	WriteTimeout string `yaml:"WriteTimeout", env:"REDIS_WRITE_TIMEOUT"`
 }
 
 type oAuthConf struct {
@@ -55,6 +63,14 @@ var Config = Configuration{
 	UseSSL:           false,
 	ShortedIDLength:  4,
 	AuthBackend:      "oauth",
+	Redis: redisConf{
+		Host:         "127.0.0.1:6379",
+		Password:     "",
+		Db:           0,
+		MaxRetries:   3,
+		ReadTimeout:  "3s",
+		WriteTimeout: "3s",
+	},
 }
 
 // ReadInConfig loads the Configuration and other needed folders for further usage

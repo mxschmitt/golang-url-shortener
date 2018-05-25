@@ -1,8 +1,6 @@
 ListenAddr: ':8080' # Consists of 'IP:Port', e.g. ':8080' listens on any IP and on Port 8080
 BaseURL: 'http://localhost:3000' # Origin URL, required for the authentication via OAuth
 Backend: boltdb # Can be 'boltdb' or 'redis'
-RedisHost: localhost:6379 # If using the redis backend, a host:port combination
-RedisPassword: replace me # if using the redis backend, a conneciton password.
 DataDir: ./data # Contains: the database and the private key
 EnableDebugMode: true # Activates more detailed logging
 EnableAccessLogs: true # Enable GIN access logs (default is true; set to false to disable access logging)
@@ -22,3 +20,10 @@ Proxy:  # only relevant when using the proxy authbackend
   RequireUserHeader: false # If true, will reject connections that do not have the UserHeader set
   UserHeader: "X-Goog-Authenticated-User-ID" # pull the unique user ID from this header
   DisplayNameHeader: "X-Goog-Authenticated-User-Email" # pull the display naem from this header
+Redis:
+  Host: localhost:6379 # host:port combination; required
+  Password: replace me # redis connection password; optional; default is none
+  Db: 0                # redis index (https://redis.io/commands/select); optional; default is 0
+  MaxRetries: 3        # maximum number of retries for a failed redis command
+  ReadTimeout: 3s      # timeout for read operations; default is 3s. This is a golang time.ParseDuration string
+  WriteTimeout: 3s     # timeout for write operations; default is 3s. This is a golang time.ParseDuration string

@@ -43,7 +43,10 @@ func New() (*Store, error) {
 	var s shared.Storage
 	switch backend := util.GetConfig().Backend; backend {
 	case "redis":
-		s, err = redis.New(util.GetConfig().RedisHost, util.GetConfig().RedisPassword)
+		conf := util.GetConfig().Redis
+		s, err = redis.New(conf.Host, conf.Password, conf.Db,
+			conf.MaxRetries, conf.ReadTimeout,
+			conf.WriteTimeout)
 	case "boltdb":
 		s, err = boltdb.New(filepath.Join(util.GetConfig().DataDir, "main.db"))
 	default:
