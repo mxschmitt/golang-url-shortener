@@ -24,15 +24,26 @@ type Store struct {
 }
 
 // New initializes connection to the redis instance.
-func New(hostaddr, password string) (*Store, error) {
+func New(hostaddr, password string, db int, maxRetries int, readTimeout string, writeTimeout string) (*Store, error) {
+	var rt, wt time.Duration
+	var err error
+
+	if rt, err = time.ParseDuration(readTimeout); err != nil {
+		return nil, errors.Wrap(err, "Could not parse read timeout")
+	}
+	if wt, err = time.ParseDuration(writeTimeout); err != nil {
+		return nil, errors.Wrap(err, "Could not parse write timeout")
+	}
 	c := redis.NewClient(&redis.Options{
-		Addr:     hostaddr,
-		Password: password,
-		DB:       0,
+		Addr:         hostaddr,
+		Password:     password,
+		DB:           db,
+		MaxRetries:   maxRetries,
+		ReadTimeout:  rt,
+		WriteTimeout: wt,
 	})
 	// if we can't talk to redis, fail fast
-	_, err := c.Ping().Result()
-	if err != nil {
+	if _, err = c.Ping().Result(); err != nil {
 		return nil, errors.Wrap(err, "Could not connect to redis db0")
 	}
 	ret := &Store{c: c}
