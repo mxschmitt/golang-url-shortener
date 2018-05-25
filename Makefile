@@ -6,11 +6,11 @@ runUnitTests:
 buildNodeFrontend:
 	cd web && yarn install
 	cd web && yarn build
-	cd web && rm build/web/**/*.map
+	cd web && rm build/static/**/*.map
 
 embedFrontend:
-	cd handlers/tmpls && esc -o tmpls.go -pkg tmpls -include ^*\.html .
-	cd handlers && esc -o static.go -pkg handlers -prefix ../web/build ../web/build
+	cd internal/handlers/tmpls && esc -o tmpls.go -pkg tmpls -include ^*\.html .
+	cd internal/handlers && esc -o static.go -pkg handlers -prefix ../../web/build ../../web/build
 
 getCMDDependencies:
 	go get -v github.com/mattn/goveralls
