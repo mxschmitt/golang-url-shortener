@@ -5,7 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/mxschmitt/golang-url-shortener)](https://goreportcard.com/report/github.com/mxschmitt/golang-url-shortener)
 [![Coverage Status](https://coveralls.io/repos/github/mxschmitt/golang-url-shortener/badge.svg?branch=master)](https://coveralls.io/github/mxschmitt/golang-url-shortener?branch=master)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Download](https://api.bintray.com/packages/mxschmitt/golang-url-shortener/travis-ci/images/download.svg?version=0.1) ](https://bintray.com/mxschmitt/golang-url-shortener/travis-ci/0.1/link)
+[![Download](https://api.bintray.com/packages/mxschmitt/golang-url-shortener/travis-ci/images/download.svg?version=0.1) ](https://bintray.com/mxschmitt/golang-url-shortener/travis-ci/0.1#files)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mxschmitt/golang_url_shortener.svg)](https://hub.docker.com/r/mxschmitt/golang_url_shortener/)
 
 ## Main Features
