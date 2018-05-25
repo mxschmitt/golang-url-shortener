@@ -24,7 +24,7 @@ buildProject:
 	rm -rf releases 
 	mkdir releases
 	gox -output="releases/{{.Dir}}_{{.OS}}_{{.Arch}}/{{.Dir}}" -osarch="linux/amd64 linux/arm windows/amd64 windows/386" -ldflags="-X github.com/mxschmitt/golang-url-shortener/internal/util.ldFlagNodeJS=`node --version` -X github.com/mxschmitt/golang-url-shortener/internal/util.ldFlagCommit=`git rev-parse HEAD` -X github.com/mxschmitt/golang-url-shortener/internal/util.ldFlagYarn=`yarn --version` -X github.com/mxschmitt/golang-url-shortener/internal/util.ldFlagCompilationTime=`TZ=UTC date +%Y-%m-%dT%H:%M:%S+0000`" ./cmd/golang-url-shortener
-	find releases -maxdepth 1 -mindepth 1 -type d -exec cp config/example.yaml {} \;
+	find releases -maxdepth 1 -mindepth 1 -type d -exec cp config/example.yaml {}/config.yaml \;
 	find releases -maxdepth 1 -mindepth 1 -type d -exec tar -cvjf {}.tar.bz2 {} \;
 
 buildDockerImage:
