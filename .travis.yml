@@ -18,6 +18,7 @@ deploy:
   provider: bintray
   user: mxschmitt
   file: "build/bintray.json"
+  skip_cleanup: true
   key:
     secure: "DI10OBnQmWPB76j31uDrb0gkv1eAkwBfk4xLC4xf7qHuAzqAOTVhmO9e/yCOVsUMzPH5Nxehfb/bsKL55Gx72+tbIdOTqNn5Tf9ZbxqpZ7UEs6JJUoiL2iU+CY5r4XJvM+0TtQxrOLFWKrRygIl81KHY9M/GMDwCQuVPAIebyquptya+w+CrckhR5k7jKDdFQZLWc6cOHLZ8+DDccv+hnQvypro7OahTF1Ehn3NCaTOLFkFB0pjXFtSqYSJJXJVj9dCEMcPccPMGc3MTkoYTyLmWXLoGELJphIftQXCoPL4BmJKzL12rk1+Vyx4I6hvdDOLiobNUE/LApBke77UkHpmzPWoD1ym2nkxVNAemCGcumn6kZK8K4VRQrA/OvM9i4kDFyFo8wOW8InQC39M1N0OcfQF9ZgktCD76E+AxVruashf9j9N0noBif0xbyCVu9kNn6uqFvKxTQPMtMSlS70NubOFQlmv/qSFfGSEyJ10p69b38DhQV1sLX/JgEbcOh45xazkDD+M8tRV9zCqEPs1wiE6Dx3Z/+5mM9hKkhNvF0pBIAkKiiBQoIcT/xO0i9+6hYww89/6My3eXaS6Ce/VszqV0tBHUY4Oh0AggxYR0JBAD7oK9g/utRQxljpmVK8C3Gq4LSJBXi+6isyX1m26DJu6XaDpa8iPkSr9UVyE="
 env:
