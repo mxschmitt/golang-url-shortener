@@ -32,12 +32,12 @@ type Configuration struct {
 }
 
 type redisConf struct {
-	Host         string `yaml:"Host" env:"REDIS_HOST"`
-	Password     string `yaml:"Password" env:"REDIS_PASSWORD"`
-	DB           int    `yaml:"DB" env:"REDIS_DB"`
-	MaxRetries   int    `yaml:"MaxRetries" env:"REDIS_MAX_RETRIES"`
-	ReadTimeout  string `yaml:"ReadTimeout" env:"REDIS_READ_TIMEOUT"`
-	WriteTimeout string `yaml:"WriteTimeout" env:"REDIS_WRITE_TIMEOUT"`
+	Host         string `yaml:"Host" env:"HOST"`
+	Password     string `yaml:"Password" env:"PASSWORD"`
+	DB           int    `yaml:"DB" env:"DB"`
+	MaxRetries   int    `yaml:"MaxRetries" env:"MAX_RETRIES"`
+	ReadTimeout  string `yaml:"ReadTimeout" env:"READ_TIMEOUT"`
+	WriteTimeout string `yaml:"WriteTimeout" env:"WRITE_TIMEOUT"`
 }
 
 type oAuthConf struct {
@@ -86,7 +86,7 @@ func ReadInConfig() error {
 	if err := envstruct.ApplyEnvVars(&Config, "GUS"); err != nil {
 		return errors.Wrap(err, "could not apply environment configuration")
 	}
-	logrus.Info("Loaded configuration: %v", Config)
+	logrus.Infof("Loaded configuration: %+v", Config)
 	Config.DataDir, err = filepath.Abs(Config.DataDir)
 	if err != nil {
 		return errors.Wrap(err, "could not get relative data dir path")
