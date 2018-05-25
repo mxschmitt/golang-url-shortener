@@ -34,10 +34,10 @@ type Configuration struct {
 type redisConf struct {
 	Host         string `yaml:"Host" env:"REDIS_HOST"`
 	Password     string `yaml:"Password" env:"REDIS_PASSWORD"`
-	Db           int    `yaml:"Db", env:"REDIS_DB"`
-	MaxRetries   int    `yaml:"MaxRetries", env:"REDIS_MAX_RETRIES"`
-	ReadTimeout  string `yaml:"ReadTimeout", env:"REDIS_READ_TIMEOUT"`
-	WriteTimeout string `yaml:"WriteTimeout", env:"REDIS_WRITE_TIMEOUT"`
+	DB           int    `yaml:"DB" env:"REDIS_DB"`
+	MaxRetries   int    `yaml:"MaxRetries" env:"REDIS_MAX_RETRIES"`
+	ReadTimeout  string `yaml:"ReadTimeout" env:"REDIS_READ_TIMEOUT"`
+	WriteTimeout string `yaml:"WriteTimeout" env:"REDIS_WRITE_TIMEOUT"`
 }
 
 type oAuthConf struct {
@@ -66,7 +66,7 @@ var Config = Configuration{
 	Redis: redisConf{
 		Host:         "127.0.0.1:6379",
 		Password:     "",
-		Db:           0,
+		DB:           0,
 		MaxRetries:   3,
 		ReadTimeout:  "3s",
 		WriteTimeout: "3s",

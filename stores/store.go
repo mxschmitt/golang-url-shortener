@@ -44,7 +44,7 @@ func New() (*Store, error) {
 	switch backend := util.GetConfig().Backend; backend {
 	case "redis":
 		conf := util.GetConfig().Redis
-		s, err = redis.New(conf.Host, conf.Password, conf.Db,
+		s, err = redis.New(conf.Host, conf.Password, conf.DB,
 			conf.MaxRetries, conf.ReadTimeout,
 			conf.WriteTimeout)
 	case "boltdb":
