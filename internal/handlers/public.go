@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mxschmitt/golang-url-shortener/handlers/auth"
-	"github.com/mxschmitt/golang-url-shortener/stores/shared"
-	"github.com/mxschmitt/golang-url-shortener/util"
+	"github.com/mxschmitt/golang-url-shortener/internal/handlers/auth"
+	"github.com/mxschmitt/golang-url-shortener/internal/stores/shared"
+	"github.com/mxschmitt/golang-url-shortener/internal/util"
 	"golang.org/x/crypto/bcrypt"
 )
 

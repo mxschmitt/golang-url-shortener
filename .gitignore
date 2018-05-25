@@ -19,9 +19,8 @@ debug.test
 *.db
 *.lock
 /config.*
-/handlers/static.go
-/handlers/tmpls/tmpls.go
-/store/main.db
+/internal/handlers/static.go
+/internal/handlers/tmpls/tmpls.go
 /releases
-/data
-docker_releases/
+/docker_releases
+data

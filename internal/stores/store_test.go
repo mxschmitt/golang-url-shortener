@@ -6,9 +6,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/mxschmitt/golang-url-shortener/stores/shared"
+	"github.com/mxschmitt/golang-url-shortener/internal/stores/shared"
 
-	"github.com/mxschmitt/golang-url-shortener/util"
+	"github.com/mxschmitt/golang-url-shortener/internal/util"
 )
 
 var testData = struct {
