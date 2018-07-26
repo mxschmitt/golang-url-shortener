@@ -275,8 +275,8 @@ func TestHandleDeletion(t *testing.T) {
 		t.Fatalf("could not send visit request: %v", err)
 	}
 	fmt.Println(body.URL)
-	if resp.StatusCode != http.StatusNotFound {
-		t.Fatalf("expected status: %d; got: %d", http.StatusNotFound, resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("expected status: %d; got: %d", http.StatusOK, resp.StatusCode)
 	}
 }
 

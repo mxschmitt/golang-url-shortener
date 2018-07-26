@@ -166,12 +166,63 @@ func (h *Handler) setHandlers() error {
 
 	// Handling the shorted URLs, if no one exists, it checks
 	// in the filesystem and sets headers for caching
-	h.engine.NoRoute(h.handleAccess, func(c *gin.Context) {
-		c.Header("Vary", "Accept-Encoding")
-		c.Header("Cache-Control", "public, max-age=2592000")
-		c.Header("ETag", util.VersionInfo.Commit)
-	}, gin.WrapH(http.FileServer(FS(false))))
+	h.engine.NoRoute(
+		h.handleAccess, // look up shortcuts
+		func(c *gin.Context) { // no shortcut found, prep response for FS
+			c.Header("Vary", "Accept-Encoding")
+			c.Header("Cache-Control", "public, max-age=2592000")
+			c.Header("ETag", util.VersionInfo.Commit)
+		},
+		// Pass down to the embedded FS, but let 404s escape via
+		// the interceptHandler.
+		gin.WrapH(interceptHandler(http.FileServer(FS(false)), customErrorHandler)),
+		// not in FS; redirect to root with customURL target filled out
+		func(c *gin.Context) {
+			// if we get to this point we should not let the client cache
+			c.Header("Cache-Control", "no-cache, no-store")
+			c.Redirect(http.StatusTemporaryRedirect, "/?customUrl="+c.Request.URL.Path[1:])
+		})
 	return nil
+}
+
+type interceptResponseWriter struct {
+	http.ResponseWriter
+	errH func(http.ResponseWriter, int)
+}
+
+func (w *interceptResponseWriter) WriteHeader(status int) {
+	if status >= http.StatusBadRequest {
+		w.errH(w.ResponseWriter, status)
+		w.errH = nil
+	} else {
+		w.ResponseWriter.WriteHeader(status)
+	}
+}
+
+type errorHandler func(http.ResponseWriter, int)
+
+func (w *interceptResponseWriter) Write(p []byte) (n int, err error) {
+	if w.errH == nil {
+		return len(p), nil
+	}
+	return w.ResponseWriter.Write(p)
+}
+
+func interceptHandler(next http.Handler, errH errorHandler) http.Handler {
+	if errH == nil {
+		errH = customErrorHandler
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(&interceptResponseWriter{w, errH}, r)
+	})
+}
+
+func customErrorHandler(w http.ResponseWriter, status int) {
+	// let 404s fall through: the next NoRoute handler will redirect
+	// them back to the main page with the customURL box filled out.
+	if status != 404 {
+		http.Error(w, "error", status)
+	}
 }
 
 // Listen starts the http server
