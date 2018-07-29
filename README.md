@@ -1,4 +1,4 @@
-# Golang URL Shortener (Work in Progress)
+# Golang URL Shortener
 
 [![Build Status](https://travis-ci.org/mxschmitt/golang-url-shortener.svg?branch=master)](https://travis-ci.org/mxschmitt/golang-url-shortener)
 [![GoDoc](https://godoc.org/github.com/mxschmitt/golang-url-shortener?status.svg)](https://godoc.org/github.com/mxschmitt/golang-url-shortener)
