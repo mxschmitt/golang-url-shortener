@@ -66,10 +66,10 @@ export default class HomeComponent extends Component {
     return (
       <div>
         <Segment raised>
-          {this.urlParams.get("customUrl") && (
+          {this.urlParams.get("customUrl") ? (
             <Header size='medium'>I don't have a link named <em>"{this.urlParams.get("customUrl")}"</em> in my database, would
             you like to create one?</Header>
-          ) || 
+          ) : 
             <Header size='huge'>Simplify your links</Header>
           }
           <Form onSubmit={this.handleURLSubmit} autoComplete="off">
