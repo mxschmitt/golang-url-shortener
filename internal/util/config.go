@@ -14,21 +14,22 @@ import (
 
 // Configuration are the available config values
 type Configuration struct {
-	ListenAddr       string        `yaml:"ListenAddr" env:"LISTEN_ADDR"`
-	BaseURL          string        `yaml:"BaseURL" env:"BASE_URL"`
-	DataDir          string        `yaml:"DataDir" env:"DATA_DIR"`
-	Backend          string        `yaml:"Backend" env:"BACKEND"`
-	AuthBackend      string        `yaml:"AuthBackend" env:"AUTH_BACKEND"`
-	UseSSL           bool          `yaml:"EnableSSL" env:"USE_SSL"`
-	EnableDebugMode  bool          `yaml:"EnableDebugMode" env:"ENABLE_DEBUG_MODE"`
-	EnableAccessLogs bool          `yaml:"EnableAccessLogs" env:"ENABLE_ACCESS_LOGS"`
-	EnableColorLogs  bool          `yaml:"EnableColorLogs" env:"ENABLE_COLOR_LOGS"`
-	ShortedIDLength  int           `yaml:"ShortedIDLength" env:"SHORTED_ID_LENGTH"`
-	Google           oAuthConf     `yaml:"Google" env:"GOOGLE"`
-	GitHub           oAuthConf     `yaml:"GitHub" env:"GITHUB"`
-	Microsoft        oAuthConf     `yaml:"Microsoft" env:"MICROSOFT"`
-	Proxy            proxyAuthConf `yaml:"Proxy" env:"PROXY"`
-	Redis            redisConf     `yaml:"Redis" env:"REDIS"`
+	ListenAddr        string        `yaml:"ListenAddr" env:"LISTEN_ADDR"`
+	BaseURL           string        `yaml:"BaseURL" env:"BASE_URL"`
+	DataDir           string        `yaml:"DataDir" env:"DATA_DIR"`
+	Backend           string        `yaml:"Backend" env:"BACKEND"`
+	AuthBackend       string        `yaml:"AuthBackend" env:"AUTH_BACKEND"`
+	UseSSL            bool          `yaml:"EnableSSL" env:"USE_SSL"`
+	EnableDebugMode   bool          `yaml:"EnableDebugMode" env:"ENABLE_DEBUG_MODE"`
+	EnableAccessLogs  bool          `yaml:"EnableAccessLogs" env:"ENABLE_ACCESS_LOGS"`
+	EnableColorLogs   bool          `yaml:"EnableColorLogs" env:"ENABLE_COLOR_LOGS"`
+	ShortedIDLength   int           `yaml:"ShortedIDLength" env:"SHORTED_ID_LENGTH"`
+	Google            oAuthConf     `yaml:"Google" env:"GOOGLE"`
+	GitHub            oAuthConf     `yaml:"GitHub" env:"GITHUB"`
+	GitHubEndpointURL string        `yaml:"GitHubEndPointURL" env:"GITHUB_ENDPOINT_URL"`
+	Microsoft         oAuthConf     `yaml:"Microsoft" env:"MICROSOFT"`
+	Proxy             proxyAuthConf `yaml:"Proxy" env:"PROXY"`
+	Redis             redisConf     `yaml:"Redis" env:"REDIS"`
 }
 
 type redisConf struct {
