@@ -15,8 +15,14 @@ import (
 )
 
 func (h *Handler) initOAuth() {
-	h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
-
+	// use redis as the session store if it is configured
+	switch backend := util.GetConfig().Backend; backend {
+	case "redis":
+		store, _ := sessions.NewRedisStore(10, "tcp", util.GetConfig().Redis.Host, util.GetConfig().Redis.Password, []byte("secret"))
+		h.engine.Use(sessions.Sessions("backend", store))
+	default:
+		h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
+	}
 	h.providers = []string{}
 	google := util.GetConfig().Google
 	if google.Enabled() {
@@ -39,7 +45,14 @@ func (h *Handler) initOAuth() {
 
 // initProxyAuth intializes data structures for proxy authentication mode
 func (h *Handler) initProxyAuth() {
-	h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
+	// use redis as the session store if it is configured
+	switch backend := util.GetConfig().Backend; backend {
+	case "redis":
+		store, _ := sessions.NewRedisStore(10, "tcp", util.GetConfig().Redis.Host, util.GetConfig().Redis.Password, []byte("secret"))
+		h.engine.Use(sessions.Sessions("backend", store))
+	default:
+		h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
+	}	
 	h.providers = []string{}
 	h.providers = append(h.providers, "proxy")
 	h.engine.POST("/api/v1/auth/check", h.handleAuthCheck)
