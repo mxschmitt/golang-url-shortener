@@ -18,10 +18,10 @@ type githubAdapter struct {
 }
 
 // NewGithubAdapter creates an oAuth adapter out of the credentials and the baseURL
-func NewGithubAdapter(clientID, clientSecret string) Adapter {
-	if util.GetConfig().GitHubEndpointURL != "" {
-		github.Endpoint.AuthURL = util.GetConfig().GitHubEndpointURL + "/login/oauth/authorize"
-		github.Endpoint.TokenURL = util.GetConfig().GitHubEndpointURL + "/login/oauth/access_token"
+func NewGithubAdapter(clientID, clientSecret, gitHubEndpointURL string) Adapter {
+	if gitHubEndpointURL != "" {
+		github.Endpoint.AuthURL = gitHubEndpointURL + "/login/oauth/authorize"
+		github.Endpoint.TokenURL = gitHubEndpointURL + "/login/oauth/access_token"
 	}
 	return &githubAdapter{&oauth2.Config{
 		ClientID:     clientID,
@@ -45,9 +45,9 @@ func (a *githubAdapter) GetUserData(state, code string) (*user, error) {
 		return nil, errors.Wrap(err, "could not exchange code")
 	}
 
-	gitHubUserURL := "https://github.homedepot.com/api/v3/user"
-	if util.GetConfig().GitHubEndpointURL != "" {
-		gitHubUserURL = util.GetConfig().GitHubEndpointURL + "/api/v3/user"
+	gitHubUserURL := "https://api.github.com/user"
+	if util.GetConfig().GitHub.GitHubEndpointURL != "" {
+		gitHubUserURL = util.GetConfig().GitHub.GitHubEndpointURL + "/api/v3/user"
 	}
 	oAuthUserInfoReq, err := a.config.Client(context.Background(), oAuthToken).Get(gitHubUserURL)
 	if err != nil {
