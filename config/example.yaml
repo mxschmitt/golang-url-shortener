@@ -13,7 +13,7 @@ Google:  # only relevant when using the oauth authbackend
 GitHub:  # only relevant when using the oauth authbackend
   ClientID: replace me
   ClientSecret: replace me
-  GitHubEndpointURL: # (OPTIONAL) URL for custom GitHub endpoint (github enterprise); e.g. 'https://github.mydomain.com'
+  EndpointURL: # (OPTIONAL) URL for custom endpoint (currently only for github); e.g. 'https://github.mydomain.com'
 Microsoft:  # only relevant when using the oauth authbackend
   ClientID: replace me
   ClientSecret: 'replace me'
