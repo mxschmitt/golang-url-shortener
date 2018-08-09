@@ -35,9 +35,11 @@ func CheckForPrivateKey() error {
 
 // GetPrivateKey returns the private key
 func GetPrivateKey() []byte {
-	// return privateKey
-	// returning a static value seems to be required for multiple instances to work with redis as a session store
-	// this doesn't seem like a good pattern
-	return []byte("secret")
-
+	// if using redis as a backend, always return the same static key
+	switch backend := GetConfig().Backend; backend {
+	case "redis":
+		return []byte("secret")
+	default:
+		return privateKey
+	}
 }
