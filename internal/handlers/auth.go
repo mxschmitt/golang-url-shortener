@@ -9,7 +9,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/contrib/sessions"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 )
@@ -18,10 +20,10 @@ func (h *Handler) initOAuth() {
 	// use redis as the session store if it is configured
 	switch backend := util.GetConfig().Backend; backend {
 	case "redis":
-		store, _ := sessions.NewRedisStore(10, "tcp", util.GetConfig().Redis.Host, util.GetConfig().Redis.Password, []byte("secret"))
+		store, _ := redis.NewStoreWithDB(10, "tcp", util.GetConfig().Redis.Host, util.GetConfig().Redis.Password, "1", []byte("secret"))
 		h.engine.Use(sessions.Sessions("backend", store))
 	default:
-		h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
+		h.engine.Use(sessions.Sessions("backend", cookie.NewStore(util.GetPrivateKey())))
 	}
 	h.providers = []string{}
 	google := util.GetConfig().Google
@@ -48,10 +50,10 @@ func (h *Handler) initProxyAuth() {
 	// use redis as the session store if it is configured
 	switch backend := util.GetConfig().Backend; backend {
 	case "redis":
-		store, _ := sessions.NewRedisStore(10, "tcp", util.GetConfig().Redis.Host, util.GetConfig().Redis.Password, []byte("secret"))
+		store, _ := redis.NewStoreWithDB(10, "tcp", util.GetConfig().Redis.Host, util.GetConfig().Redis.Password, "1", []byte("secret"))
 		h.engine.Use(sessions.Sessions("backend", store))
 	default:
-		h.engine.Use(sessions.Sessions("backend", sessions.NewCookieStore(util.GetPrivateKey())))
+		h.engine.Use(sessions.Sessions("backend", cookie.NewStore(util.GetPrivateKey())))
 	}	
 	h.providers = []string{}
 	h.providers = append(h.providers, "proxy")
