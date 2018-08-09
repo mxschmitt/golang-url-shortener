@@ -18,7 +18,11 @@ type githubAdapter struct {
 }
 
 // NewGithubAdapter creates an oAuth adapter out of the credentials and the baseURL
-func NewGithubAdapter(clientID, clientSecret string) Adapter {
+func NewGithubAdapter(clientID, clientSecret, endpointURL string) Adapter {
+	if endpointURL != "" {
+		github.Endpoint.AuthURL = endpointURL + "/login/oauth/authorize"
+		github.Endpoint.TokenURL = endpointURL + "/login/oauth/access_token"
+	}
 	return &githubAdapter{&oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
@@ -40,7 +44,12 @@ func (a *githubAdapter) GetUserData(state, code string) (*user, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not exchange code")
 	}
-	oAuthUserInfoReq, err := a.config.Client(context.Background(), oAuthToken).Get("https://api.github.com/user")
+
+	gitHubUserURL := "https://api.github.com/user"
+	if util.GetConfig().GitHub.EndpointURL != "" {
+		gitHubUserURL = util.GetConfig().GitHub.EndpointURL + "/api/v3/user"
+	}
+	oAuthUserInfoReq, err := a.config.Client(context.Background(), oAuthToken).Get(gitHubUserURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get user data")
 	}

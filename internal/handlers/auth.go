@@ -25,7 +25,7 @@ func (h *Handler) initOAuth() {
 	}
 	github := util.GetConfig().GitHub
 	if github.Enabled() {
-		auth.WithAdapterWrapper(auth.NewGithubAdapter(github.ClientID, github.ClientSecret), h.engine.Group("/api/v1/auth/github"))
+		auth.WithAdapterWrapper(auth.NewGithubAdapter(github.ClientID, github.ClientSecret, github.EndpointURL), h.engine.Group("/api/v1/auth/github"))
 		h.providers = append(h.providers, "github")
 	}
 	microsoft := util.GetConfig().Microsoft
