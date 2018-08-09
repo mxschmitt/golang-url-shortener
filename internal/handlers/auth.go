@@ -17,10 +17,10 @@ import (
 )
 
 func (h *Handler) initOAuth() {
-	// use redis as the session store if it is configured
+	// use redis as the session store if it is configured. using redis db '1' to isolate session keys from everything else
 	switch backend := util.GetConfig().Backend; backend {
 	case "redis":
-		store, _ := redis.NewStoreWithDB(10, "tcp", util.GetConfig().Redis.Host, util.GetConfig().Redis.Password, "1", []byte("secret"))
+		store, _ := redis.NewStoreWithDB(10, "tcp", util.GetConfig().Redis.Host, util.GetConfig().Redis.Password, "1", util.GetPrivateKey())
 		h.engine.Use(sessions.Sessions("backend", store))
 	default:
 		h.engine.Use(sessions.Sessions("backend", cookie.NewStore(util.GetPrivateKey())))
@@ -47,14 +47,14 @@ func (h *Handler) initOAuth() {
 
 // initProxyAuth intializes data structures for proxy authentication mode
 func (h *Handler) initProxyAuth() {
-	// use redis as the session store if it is configured
+	// use redis as the session store if it is configured. using redis db '1' to isolate session keys from everything else
 	switch backend := util.GetConfig().Backend; backend {
 	case "redis":
-		store, _ := redis.NewStoreWithDB(10, "tcp", util.GetConfig().Redis.Host, util.GetConfig().Redis.Password, "1", []byte("secret"))
+		store, _ := redis.NewStoreWithDB(10, "tcp", util.GetConfig().Redis.Host, util.GetConfig().Redis.Password, "1", util.GetPrivateKey())
 		h.engine.Use(sessions.Sessions("backend", store))
 	default:
 		h.engine.Use(sessions.Sessions("backend", cookie.NewStore(util.GetPrivateKey())))
-	}	
+	}
 	h.providers = []string{}
 	h.providers = append(h.providers, "proxy")
 	h.engine.POST("/api/v1/auth/check", h.handleAuthCheck)

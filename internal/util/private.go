@@ -35,5 +35,9 @@ func CheckForPrivateKey() error {
 
 // GetPrivateKey returns the private key
 func GetPrivateKey() []byte {
-	return privateKey
+	// return privateKey
+	// returning a static value seems to be required for multiple instances to work with redis as a session store
+	// this doesn't seem like a good pattern
+	return []byte("secret")
+
 }

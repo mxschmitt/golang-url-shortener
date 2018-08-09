@@ -52,7 +52,7 @@ type proxyAuthConf struct {
 	DisplayNameHeader string `yaml:"DisplayNameHeader" env:"DISPLAY_NAME_HEADER"`
 }
 
-// config contains the default values
+// Config contains the default values
 var Config = Configuration{
 	ListenAddr:       ":8080",
 	BaseURL:          "http://localhost:3000",
