@@ -1,0 +1,19 @@
+applications:
+- name: gourl
+  buildpack: binary_buildpack
+  memory: 64m
+  command: './run.sh'
+  instances: 1 # should not be more than 1 due to session handling
+  health-check-type: http
+  health-check-http-endpoint: /ok
+  # if you use any marketplace or cups services, define the binding here
+  # services:
+  # - gourl-redis-service
+  # - gourl-oauth
+  # define any configuration settings via environment variables here (see https://github.com/mxschmitt/golang-url-shortener/wiki/Configuration)
+  env:
+   GUS_BASE_URL: "https://gourl.mydomain.com"
+   GUS_BACKEND: redis
+   GUS_SHORTED_ID_LENGTH: 5
+   GUS_ENABLE_DEBUG_MODE: false
+  
