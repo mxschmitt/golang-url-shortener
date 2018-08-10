@@ -22,9 +22,11 @@ Proxy:  # only relevant when using the proxy authbackend
   UserHeader: "X-Goog-Authenticated-User-ID" # pull the unique user ID from this header
   DisplayNameHeader: "X-Goog-Authenticated-User-Email" # pull the display naem from this header
 Redis:
-  Host: localhost:6379 # host:port combination; required
-  Password: replace me # redis connection password; optional; default is none
-  Db: 0                # redis index (https://redis.io/commands/select); optional; default is 0
-  MaxRetries: 3        # maximum number of retries for a failed redis command
-  ReadTimeout: 3s      # timeout for read operations; default is 3s. This is a golang time.ParseDuration string
-  WriteTimeout: 3s     # timeout for write operations; default is 3s. This is a golang time.ParseDuration string
+  Host: localhost:6379  # host:port combination; required
+  Password: replace me  # redis connection password; optional; default is none
+  Db: 0                 # redis index (https://redis.io/commands/select); optional; default is 0
+  MaxRetries: 3         # maximum number of retries for a failed redis command
+  ReadTimeout: 3s       # timeout for read operations; default is 3s. This is a golang time.ParseDuration string
+  WriteTimeout: 3s      # timeout for write operations; default is 3s. This is a golang time.ParseDuration string
+  SessionDB: 1          # redis session store index (https://redis.io/commands/select); optional; default is 1
+  SharedKey: replace me # redis session store shared key; optional; default is "secret"

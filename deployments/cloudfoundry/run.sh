@@ -13,6 +13,7 @@ fi
 if [ "$REDIS" != "" ]; then
     export GUS_REDIS_HOST="$(echo $VCAP_SERVICES | jq -r '.["'$REDIS_SERVICE_NAME'"][0].credentials.host'):$(echo $VCAP_SERVICES | jq -r '.["'$REDIS_SERVICE_NAME'"][0].credentials.port')"
     export GUS_REDIS_PASSWORD="$(echo $VCAP_SERVICES | jq -r '.["'$REDIS_SERVICE_NAME'"][0].credentials.password')"
+    export GUS_REDIS_SHARED_KEY=$GUS_REDIS_PASSWORD
 fi
 
 echo "#### Starting golang-url-shortener..."
