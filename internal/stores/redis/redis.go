@@ -274,24 +274,33 @@ func (r *Store) GetEntryByID(id string) (*shared.Entry, error) {
 func (r *Store) GetUserEntries(userIdentifier string) (map[string]shared.Entry, error) {
 	logrus.Debugf("Getting all entries for user %s", userIdentifier)
 	entries := map[string]shared.Entry{}
-	key := userToEntriesPrefix + userIdentifier
-	result := r.c.SMembers(key)
-	if result.Err() != nil {
-		msg := fmt.Sprintf("Could not fetch set of entries for user '%s': %v", userIdentifier, result.Err())
-		logrus.Errorf(msg)
-		return nil, errors.Wrap(result.Err(), msg)
-	}
-	for _, v := range result.Val() {
-		logrus.Debugf("got entry: %s", v)
-		entry, err := r.GetEntryByID(string(v))
-		if err != nil {
-			msg := fmt.Sprintf("Could not get entry '%s': %s", v, err)
-			logrus.Warn(msg)
-		} else {
-			entries[string(v)] = *entry
+
+	users := r.c.Keys(userToEntriesPrefix + "*")
+	for _, v := range users.Val() {
+		logrus.Debugf("got userEntry: %s", v)
+		// user, err := r.GetEntryByID(string(v))
+
+		key := v
+		result := r.c.SMembers(key)
+		// result := r.c.Keys(entryPathPrefix + user)
+
+		if result.Err() != nil {
+			msg := fmt.Sprintf("Could not fetch set of entries for user '%s': %v", userIdentifier, result.Err())
+			logrus.Errorf(msg)
+			return nil, errors.Wrap(result.Err(), msg)
 		}
+		for _, v := range result.Val() {
+			logrus.Debugf("got entry: %s", v)
+			entry, err := r.GetEntryByID(string(v))
+			if err != nil {
+				msg := fmt.Sprintf("Could not get entry '%s': %s", v, err)
+				logrus.Warn(msg)
+			} else {
+				entries[string(v)] = *entry
+			}
+		}
+		logrus.Debugf("all out of entries")
 	}
-	logrus.Debugf("all out of entries")
 	return entries, nil
 }
 
