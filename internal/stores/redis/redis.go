@@ -274,7 +274,32 @@ func (r *Store) GetEntryByID(id string) (*shared.Entry, error) {
 func (r *Store) GetUserEntries(userIdentifier string) (map[string]shared.Entry, error) {
 	logrus.Debugf("Getting all entries for user %s", userIdentifier)
 	entries := map[string]shared.Entry{}
+	key := userToEntriesPrefix + userIdentifier
+	result := r.c.SMembers(key)
+	if result.Err() != nil {
+		msg := fmt.Sprintf("Could not fetch set of entries for user '%s': %v", userIdentifier, result.Err())
+		logrus.Errorf(msg)
+		return nil, errors.Wrap(result.Err(), msg)
+	}
+	for _, v := range result.Val() {
+		logrus.Debugf("got entry: %s", v)
+		entry, err := r.GetEntryByID(string(v))
+		if err != nil {
+			msg := fmt.Sprintf("Could not get entry '%s': %s", v, err)
+			logrus.Warn(msg)
+		} else {
+			entries[string(v)] = *entry
+		}
+	}
+	logrus.Debugf("all out of entries")
+	return entries, nil
+}
 
+// GetAllUserEntries returns all entries for all users, in the
+// form of a map of path->shared.Entry
+func (r *Store) GetAllUserEntries() (map[string]shared.Entry, error) {
+	logrus.Debugf("Getting all entries for all users")
+	entries := map[string]shared.Entry{}
 	users := r.c.Keys(userToEntriesPrefix + "*")
 	for _, v := range users.Val() {
 		logrus.Debugf("got userEntry: %s", v)
@@ -285,7 +310,7 @@ func (r *Store) GetUserEntries(userIdentifier string) (map[string]shared.Entry, 
 		// result := r.c.Keys(entryPathPrefix + user)
 
 		if result.Err() != nil {
-			msg := fmt.Sprintf("Could not fetch set of entries for user '%s': %v", userIdentifier, result.Err())
+			msg := fmt.Sprintf("Could not fetch set of entries for user '%s': %v", key, result.Err())
 			logrus.Errorf(msg)
 			return nil, errors.Wrap(result.Err(), msg)
 		}

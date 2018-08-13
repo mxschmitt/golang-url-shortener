@@ -61,4 +61,16 @@ export default class UtilHelper {
             .then(res => res.ok ? res.json() : Promise.reject(res.json()))
             .catch(e => this._reportError(e, "getDisplayURL"))
     }
+    static getAllURLs(cbSucc) {
+        fetch('/api/v1/protected/admin', {
+            credentials: "include",
+            headers: {
+                'Authorization': window.localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => res.ok ? res.json() : Promise.reject(res.json()))
+            .then(res => cbSucc ? cbSucc(res) : null)
+            .catch(e => this._reportError(e, "recent"))
+    }
 }

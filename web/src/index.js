@@ -11,6 +11,7 @@ import Home from './Home/Home'
 import ShareX from './ShareX/ShareX'
 import Lookup from './Lookup/Lookup'
 import Recent from './Recent/Recent'
+import Admin from './Admin/Admin'
 import Visitors from './Visitors/Visitors'
 
 import util from './util/util'
@@ -186,6 +187,7 @@ export default class BaseComponent extends Component {
                     <Route path="/ShareX" component={ShareX} />
                     <Route path="/Lookup" component={Lookup} />
                     <Route path="/recent" component={Recent} />
+                    <Route path="/admin" component={Admin} />
                     <Route path="/visitors/:id" component={Visitors} />
                 </Container>
             </HashRouter>

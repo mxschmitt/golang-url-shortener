@@ -14,6 +14,7 @@ type Storage interface {
 	IncreaseVisitCounter(string) error
 	CreateEntry(Entry, string, string) error
 	GetUserEntries(string) (map[string]Entry, error)
+	GetAllUserEntries() (map[string]Entry, error)
 	RegisterVisitor(string, string, Visitor) error
 	Close() error
 }

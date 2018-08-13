@@ -176,6 +176,26 @@ func (b *BoltStore) GetUserEntries(userIdentifier string) (map[string]shared.Ent
 	return entries, errors.Wrap(err, "could not update db")
 }
 
+// GetAllUserEntries returns all user entries
+func (b *BoltStore) GetAllUserEntries() (map[string]shared.Entry, error) {
+	entries := map[string]shared.Entry{}
+	err := b.db.Update(func(tx *bolt.Tx) error {
+		bucket, err := tx.CreateBucketIfNotExists(shortedIDsToUserBucket)
+		if err != nil {
+			return errors.Wrap(err, "could not create bucket")
+		}
+		return bucket.ForEach(func(k, v []byte) error {
+			entry, err := b.GetEntryByID(string(k))
+			if err != nil {
+				return errors.Wrap(err, "could not get entry")
+			}
+			entries[string(k)] = *entry
+			return nil
+		})
+	})
+	return entries, errors.Wrap(err, "could not update db")
+}
+
 // RegisterVisitor saves the visitor in the database
 func (b *BoltStore) RegisterVisitor(id, visitID string, visitor shared.Visitor) error {
 	err := b.db.Update(func(tx *bolt.Tx) error {
