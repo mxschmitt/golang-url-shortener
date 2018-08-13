@@ -8,11 +8,15 @@ import util from '../util/util'
 
 export default class RecentComponent extends Component {
     state = {
-        recent: []
+        recent: [],
+        displayURL: window.location.origin
     }
 
     componentDidMount() {
         this.loadRecentURLs()
+        fetch("/displayurl")
+        .then(response => response.json())
+        .then(data => this.setState({displayURL: data}));
     }
 
     loadRecentURLs = () => {
@@ -47,7 +51,7 @@ export default class RecentComponent extends Component {
         }, {
             Header: 'Short URL',
             accessor: "ID",
-            Cell: props => `${window.location.origin}/${props.value}`
+            Cell: props => `${this.state.displayURL}/${props.value}`
         }, {
             Header: 'Visitor count',
             accessor: "Public.VisitCount"

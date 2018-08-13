@@ -1,5 +1,6 @@
 ListenAddr: ':8080' # Consists of 'IP:Port', e.g. ':8080' listens on any IP and on Port 8080
-BaseURL: 'http://localhost:3000' # Origin URL, required for the authentication via OAuth
+BaseURL: 'http://localhost:3000' # Origin URL, required for the authentication via OAuth callback
+DisplayURL: 'http://localhost:3000' # Display URL, how the apication will present itself in the UI
 Backend: boltdb # Can be 'boltdb' or 'redis'
 DataDir: ./data # Contains: the database and the private key
 EnableDebugMode: true # Activates more detailed logging

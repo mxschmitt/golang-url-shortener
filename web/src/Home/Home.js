@@ -18,7 +18,8 @@ export default class HomeComponent extends Component {
         usedSettings: this.urlParams.get('customUrl') ? ['custom'] : [],
         customID: this.urlParams.get('customUrl') ? this.urlParams.get('customUrl') : '',
         showCustomIDError: false,
-        expiration: null
+        expiration: null,
+        displayURL: window.location.origin
       }
   }
   handleURLChange = (e, { value }) => this.url = value
@@ -31,12 +32,13 @@ export default class HomeComponent extends Component {
   onSettingsChange = (e, { value }) => {
     this.setState({ usedSettings: value })
   }
-    
-  
 
-  
+
   componentDidMount() {
     this.urlInput.focus()
+    fetch("/displayurl")
+    .then(response => response.json())
+    .then(data => this.setState({displayURL: data}));
   }
   handleURLSubmit = () => {
     if (!this.state.showCustomIDError) {
@@ -47,7 +49,7 @@ export default class HomeComponent extends Component {
         Password: this.state.usedSettings.includes("protected") && this.password ? this.password : undefined
       }, r => this.setState({
         links: [...this.state.links, {
-          shortenedURL: r.URL,
+          shortenedURL: this.state.displayURL + "/" + this.state.customID,
           originalURL: this.url,
           expiration: this.state.usedSettings.includes("expire") && this.state.expiration ? this.state.expiration.toISOString() : undefined,
           deletionURL: r.DeletionURL
@@ -89,7 +91,7 @@ export default class HomeComponent extends Component {
             </MediaQuery>
             <Form.Group style={{ marginBottom: "1rem" }}>
               {usedSettings.includes("custom") && <Form.Field error={showCustomIDError} width={16}>
-                <Input label={window.location.origin + "/"} onChange={this.handleCustomIDChange} placeholder='my-shortened-url' value={this.state.customID}/>
+                <Input label={this.state.displayURL + "/"} onChange={this.handleCustomIDChange} placeholder='my-shortened-url' value={this.state.customID}/>
               </Form.Field>}
             </Form.Group>
             <Form.Group widths="equal">
