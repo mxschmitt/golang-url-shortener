@@ -303,12 +303,8 @@ func (r *Store) GetAllUserEntries() (map[string]shared.Entry, error) {
 	users := r.c.Keys(userToEntriesPrefix + "*")
 	for _, v := range users.Val() {
 		logrus.Debugf("got userEntry: %s", v)
-		// user, err := r.GetEntryByID(string(v))
-
 		key := v
 		result := r.c.SMembers(key)
-		// result := r.c.Keys(entryPathPrefix + user)
-
 		if result.Err() != nil {
 			msg := fmt.Sprintf("Could not fetch set of entries for user '%s': %v", key, result.Err())
 			logrus.Errorf(msg)
