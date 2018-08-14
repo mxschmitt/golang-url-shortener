@@ -8,19 +8,25 @@ import util from '../util/util'
 
 export default class AllEntriesComponent extends Component {
     state = {
-        allEntries: []
+        allEntries: [],
+        displayURL: window.location.origin
     }
 
     componentDidMount() {
         this.getAllURLs()
+        fetch("/displayurl")
+        .then(response => response.json())
+        .then(data => this.setState({displayURL: data}));
     }
 
     getAllURLs = () => {
         util.getAllURLs(allEntries => {
             let parsed = [];
             for (let key in allEntries) {
-                allEntries[key].ID = key;
-                parsed.push(allEntries[key]);
+                if ({}.hasOwnProperty.call(allEntries, key)) {
+                    allEntries[key].ID = key;
+                    parsed.push(allEntries[key]);
+                }
             }
             this.setState({ allEntries: parsed })
         })
@@ -47,7 +53,7 @@ export default class AllEntriesComponent extends Component {
         }, {
             Header: 'Short URL',
             accessor: "ID",
-            Cell: props => `${window.location.origin}/${props.value}`
+            Cell: props => `${this.state.displayURL}/${props.value}`
         }, {
             Header: 'Visitor count',
             accessor: "Public.VisitCount"
