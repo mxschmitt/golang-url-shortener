@@ -163,6 +163,7 @@ func (h *Handler) setHandlers() error {
 	h.engine.GET("/api/v1/info", h.handleInfo)
 	h.engine.GET("/d/:id/:hash", h.handleDelete)
 	h.engine.GET("/ok", h.handleHealthcheck)
+	h.engine.GET("/displayurl", h.handleDisplayURL)
 
 	// Handling the shorted URLs, if no one exists, it checks
 	// in the filesystem and sets headers for caching

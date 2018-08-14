@@ -162,6 +162,12 @@ func (h *Handler) handleInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, out)
 }
 
+// handleDisplayURL returns the URL to use for display purposes
+func (h *Handler) handleDisplayURL(c *gin.Context) {
+	out := util.GetConfig().DisplayURL
+	c.JSON(http.StatusOK, out)
+}
+
 func (h *Handler) handleRecent(c *gin.Context) {
 	user := c.MustGet("user").(*auth.JWTClaims)
 	entries, err := h.store.GetUserEntries(user.OAuthProvider, user.OAuthID)

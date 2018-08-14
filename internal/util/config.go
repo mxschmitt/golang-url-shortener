@@ -16,6 +16,7 @@ import (
 type Configuration struct {
 	ListenAddr       string        `yaml:"ListenAddr" env:"LISTEN_ADDR"`
 	BaseURL          string        `yaml:"BaseURL" env:"BASE_URL"`
+	DisplayURL       string        `yaml:"DisplayURL" env:"DISPLAY_URL"`
 	DataDir          string        `yaml:"DataDir" env:"DATA_DIR"`
 	Backend          string        `yaml:"Backend" env:"BACKEND"`
 	AuthBackend      string        `yaml:"AuthBackend" env:"AUTH_BACKEND"`
@@ -58,6 +59,7 @@ type proxyAuthConf struct {
 var Config = Configuration{
 	ListenAddr:       ":8080",
 	BaseURL:          "http://localhost:3000",
+	DisplayURL:       "",
 	DataDir:          "data",
 	Backend:          "boltdb",
 	EnableDebugMode:  false,
@@ -110,6 +112,11 @@ func (o oAuthConf) Enabled() bool {
 
 // GetConfig returns the configuration from the memory
 func GetConfig() Configuration {
+	// if DisplayURL is not set in the config, default to BaseURL
+	if Config.DisplayURL == "" {
+		Config.DisplayURL = Config.BaseURL
+	}
+
 	return Config
 }
 
