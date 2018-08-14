@@ -35,5 +35,10 @@ func CheckForPrivateKey() error {
 
 // GetPrivateKey returns the private key
 func GetPrivateKey() []byte {
-	return privateKey
+	switch backend := GetConfig().Backend; backend {
+	case "redis":
+		return []byte(GetConfig().Redis.SharedKey)
+	default:
+		return privateKey
+	}
 }

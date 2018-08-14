@@ -38,6 +38,8 @@ type redisConf struct {
 	MaxRetries   int    `yaml:"MaxRetries" env:"MAX_RETRIES"`
 	ReadTimeout  string `yaml:"ReadTimeout" env:"READ_TIMEOUT"`
 	WriteTimeout string `yaml:"WriteTimeout" env:"WRITE_TIMEOUT"`
+	SessionDB    string `yaml:"SessionDB" env:"SESSION_DB"`
+	SharedKey    string `yaml:"SharedKey" env:"SHARED_KEY"`
 }
 
 type oAuthConf struct {
@@ -52,7 +54,7 @@ type proxyAuthConf struct {
 	DisplayNameHeader string `yaml:"DisplayNameHeader" env:"DISPLAY_NAME_HEADER"`
 }
 
-// config contains the default values
+// Config contains the default values
 var Config = Configuration{
 	ListenAddr:       ":8080",
 	BaseURL:          "http://localhost:3000",
@@ -69,6 +71,8 @@ var Config = Configuration{
 		MaxRetries:   3,
 		ReadTimeout:  "3s",
 		WriteTimeout: "3s",
+		SessionDB:    "1",
+		SharedKey:    "secret",
 	},
 }
 
