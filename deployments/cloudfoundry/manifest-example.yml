@@ -3,7 +3,7 @@ applications:
   buildpack: binary_buildpack
   memory: 64m
   command: './run.sh'
-  instances: 1 # should not be more than 1 due to session handling
+  instances: 1 # only use > 1 if you are using redis as the backend
   health-check-type: http
   health-check-http-endpoint: /ok
   # if you use any marketplace or cups services, define the binding here

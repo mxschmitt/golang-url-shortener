@@ -24,3 +24,9 @@ debug.test
 /releases
 /docker_releases
 data
+
+/deployments/cloudfoundry
+!/deployments/cloudfoundry/README.md
+!/deployments/cloudfoundry/config.yaml
+!/deployments/cloudfoundry/manifest-example.yml
+!/deployments/cloudfoundry/run.sh
