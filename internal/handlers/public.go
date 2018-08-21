@@ -117,6 +117,7 @@ func (h *Handler) handleCreate(c *gin.Context) {
 	}
 	originURL := h.getURLOrigin(c)
 	c.JSON(http.StatusOK, requestHelper{
+		ID:          id,
 		URL:         fmt.Sprintf("%s/%s", originURL, id),
 		DeletionURL: fmt.Sprintf("%s/d/%s/%s", originURL, id, url.QueryEscape(base64.RawURLEncoding.EncodeToString(delID))),
 	})

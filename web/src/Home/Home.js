@@ -33,7 +33,6 @@ export default class HomeComponent extends Component {
     this.setState({ usedSettings: value })
   }
 
-
   componentDidMount() {
     this.urlInput.focus()
     util.getDisplayURL()
@@ -43,12 +42,12 @@ export default class HomeComponent extends Component {
     if (!this.state.showCustomIDError) {
       util.createEntry({
         URL: this.url,
-        ID: this.state.customID,
+        ID: this.state.usedSettings.includes("custom") ? this.state.customID : undefined,
         Expiration: this.state.usedSettings.includes("expire") && this.state.expiration ? this.state.expiration.toISOString() : undefined,
         Password: this.state.usedSettings.includes("protected") && this.password ? this.password : undefined
       }, r => this.setState({
         links: [...this.state.links, {
-          shortenedURL: this.state.displayURL + "/" + this.state.customID,
+          shortenedURL: this.state.displayURL + "/" + r.ID,
           originalURL: this.url,
           expiration: this.state.usedSettings.includes("expire") && this.state.expiration ? this.state.expiration.toISOString() : undefined,
           deletionURL: r.DeletionURL
