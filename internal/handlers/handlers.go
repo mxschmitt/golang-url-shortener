@@ -161,6 +161,7 @@ func (h *Handler) setHandlers() error {
 	protected.POST("/visitors", h.handleGetVisitors)
 
 	h.engine.GET("/api/v1/info", h.handleInfo)
+	h.engine.GET("/api/v1/displayURL", h.handleDisplayURL)
 	h.engine.GET("/d/:id/:hash", h.handleDelete)
 	h.engine.GET("/ok", h.handleHealthcheck)
 
