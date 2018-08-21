@@ -11,22 +11,22 @@ import './Home.css'
 
 export default class HomeComponent extends Component {
   constructor(props) {
-      super(props);
-      this.urlParams = new URLSearchParams(window.location.search);
-      this.state = {
-        links: [],
-        usedSettings: this.urlParams.get('customUrl') ? ['custom'] : [],
-        customID: this.urlParams.get('customUrl') ? this.urlParams.get('customUrl') : '',
-        showCustomIDError: false,
-        expiration: null,
-        displayURL: window.location.origin
-      }
+    super(props);
+    this.urlParams = new URLSearchParams(window.location.search);
+    this.state = {
+      links: [],
+      usedSettings: this.urlParams.get('customUrl') ? ['custom'] : [],
+      customID: this.urlParams.get('customUrl') ? this.urlParams.get('customUrl') : '',
+      showCustomIDError: false,
+      expiration: null,
+      displayURL: window.location.origin
+    }
   }
   handleURLChange = (e, { value }) => this.url = value
   handlePasswordChange = (e, { value }) => this.password = value
   handleCustomExpirationChange = expire => this.setState({ expiration: expire })
   handleCustomIDChange = (e, { value }) => {
-    this.setState({customID: value})
+    this.setState({ customID: value })
     util.lookupEntry(value, () => this.setState({ showCustomIDError: true }), () => this.setState({ showCustomIDError: false }))
   }
   onSettingsChange = (e, { value }) => {
@@ -36,9 +36,8 @@ export default class HomeComponent extends Component {
 
   componentDidMount() {
     this.urlInput.focus()
-    fetch("/displayurl")
-    .then(response => response.json())
-    .then(data => this.setState({displayURL: data}));
+    util.getDisplayURL()
+      .then(displayURL => this.setState({ displayURL }));
   }
   handleURLSubmit = () => {
     if (!this.state.showCustomIDError) {
@@ -71,7 +70,7 @@ export default class HomeComponent extends Component {
           {this.urlParams.get("customUrl") ? (
             <Header size='medium'>I don't have a link named <em>"{this.urlParams.get("customUrl")}"</em> in my database, would
             you like to create one?</Header>
-          ) : 
+          ) :
             <Header size='huge'>Simplify your links</Header>
           }
           <Form onSubmit={this.handleURLSubmit} autoComplete="off">
@@ -91,7 +90,7 @@ export default class HomeComponent extends Component {
             </MediaQuery>
             <Form.Group style={{ marginBottom: "1rem" }}>
               {usedSettings.includes("custom") && <Form.Field error={showCustomIDError} width={16}>
-                <Input label={this.state.displayURL + "/"} onChange={this.handleCustomIDChange} placeholder='my-shortened-url' value={this.state.customID}/>
+                <Input label={this.state.displayURL + "/"} onChange={this.handleCustomIDChange} placeholder='my-shortened-url' value={this.state.customID} />
               </Form.Field>}
             </Form.Group>
             <Form.Group widths="equal">

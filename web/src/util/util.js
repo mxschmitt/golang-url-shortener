@@ -2,7 +2,7 @@ import toastr from 'toastr'
 
 export default class UtilHelper {
     static deleteEntry(url, cb) {
-        fetch(url, {credentials: "include"})
+        fetch(url, { credentials: "include" })
             .then(res => res.ok ? res.json() : Promise.reject(res.json()))
             .then(cb())
             .catch(e => this._reportError(e, "delete entry"))
@@ -42,7 +42,7 @@ export default class UtilHelper {
         this._constructFetch("/api/v1/protected/visitors", { ID }, cbSucc)
     }
     static createEntry(entry, cbSucc) {
-        this._constructFetch("/api/v1/protected/create",entry, cbSucc)
+        this._constructFetch("/api/v1/protected/create", entry, cbSucc)
     }
     static getRecentURLs(cbSucc) {
         fetch('/api/v1/protected/recent', {
@@ -55,5 +55,10 @@ export default class UtilHelper {
             .then(res => res.ok ? res.json() : Promise.reject(res.json()))
             .then(res => cbSucc ? cbSucc(res) : null)
             .catch(e => this._reportError(e, "recent"))
+    }
+    static getDisplayURL() {
+        return fetch("/api/v1/displayURL")
+            .then(res => res.ok ? res.json() : Promise.reject(res.json()))
+            .catch(e => this._reportError(e, "getDisplayURL"))
     }
 }

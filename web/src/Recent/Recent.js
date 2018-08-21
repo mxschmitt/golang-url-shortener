@@ -14,9 +14,8 @@ export default class RecentComponent extends Component {
 
     componentDidMount() {
         this.loadRecentURLs()
-        fetch("/displayurl")
-        .then(response => response.json())
-        .then(data => this.setState({displayURL: data}));
+        util.getDisplayURL()
+            .then(displayURL => this.setState({ displayURL }));
     }
 
     loadRecentURLs = () => {

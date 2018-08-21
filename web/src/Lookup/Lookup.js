@@ -10,9 +10,8 @@ export default class LookupComponent extends Component {
         displayURL: window.location.origin
     }
     componentDidMount() {
-        fetch("/displayurl")
-        .then(response => response.json())
-        .then(data => this.setState({displayURL: data}));
+        util.getDisplayURL()
+            .then(displayURL => this.setState({ displayURL }));
     }
     handleURLChange = (e, { value }) => this.url = value
     handleURLSubmit = () => {
