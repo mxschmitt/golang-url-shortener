@@ -74,10 +74,9 @@ func (s *Store) GetEntryByID(id string) (*shared.Entry, error) {
 func (s *Store) GetEntryAndIncrease(id string) (*shared.Entry, error) {
 	entry, err := s.GetEntryByID(id)
 	if err != nil {
-		errors.Wrap(err, "could not fetch entry "+id)
-		return nil, err
+		return nil, errors.Wrap(err, "could not fetch entry "+id)
 	}
-	if entry.Public.Expiration != nil && time.Now().After(*entry.Public.Expiration) {
+	if entry.Public.Expiration != nil && !entry.Public.Expiration.IsZero() && time.Now().After(*entry.Public.Expiration) {
 		return nil, ErrEntryIsExpired
 	}
 	if err := s.storage.IncreaseVisitCounter(id); err != nil {
