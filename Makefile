@@ -19,6 +19,8 @@ getCMDDependencies:
 
 getGoDependencies:
 	go get -v ./...
+	# Workaround for: https://github.com/sirupsen/logrus/issues/824
+	GOOS=windows go get -v ./...
 
 buildProject:
 	rm -rf releases 
