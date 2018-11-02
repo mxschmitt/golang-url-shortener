@@ -31,7 +31,7 @@
 
 ![Generate ShareX Configuration](https://user-images.githubusercontent.com/17984549/32700395-cf9f057a-c7c4-11e7-9d2b-7523c8a95a20.png)
 
-## Documenation
+## Documentation
 
 - [Installation](https://github.com/mxschmitt/golang-url-shortener/wiki/Installation)
 - [Configuration](https://github.com/mxschmitt/golang-url-shortener/wiki/Configuration)
