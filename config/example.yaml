@@ -1,5 +1,5 @@
 ListenAddr: ':8080' # Consists of 'IP:Port', e.g. ':8080' listens on any IP and on Port 8080
-BaseURL: 'http://localhost:3000' # Origin URL, required for the authentication via OAuth callback
+BaseURL: 'http://localhost:8080' # Origin URL, required for the authentication via OAuth callback
 DisplayURL: '' # (OPTIONAL) Display URL, how the apication will present itself in the UI - if not set, defaults to BaseURL
 Backend: boltdb # Can be 'boltdb' or 'redis'
 DataDir: ./data # Contains: the database and the private key
@@ -10,14 +10,18 @@ ShortedIDLength: 10 # Length of the random generated ID which is used for new sh
 AuthBackend: oauth # Can be 'oauth' or 'proxy'
 Google:  # only relevant when using the oauth authbackend
   ClientID: replace me
-  ClientSecret: replace me
+  ClientSecret: 'replace me'
 GitHub:  # only relevant when using the oauth authbackend
   ClientID: replace me
-  ClientSecret: replace me
+  ClientSecret: 'replace me'
   EndpointURL: # (OPTIONAL) URL for custom endpoint (currently only for github); e.g. 'https://github.mydomain.com'
 Microsoft:  # only relevant when using the oauth authbackend
   ClientID: replace me
   ClientSecret: 'replace me'
+Okta:  # only relevant when using the oauth authbackend
+  ClientID: replace me
+  ClientSecret: 'replace me'
+  EndpointURL: # (MANDATORY) Issuer URL from the OAuth API => Authorization Servers in Okta
 Proxy:  # only relevant when using the proxy authbackend
   RequireUserHeader: false # If true, will reject connections that do not have the UserHeader set
   UserHeader: "X-Goog-Authenticated-User-ID" # pull the unique user ID from this header

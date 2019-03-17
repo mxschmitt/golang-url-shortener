@@ -131,6 +131,12 @@ export default class BaseComponent extends Component {
                                 <Button style={{ backgroundColor: "#333", color: "white" }} onClick={this.onOAuthClick.bind(this, "github")}>
                                     <Icon name='github' /> Login with GitHub
                                 </Button>
+                            {info.providers.includes("okta") && <div className="ui divider"></div>}
+                            </div>}
+                            {info.providers.includes("okta") && <div>
+                                <Button style={{ color: "#007dc1" }} onClick={this.onOAuthClick.bind(this, "okta")}>
+                                    <Image src='/images/okta_logo.png' style={{ width: "16px", height: "16px", marginBottom: ".15em" }}  avatar /> Login with Okta
+                                </Button>
                             </div>}
                             {info.providers.includes("microsoft") && <div>
                                 <div className="ui divider"></div>

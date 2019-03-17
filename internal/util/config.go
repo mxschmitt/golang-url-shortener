@@ -28,6 +28,7 @@ type Configuration struct {
 	Google           oAuthConf     `yaml:"Google" env:"GOOGLE"`
 	GitHub           oAuthConf     `yaml:"GitHub" env:"GITHUB"`
 	Microsoft        oAuthConf     `yaml:"Microsoft" env:"MICROSOFT"`
+	Okta             oAuthConf     `yaml:"Okta" env:"OKTA"`
 	Proxy            proxyAuthConf `yaml:"Proxy" env:"PROXY"`
 	Redis            redisConf     `yaml:"Redis" env:"REDIS"`
 }
@@ -46,7 +47,7 @@ type redisConf struct {
 type oAuthConf struct {
 	ClientID     string `yaml:"ClientID" env:"CLIENT_ID"`
 	ClientSecret string `yaml:"ClientSecret" env:"CLIENT_SECRET"`
-	EndpointURL  string `yaml:"EndPointURL" env:"ENDPOINT_URL"` // optional for only GitHub
+	EndpointURL  string `yaml:"EndpointURL" env:"ENDPOINT_URL"` // Optional for GitHub, mandatory for Okta
 }
 
 type proxyAuthConf struct {
@@ -58,7 +59,7 @@ type proxyAuthConf struct {
 // Config contains the default values
 var Config = Configuration{
 	ListenAddr:       ":8080",
-	BaseURL:          "http://localhost:3000",
+	BaseURL:          "http://localhost:8080",
 	DisplayURL:       "",
 	DataDir:          "data",
 	Backend:          "boltdb",

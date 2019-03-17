@@ -35,6 +35,9 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
+  "resolutions": {
+    "react-router": "4.3.1"
+  },  
   "browserslist": [
     ">0.2%",
     "not dead",
