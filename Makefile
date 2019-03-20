@@ -9,12 +9,11 @@ buildNodeFrontend:
 	cd web && rm build/static/**/*.map
 
 embedFrontend:
-	cd internal/handlers/tmpls && esc -o tmpls.go -pkg tmpls -include ^*\.html .
-	cd internal/handlers && esc -o static.go -pkg handlers -prefix ../../web/build ../../web/build
+	packr2
 
 getCMDDependencies:
 	go get -v github.com/mattn/goveralls
-	go get -v github.com/mjibson/esc
+	go get -v github.com/gobuffalo/packr/v2/packr2
 	go get -v github.com/mitchellh/gox
 
 getGoDependencies:

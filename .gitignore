@@ -15,6 +15,7 @@
 .glide/
 debug
 debug.test
+main
 
 *.db
 *.lock
@@ -24,7 +25,7 @@ debug.test
 /releases
 /docker_releases
 data
-
+*-packr.go
 /deployments/cloudfoundry
 !/deployments/cloudfoundry/README.md
 !/deployments/cloudfoundry/config.yaml

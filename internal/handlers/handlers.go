@@ -2,6 +2,7 @@
 package handlers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"time"
@@ -9,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mxschmitt/golang-url-shortener/internal/handlers/tmpls"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/mxschmitt/golang-url-shortener/internal/stores"
 	"github.com/mxschmitt/golang-url-shortener/internal/util"
 	"github.com/pkg/errors"
@@ -29,6 +30,8 @@ var DoNotPrivateKeyChecking = false
 type loggerEntryWithFields interface {
 	WithFields(fields logrus.Fields) *logrus.Entry
 }
+
+var templateBox = packr.New("Templates", "./tmpls")
 
 // Ginrus returns a gin.HandlerFunc (middleware) that logs requests using logrus.
 //
@@ -111,7 +114,7 @@ func New(store stores.Store) (*Handler, error) {
 func (h *Handler) addTemplatesFromFS(files []string) error {
 	var t *template.Template
 	for _, file := range files {
-		fileContent, err := tmpls.FSString(false, "/"+file)
+		fileContent, err := templateBox.FindString("/" + file)
 		if err != nil {
 			return errors.Wrap(err, "could not read template file")
 		}
@@ -165,6 +168,22 @@ func (h *Handler) setHandlers() error {
 	h.engine.GET("/d/:id/:hash", h.handleDelete)
 	h.engine.GET("/ok", h.handleHealthcheck)
 
+	assetBox := packr.New("Assets", "../../web/build")
+
+	h.engine.GET("/", func(c *gin.Context) {
+		f, err := assetBox.Open("index.html")
+		if err != nil {
+			http.Error(c.Writer, fmt.Sprintf("could not open index.html: %v", err), http.StatusInternalServerError)
+			return
+		}
+		fi, err := f.Stat()
+		if err != nil {
+			http.Error(c.Writer, fmt.Sprintf("could not stat index.html: %v", err), http.StatusInternalServerError)
+			return
+		}
+		http.ServeContent(c.Writer, c.Request, fi.Name(), fi.ModTime(), f)
+	})
+
 	// Handling the shorted URLs, if no one exists, it checks
 	// in the filesystem and sets headers for caching
 	h.engine.NoRoute(
@@ -176,7 +195,7 @@ func (h *Handler) setHandlers() error {
 		},
 		// Pass down to the embedded FS, but let 404s escape via
 		// the interceptHandler.
-		gin.WrapH(interceptHandler(http.FileServer(FS(false)), customErrorHandler)),
+		gin.WrapH(interceptHandler(http.FileServer(assetBox), customErrorHandler)),
 		// not in FS; redirect to root with customURL target filled out
 		func(c *gin.Context) {
 			// if we get to this point we should not let the client cache
