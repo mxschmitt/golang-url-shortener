@@ -2,14 +2,7 @@
   "name": "golang-url-shortener",
   "version": "0.1.0",
   "private": true,
-  "proxy": {
-    "/api": {
-      "target": "http://127.0.0.1:8080"
-    },
-    "/d": {
-      "target": "http://127.0.0.1:8080"
-    }
-  },
+  "proxy": "http://127.0.0.1:8080",
   "dependencies": {
     "moment": "2.24.0",
     "prismjs": "1.15.0",
@@ -35,13 +28,13 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "resolutions": {
-    "react-router": "4.3.1"
-  },  
   "browserslist": [
     ">0.2%",
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "http-proxy-middleware": "^0.19.1"
+  }
 }
