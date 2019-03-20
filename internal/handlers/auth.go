@@ -41,6 +41,11 @@ func (h *Handler) initOAuth() {
 		auth.WithAdapterWrapper(auth.NewMicrosoftAdapter(microsoft.ClientID, microsoft.ClientSecret), h.engine.Group("/api/v1/auth/microsoft"))
 		h.providers = append(h.providers, "microsoft")
 	}
+	okta := util.GetConfig().Okta
+	if okta.Enabled() {
+		auth.WithAdapterWrapper(auth.NewOktaAdapter(okta.ClientID, okta.ClientSecret, okta.EndpointURL), h.engine.Group("/api/v1/auth/okta"))
+		h.providers = append(h.providers, "okta")
+	}
 
 	h.engine.POST("/api/v1/auth/check", h.handleAuthCheck)
 }
