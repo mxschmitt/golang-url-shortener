@@ -1,6 +1,6 @@
 language: go
 go:
-  - "1.10"
+  - stable
 cache: yarn
 services:
   - docker
@@ -12,7 +12,7 @@ install:
 script:
   - make
   - goveralls -service=travis-ci -ignore="internal/handlers/static.go,internal/handlers/tmpls/tmpls.go"
-  - make buildDockerImage 
+  - make buildDockerImage
   - 'if [[ "$TRAVIS_PULL_REQUEST" = "false" && "$TRAVIS_BRANCH" = "master" ]]; then docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" && docker push mxschmitt/golang_url_shortener && docker push mxschmitt/golang_url_shortener:arm; fi'
 deploy:
   provider: bintray
