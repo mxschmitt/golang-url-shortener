@@ -22,6 +22,10 @@ Okta:  # only relevant when using the oauth authbackend
   ClientID: replace me
   ClientSecret: 'replace me'
   EndpointURL: # (MANDATORY) Issuer URL from the OAuth API => Authorization Servers in Okta
+GenericOIDC:  # only relevant when using the oauth authbackend
+  ClientID: replace me
+  ClientSecret: 'replace me'
+  EndpointURL: # (MANDATORY) Base URL, which will be auto-discovered with '.well-known/openid-configuration'
 Proxy:  # only relevant when using the proxy authbackend
   RequireUserHeader: false # If true, will reject connections that do not have the UserHeader set
   UserHeader: "X-Goog-Authenticated-User-ID" # pull the unique user ID from this header

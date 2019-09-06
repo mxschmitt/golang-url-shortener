@@ -29,6 +29,7 @@ type Configuration struct {
 	GitHub           oAuthConf     `yaml:"GitHub" env:"GITHUB"`
 	Microsoft        oAuthConf     `yaml:"Microsoft" env:"MICROSOFT"`
 	Okta             oAuthConf     `yaml:"Okta" env:"OKTA"`
+	GenericOIDC      oAuthConf     `yaml:"GenericOIDC" env:"GENERIC_OIDC"`
 	Proxy            proxyAuthConf `yaml:"Proxy" env:"PROXY"`
 	Redis            redisConf     `yaml:"Redis" env:"REDIS"`
 }
@@ -47,7 +48,7 @@ type redisConf struct {
 type oAuthConf struct {
 	ClientID     string `yaml:"ClientID" env:"CLIENT_ID"`
 	ClientSecret string `yaml:"ClientSecret" env:"CLIENT_SECRET"`
-	EndpointURL  string `yaml:"EndpointURL" env:"ENDPOINT_URL"` // Optional for GitHub, mandatory for Okta
+	EndpointURL  string `yaml:"EndpointURL" env:"ENDPOINT_URL"` // Optional for GitHub, mandatory for Okta and GenericOIDC
 }
 
 type proxyAuthConf struct {

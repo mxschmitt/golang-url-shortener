@@ -137,6 +137,12 @@ export default class BaseComponent extends Component {
                                 <Button style={{ color: "#007dc1" }} onClick={this.onOAuthClick.bind(this, "okta")}>
                                     <Image src='/images/okta_logo.png' style={{ width: "16px", height: "16px", marginBottom: ".15em" }}  avatar /> Login with Okta
                                 </Button>
+                            {info.providers.includes("generic_oidc") && <div className="ui divider"></div>}
+                            </div>}
+                            {info.providers.includes("generic_oidc") && <div>
+                                <Button style={{ color: "#007dc1" }} onClick={this.onOAuthClick.bind(this, "generic_oidc")}>
+                                    <Image src='/images/generic_oidc_logo.png' style={{ width: "16px", height: "16px", marginBottom: ".15em" }}  avatar /> Login with OpenID Connect
+                                </Button>
                             </div>}
                             {info.providers.includes("microsoft") && <div>
                                 <div className="ui divider"></div>
