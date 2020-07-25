@@ -4,7 +4,7 @@ runUnitTests:
 	go test -v ./...
 
 buildNodeFrontend:
-	cd web && yarn install
+	cd web && yarn install --ignore-engines
 	cd web && yarn build
 	cd web && rm build/static/**/*.map
 

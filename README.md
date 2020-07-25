@@ -15,7 +15,7 @@
 - Expirable Links
 - URL deletion
 - Multiple authorization strategies:
-    - Local authorization via OAuth 2.0 (Google, GitHub, Microsoft, and Okta)
+    - Local authorization via OAuth 2.0 (Google, GitHub, Microsoft, and Okta, or generic OIDC like Keycloak)
     - Proxy authorization for running behind e.g. [Google IAP](https://cloud.google.com/iap/)
 - Easy [ShareX](https://github.com/ShareX/ShareX) integration
 - Dockerizable
