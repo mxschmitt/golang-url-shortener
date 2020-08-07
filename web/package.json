@@ -5,7 +5,7 @@
   "proxy": "http://127.0.0.1:8080",
   "dependencies": {
     "moment": "2.24.0",
-    "prismjs": "1.15.0",
+    "prismjs": "1.21.0",
     "react": "16.8.4",
     "react-clipboard.js": "2.0.7",
     "react-datepicker": "2.2.0",
