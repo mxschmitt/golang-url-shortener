@@ -187,6 +187,23 @@ func (h *Handler) handleRecent(c *gin.Context) {
 	c.JSON(http.StatusOK, entries)
 }
 
+func (h *Handler) handleAdmin(c *gin.Context) {
+	entries, err := h.store.GetAllUserEntries()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	for k, entry := range entries {
+		mac := hmac.New(sha512.New, util.GetPrivateKey())
+		if _, err := mac.Write([]byte(k)); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		entry.DeletionURL = fmt.Sprintf("%s/d/%s/%s", h.getURLOrigin(c), k, url.QueryEscape(base64.RawURLEncoding.EncodeToString(mac.Sum(nil))))
+		entries[k] = entry
+	}
+	c.JSON(http.StatusOK, entries)
+}
+
 func (h *Handler) handleDelete(c *gin.Context) {
 	givenHmac, err := base64.RawURLEncoding.DecodeString(c.Param("hash"))
 	if err != nil {

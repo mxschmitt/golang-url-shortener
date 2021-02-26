@@ -157,6 +157,15 @@ func (s *Store) GetUserEntries(oAuthProvider, oAuthID string) (map[string]shared
 	return entries, nil
 }
 
+// GetAllUserEntries returns all the shorted URL entries of an user
+func (s *Store) GetAllUserEntries() (map[string]shared.Entry, error) {
+	entries, err := s.storage.GetAllUserEntries()
+	if err != nil {
+		return nil, errors.Wrap(err, "could not get all entries")
+	}
+	return entries, nil
+}
+
 func getUserIdentifier(oAuthProvider, oAuthID string) string {
 	return oAuthProvider + oAuthID
 }

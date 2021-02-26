@@ -161,6 +161,7 @@ func (h *Handler) setHandlers() error {
 	protected.POST("/create", h.handleCreate)
 	protected.POST("/lookup", h.handleLookup)
 	protected.GET("/recent", h.handleRecent)
+	protected.GET("/admin", h.handleAdmin)
 	protected.POST("/visitors", h.handleGetVisitors)
 
 	h.engine.GET("/api/v1/info", h.handleInfo)
